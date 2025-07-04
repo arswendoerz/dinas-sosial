@@ -1,4 +1,59 @@
 import bcryptjs from "bcryptjs";
+import User from "../model/user.model.js";
+import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
+import { Op } from "sequelize";
+import { v4 as uuidv4 } from "uuid";
+
+export const register = async (req, res) => {
+  try {
+    console.log("Body Data:", req.body);
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Oooppss! Lengkapi dulu data anda!",
+      });
+    }
+
+    const userAlreadyExists = await User.findOne({ where: { email } });
+    if (userAlreadyExists != null) {
+      return res.status(400).json({
+        success: false,
+        message: "Pengguna sudah ada, silahkan masukkan kembali!",
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(password, 16);
+
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    const user = await User.create({
+      id: uuidv4(),
+      email,
+      password: hashedPassword,
+      verificationToken,
+      verificationTokenExpiresAt: new Date(Date.now() + 1 + 60 * 60 * 1000),
+    });
+
+    await user.save();
+
+    generateTokenSetCookie(res, user.id);
+
+    return res.status(201).json({
+      success: true,
+      message: "Yeayyy! Pengguna berhasil dibuat",
+    });
+  } catch (error) {
+    console.error("Error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server internal sedang bermasalah",
+    });
+  }
+};
 
 export const login = async (req, res) => {
   try {
@@ -20,10 +75,7 @@ export const login = async (req, res) => {
 
     // Search for user in the database
     const user = await User.findOne({
-      where: {
-        email: email,
-        password: password,
-      },
+      where: { [Op.or]: [{ email: email }] },
     });
 
     // Check if user exists
@@ -58,4 +110,12 @@ export const login = async (req, res) => {
       message: "Internal Server Error",
     });
   }
+};
+
+export const logout = async (req, res) => {
+  res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
+  return res.status(200).json({
+    success: true,
+    message: "Anda berhasil keluar!",
+  });
 };

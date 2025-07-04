@@ -1,14 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRoutes from "./route/auth.js"; // ⬅️ pastikan path benar
+import authRoutes from "./route/auth.js";
 
-dotenv.config(); // ⬅️ tambahkan tanda kurung!
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 9000;
 
 app.use(express.json());
-app.use("/api/auth", authRoutes); // ✅ tambahkan middleware router
+app.use("/api/auth", authRoutes);
 app.use("/uploads", express.static("uploads"));
 
 app.post("/logout", (req, res) => {
