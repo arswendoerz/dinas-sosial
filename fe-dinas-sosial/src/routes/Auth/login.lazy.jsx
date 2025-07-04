@@ -28,13 +28,13 @@ function RouteComponent() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f6f6f6] px-4">
+    <div className="flex items-center justify-center min-h-screen bg-white px-4">
       <div
         className="w-[80%] max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2"
         style={{ minHeight: "550px" }}
       >
         <div
-          className="bg-[#1f77b4] flex items-center justify-center p-8"
+          className="bg-[#f6f6f6] flex items-center justify-center p-8"
           data-aos="fade-right"
         >
           <img

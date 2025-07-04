@@ -13,13 +13,11 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import logo from "@/assets/lampung.png";
 
-// Dummy user
 const user = {
   name: "Arswendo Erza",
   email: "arswendo@gmail.com",
 };
 
-// Navigasi utama
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
   { label: "About", icon: FaInfoCircle, to: "/about" },
@@ -37,13 +35,11 @@ export default function Sidebar() {
         ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
       <div
-        className={`mb-4 flex ${
-          collapsed ? "justify-center" : "justify-end"
-        } transition-all duration-300`}
+        className={`mb-4 flex ${collapsed ? "justify-center" : "justify-end"} transition-all duration-300`}
       >
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-white hover:text-gray-200 transition"
+          className="text-white hover:text-gray-200 transition cursor-pointer"
         >
           {collapsed ? (
             <RiSidebarUnfoldFill size={30} />
@@ -74,7 +70,7 @@ export default function Sidebar() {
             >
               <Button
                 variant="ghost"
-                className={`w-full justify-start items-center gap-3 px-3 py-2 rounded-md transition-all duration-200
+                className={`w-full justify-start items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer
                   ${isActive ? "bg-white text-[#1f77b4]" : "hover:bg-white hover:text-[#1f77b4]"}`}
               >
                 <Icon size={iconSize} />
@@ -93,32 +89,35 @@ export default function Sidebar() {
 
       {/* User */}
       <div className="mt-auto pt-4 border-t border-white/20">
-        <Button
-          variant="ghost"
-          className="w-full flex items-center justify-start gap-3 px-3 py-2 hover:bg-white hover:text-[#1f77b4] transition-all duration-200"
-        >
-          <FaUserAlt size={iconSize} />
-          {!collapsed && (
-            <div className="flex flex-col text-left">
-              <span className="font-semibold leading-tight">
-                {user.name}
-              </span>
-              <span className="text-sm text-[#f6f6f6] leading-none hover:bg-white hover:text-[#1f77b4]">
-                {user.email}
-              </span>
-            </div>
-          )}
-        </Button>
+        <Link to="/account" onClick={() => setSidebarOpen(false)}>
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-start gap-3 px-3 py-2 hover:bg-white hover:text-[#1f77b4] transition-all duration-200 cursor-pointer"
+          >
+            <FaUserAlt size={iconSize} />
+            {!collapsed && (
+              <div className="flex flex-col text-left">
+                <span className="font-semibold leading-tight">
+                  {user.name}
+                </span>
+                <span className="text-sm text-[#f6f6f6] leading-none">
+                  {user.email}
+                </span>
+              </div>
+            )}
+          </Button>
+        </Link>
       </div>
     </aside>
   );
 
   return (
     <>
+      {/* Mobile Toggle */}
       <div className="md:hidden fixed top-4 right-4 z-50">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="text-[#1f77b4] hover:text-orange-600 transition-colors"
+          className="text-[#1f77b4] hover:text-orange-600 transition-colors cursor-pointer"
         >
           <MdViewSidebar size={35} />
         </button>

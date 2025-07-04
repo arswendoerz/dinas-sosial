@@ -2,7 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/lampung.png";
-import backgroundImage from "@/assets/dinsos.png";
+import backgroundImage from "@/assets/dinsos.jpeg";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { TypeAnimation } from "react-type-animation";
@@ -22,7 +22,7 @@ function Index() {
   return (
     <div className="relative w-screen min-h-screen overflow-hidden font-sans bg-black text-white">
       <div
-        className="absolute inset-0 bg-cover bg-center z-0 scale-105 brightness-[0.35] blur-[2px]"
+        className="absolute inset-0 bg-cover bg-center z-0 scale-105 brightness-[0.7] blur-[2px]"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundAttachment: "fixed",
