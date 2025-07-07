@@ -1,5 +1,6 @@
 import Document from "../model/document.model.js";
 import { Op } from "sequelize";
+<<<<<<< HEAD
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
@@ -30,6 +31,10 @@ function extractFileId(url) {
   return null;
 }
 
+=======
+import path from "path";
+
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
 export const createDocument = async (req, res) => {
   try {
     const { nomor, nama, perihal, kategori } = req.body;
@@ -41,6 +46,7 @@ export const createDocument = async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     const fileMeta = {
       name: req.file.originalname,
       parents: [process.env.DRIVE_FOLDER_ID_DOK],
@@ -61,13 +67,19 @@ export const createDocument = async (req, res) => {
     const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
     // Simpan metadata file ke dalam database (Firestore)
+=======
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
     const document = await Document.create({
       nomor,
       nama,
       perihal,
       kategori,
       jenis: req.file.mimetype, // otomatis dari file
+<<<<<<< HEAD
       url: fileUrl,
+=======
+      url: `/uploads/${req.file.filename}`,
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
       userId: req.userId,
       tanggalUpload: new Date().toISOString().split("T")[0],
       tanggalUpdate: new Date().toISOString().split("T")[0],
@@ -136,13 +148,18 @@ export const getDocumentById = async (req, res) => {
 
 export const updateDocument = async (req, res) => {
   try {
+<<<<<<< HEAD
     const existingDocument = await Document.findOne({
+=======
+    const update = await Document.update(req.body, {
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
       where: {
         id: req.params.id,
         userId: req.user.userId,
       },
     });
 
+<<<<<<< HEAD
     if (!existingDocument) {
       return res.status(404).json({
         success: false,
@@ -208,6 +225,17 @@ export const updateDocument = async (req, res) => {
       success: true,
       message: "Dokumen berhasil diperbarui",
       data: updatedDocument,
+=======
+    if (update[0] === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Dokumen tidak ditemukan atau tidak ada perubahan",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Dokumen berhasil diperbarui",
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
     });
   } catch (error) {
     console.error("Gagal memperbarui dokumen:", error);
@@ -220,19 +248,28 @@ export const updateDocument = async (req, res) => {
 
 export const deleteDocument = async (req, res) => {
   try {
+<<<<<<< HEAD
     const existingDocument = await Document.findOne({
+=======
+    const deleted = await Document.destroy({
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
       where: {
         id: req.params.id,
         userId: req.user.userId,
       },
     });
 
+<<<<<<< HEAD
     if (!existingDocument) {
+=======
+    if (deleted === 0) {
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
       return res.status(404).json({
         success: false,
         message: "Dokumen tidak ditemukan atau sudah terhapus",
       });
     }
+<<<<<<< HEAD
 
     const fileId = extractFileId(existingDocument.url);
 
@@ -256,6 +293,8 @@ export const deleteDocument = async (req, res) => {
       },
     });
 
+=======
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
     res.status(200).json({
       success: true,
       message: "Dokumen telah berhasil dihapus",
@@ -284,7 +323,10 @@ export const searchDocuments = async (req, res) => {
       where: {
         userId: req.user.userId,
         [Op.or]: [
+<<<<<<< HEAD
           { nomor: { [Op.like]: `%${query}%` } },
+=======
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
           { nama: { [Op.like]: `%${query}%` } },
           { perihal: { [Op.like]: `%${query}%` } },
           { kategori: { [Op.like]: `%${query}%` } },

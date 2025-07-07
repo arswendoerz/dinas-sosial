@@ -29,6 +29,7 @@ const Document = sequelize.define(
     },
     jenis: {
       type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     tanggalUpload: {

@@ -1,7 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 node_modules
 uploads
 dinas-sosial-archive.json
 =======
 node_modules
 >>>>>>> 5e05e11 (Update API & Add Endpoint Get Profile)
+=======
+node_modules
+uploads
+>>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
