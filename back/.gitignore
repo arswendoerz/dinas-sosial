@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 node_modules
 uploads
 dinas-sosial-archive.json
+=======
+node_modules
+>>>>>>> 5e05e11 (Update API & Add Endpoint Get Profile)
