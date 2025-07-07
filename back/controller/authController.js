@@ -7,9 +7,9 @@ import { v4 as uuidv4 } from "uuid";
 export const register = async (req, res) => {
   try {
     console.log("Body Data:", req.body);
-    const { email, password } = req.body;
+    const { email, password, nama, role } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !nama || !role) {
       return res.status(400).json({
         success: false,
         message: "Oooppss! Lengkapi dulu data anda!",
@@ -33,6 +33,8 @@ export const register = async (req, res) => {
     const user = await User.create({
       id: uuidv4(),
       email,
+      nama,
+      role,
       password: hashedPassword,
       verificationToken,
       verificationTokenExpiresAt: new Date(Date.now() + 1 + 60 * 60 * 1000),
@@ -97,6 +99,10 @@ export const login = async (req, res) => {
 
     // Generate token dan set cookie login
     generateTokenSetCookie(res, user.id);
+
+    // Update last login time
+    user.lastLogin = new Date();
+    await user.save();
 
     // Return success response
     return res.status(200).json({
