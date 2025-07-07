@@ -7,6 +7,7 @@ import {
   RiSidebarUnfoldFill,
   RiSidebarFoldFill,
 } from "react-icons/ri";
+import { GrPlan } from "react-icons/gr";
 import { MdViewSidebar } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -20,6 +21,7 @@ const user = {
 
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
+  { label: "Perencanaan", icon: GrPlan, to: "/dashboard/bid-perencanaan" },
   { label: "About", icon: FaInfoCircle, to: "/about" },
 ];
 
