@@ -16,6 +16,15 @@ const HomeLazyRouteImport = createFileRoute('/home')()
 const AccountLazyRouteImport = createFileRoute('/account')()
 const AboutLazyRouteImport = createFileRoute('/about')()
 const IndexLazyRouteImport = createFileRoute('/')()
+const DashboardBidResosLazyRouteImport = createFileRoute(
+  '/dashboard/bid-resos',
+)()
+const DashboardBidPerencanaanLazyRouteImport = createFileRoute(
+  '/dashboard/bid-perencanaan',
+)()
+const DashboardBidLinjamsosLazyRouteImport = createFileRoute(
+  '/dashboard/bid-linjamsos',
+)()
 const AuthLoginLazyRouteImport = createFileRoute('/Auth/login')()
 
 const HomeLazyRoute = HomeLazyRouteImport.update({
@@ -38,6 +47,29 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const DashboardBidResosLazyRoute = DashboardBidResosLazyRouteImport.update({
+  id: '/dashboard/bid-resos',
+  path: '/dashboard/bid-resos',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/bid-resos.lazy').then((d) => d.Route),
+)
+const DashboardBidPerencanaanLazyRoute =
+  DashboardBidPerencanaanLazyRouteImport.update({
+    id: '/dashboard/bid-perencanaan',
+    path: '/dashboard/bid-perencanaan',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/dashboard/bid-perencanaan.lazy').then((d) => d.Route),
+  )
+const DashboardBidLinjamsosLazyRoute =
+  DashboardBidLinjamsosLazyRouteImport.update({
+    id: '/dashboard/bid-linjamsos',
+    path: '/dashboard/bid-linjamsos',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/dashboard/bid-linjamsos.lazy').then((d) => d.Route),
+  )
 const AuthLoginLazyRoute = AuthLoginLazyRouteImport.update({
   id: '/Auth/login',
   path: '/Auth/login',
@@ -50,6 +82,9 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
+  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
+  '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
+  '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -57,6 +92,9 @@ export interface FileRoutesByTo {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
+  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
+  '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
+  '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,13 +103,41 @@ export interface FileRoutesById {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
+  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
+  '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
+  '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/account' | '/home' | '/Auth/login'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/home'
+    | '/Auth/login'
+    | '/dashboard/bid-linjamsos'
+    | '/dashboard/bid-perencanaan'
+    | '/dashboard/bid-resos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/account' | '/home' | '/Auth/login'
-  id: '__root__' | '/' | '/about' | '/account' | '/home' | '/Auth/login'
+  to:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/home'
+    | '/Auth/login'
+    | '/dashboard/bid-linjamsos'
+    | '/dashboard/bid-perencanaan'
+    | '/dashboard/bid-resos'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/account'
+    | '/home'
+    | '/Auth/login'
+    | '/dashboard/bid-linjamsos'
+    | '/dashboard/bid-perencanaan'
+    | '/dashboard/bid-resos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,6 +146,9 @@ export interface RootRouteChildren {
   AccountLazyRoute: typeof AccountLazyRoute
   HomeLazyRoute: typeof HomeLazyRoute
   AuthLoginLazyRoute: typeof AuthLoginLazyRoute
+  DashboardBidLinjamsosLazyRoute: typeof DashboardBidLinjamsosLazyRoute
+  DashboardBidPerencanaanLazyRoute: typeof DashboardBidPerencanaanLazyRoute
+  DashboardBidResosLazyRoute: typeof DashboardBidResosLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -112,6 +181,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/bid-resos': {
+      id: '/dashboard/bid-resos'
+      path: '/dashboard/bid-resos'
+      fullPath: '/dashboard/bid-resos'
+      preLoaderRoute: typeof DashboardBidResosLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/bid-perencanaan': {
+      id: '/dashboard/bid-perencanaan'
+      path: '/dashboard/bid-perencanaan'
+      fullPath: '/dashboard/bid-perencanaan'
+      preLoaderRoute: typeof DashboardBidPerencanaanLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/bid-linjamsos': {
+      id: '/dashboard/bid-linjamsos'
+      path: '/dashboard/bid-linjamsos'
+      fullPath: '/dashboard/bid-linjamsos'
+      preLoaderRoute: typeof DashboardBidLinjamsosLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/Auth/login': {
       id: '/Auth/login'
       path: '/Auth/login'
@@ -128,6 +218,9 @@ const rootRouteChildren: RootRouteChildren = {
   AccountLazyRoute: AccountLazyRoute,
   HomeLazyRoute: HomeLazyRoute,
   AuthLoginLazyRoute: AuthLoginLazyRoute,
+  DashboardBidLinjamsosLazyRoute: DashboardBidLinjamsosLazyRoute,
+  DashboardBidPerencanaanLazyRoute: DashboardBidPerencanaanLazyRoute,
+  DashboardBidResosLazyRoute: DashboardBidResosLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
