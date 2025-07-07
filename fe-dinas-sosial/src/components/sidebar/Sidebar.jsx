@@ -2,12 +2,9 @@ import {
   FaHome,
   FaInfoCircle,
   FaUserAlt,
-  FaHandsHelping
+  FaHandsHelping,
 } from "react-icons/fa";
-import {
-  RiSidebarUnfoldFill,
-  RiSidebarFoldFill,
-} from "react-icons/ri";
+import { RiSidebarUnfoldFill, RiSidebarFoldFill } from "react-icons/ri";
 import { FaBarsStaggered } from "react-icons/fa6";
 import { GrPlan } from "react-icons/gr";
 import { Button } from "@/components/ui/button";
@@ -23,7 +20,11 @@ const user = {
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
   { label: "Perencanaan", icon: GrPlan, to: "/dashboard/bid-perencanaan" },
-  {label: "Rehabilitasi Sosial", icon: FaHandsHelping, to: "/dashboard/bid-resos" },
+  {
+    label: "Rehabilitasi Sosial",
+    icon: FaHandsHelping,
+    to: "/dashboard/bid-resos",
+  },
   { label: "About", icon: FaInfoCircle, to: "/about" },
 ];
 
@@ -63,8 +64,9 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-2">
-        {navItems.map(({ label, icon: Icon, to }) => {
+        {navItems.map(({ label, icon, to }) => {
           const isActive = location.pathname === to;
+          const IconComponent = icon;
           return (
             <Link
               key={label}
@@ -77,7 +79,7 @@ export default function Sidebar() {
                 className={`w-full justify-start items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer
                   ${isActive ? "bg-white text-[#1f77b4]" : "hover:bg-white hover:text-[#1f77b4]"}`}
               >
-                <Icon size={iconSize} />
+                <IconComponent size={iconSize} />
                 <span
                   className={`overflow-hidden transition-all duration-300 ${
                     collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
@@ -101,9 +103,7 @@ export default function Sidebar() {
             <FaUserAlt size={iconSize} />
             {!collapsed && (
               <div className="flex flex-col text-left">
-                <span className="font-semibold leading-tight">
-                  {user.name}
-                </span>
+                <span className="font-semibold leading-tight">{user.name}</span>
                 <span className="text-sm text-[#f6f6f6] leading-none">
                   {user.email}
                 </span>

@@ -1,4 +1,4 @@
-import { createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute } from "@tanstack/react-router";
 import {
   Table,
   TableHeader,
@@ -17,7 +17,7 @@ import {
   MdHome,
   MdAssignment,
   MdDateRange,
-  MdPhotoCamera
+  MdPhotoCamera,
 } from "react-icons/md";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -60,13 +60,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-import { useEffect } from 'react';
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
-export const Route = createLazyFileRoute('/dashboard/bid-resos')({
+export const Route = createLazyFileRoute("/dashboard/bid-resos")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   useEffect(() => {
@@ -74,9 +74,17 @@ function RouteComponent() {
   }, []);
 
   const kategoriBantuan = [
-    "Kursi Roda", "Tongkat", "Kruk", "Alat Bantu Dengar", 
-    "Prostetik", "Walker", "Kaki Palsu", "Tangan Palsu",
-    "Kacamata Khusus", "Alat Bantu Nafas", "Lainnya"
+    "Kursi Roda",
+    "Tongkat",
+    "Kruk",
+    "Alat Bantu Dengar",
+    "Prostetik",
+    "Walker",
+    "Kaki Palsu",
+    "Tangan Palsu",
+    "Kacamata Khusus",
+    "Alat Bantu Nafas",
+    "Lainnya",
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,7 +105,7 @@ function RouteComponent() {
       dtks: "DTKS",
       kategori: "Kursi Roda",
       tanggal: "2025-01-15",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
     {
       nomor: "RES-002",
@@ -109,7 +117,7 @@ function RouteComponent() {
       dtks: "Non-DTKS",
       kategori: "Tongkat",
       tanggal: "2025-02-20",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
     {
       nomor: "RES-003",
@@ -121,7 +129,7 @@ function RouteComponent() {
       dtks: "DTKS",
       kategori: "Alat Bantu Dengar",
       tanggal: "2025-03-10",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
     {
       nomor: "RES-004",
@@ -133,7 +141,7 @@ function RouteComponent() {
       dtks: "DTKS",
       kategori: "Walker",
       tanggal: "2025-04-05",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
     {
       nomor: "RES-005",
@@ -145,7 +153,7 @@ function RouteComponent() {
       dtks: "Non-DTKS",
       kategori: "Prostetik",
       tanggal: "2025-05-12",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
     {
       nomor: "RES-006",
@@ -157,7 +165,7 @@ function RouteComponent() {
       dtks: "DTKS",
       kategori: "Kruk",
       tanggal: "2025-06-18",
-      foto: "/placeholder-user.jpg"
+      foto: "/placeholder-user.jpg",
     },
   ];
 
@@ -188,23 +196,24 @@ function RouteComponent() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newData = {
-      nomor: `RES-${String(penerimaBantuan.length + 1).padStart(3, '0')}`,
-      nama: formData.get('nama'),
-      nik: formData.get('nik'),
-      usia: parseInt(formData.get('usia')),
-      telepon: formData.get('telepon'),
-      alamat: formData.get('alamat'),
-      dtks: formData.get('dtks'),
-      kategori: formData.get('kategori'),
-      tanggal: formData.get('tanggal'),
-      foto: URL.createObjectURL(formData.get('foto')) || "/placeholder-user.jpg"
+      nomor: `RES-${String(penerimaBantuan.length + 1).padStart(3, "0")}`,
+      nama: formData.get("nama"),
+      nik: formData.get("nik"),
+      usia: parseInt(formData.get("usia")),
+      telepon: formData.get("telepon"),
+      alamat: formData.get("alamat"),
+      dtks: formData.get("dtks"),
+      kategori: formData.get("kategori"),
+      tanggal: formData.get("tanggal"),
+      foto:
+        URL.createObjectURL(formData.get("foto")) || "/placeholder-user.jpg",
     };
-    
+
     // Proses simpan data di sini
-    console.log('Data baru:', newData);
-    alert('Data penerima bantuan berhasil ditambahkan!');
-    
-    // Reset 
+    console.log("Data baru:", newData);
+    alert("Data penerima bantuan berhasil ditambahkan!");
+
+    // Reset
     e.target.reset();
   };
 
@@ -218,21 +227,23 @@ function RouteComponent() {
     const formData = new FormData(e.target);
     const updatedData = {
       ...editingData,
-      nama: formData.get('nama'),
-      nik: formData.get('nik'),
-      usia: parseInt(formData.get('usia')),
-      telepon: formData.get('telepon'),
-      alamat: formData.get('alamat'),
-      dtks: formData.get('dtks'),
-      kategori: formData.get('kategori'),
-      tanggal: formData.get('tanggal'),
-      foto: formData.get('foto') ? URL.createObjectURL(formData.get('foto')) : editingData.foto
+      nama: formData.get("nama"),
+      nik: formData.get("nik"),
+      usia: parseInt(formData.get("usia")),
+      telepon: formData.get("telepon"),
+      alamat: formData.get("alamat"),
+      dtks: formData.get("dtks"),
+      kategori: formData.get("kategori"),
+      tanggal: formData.get("tanggal"),
+      foto: formData.get("foto")
+        ? URL.createObjectURL(formData.get("foto"))
+        : editingData.foto,
     };
-    
+
     // Proses update data di sini
-    console.log('Data diupdate:', updatedData);
-    alert('Data penerima bantuan berhasil diperbarui!');
-    
+    console.log("Data diupdate:", updatedData);
+    alert("Data penerima bantuan berhasil diperbarui!");
+
     // Reset dan tutup dialog
     setEditingData(null);
     setIsEditDialogOpen(false);
@@ -244,9 +255,9 @@ function RouteComponent() {
 
   const confirmDelete = () => {
     // Proses hapus data di sini
-    console.log('Data dihapus:', deletingData);
+    console.log("Data dihapus:", deletingData);
     alert(`Data penerima bantuan "${deletingData.nama}" berhasil dihapus!`);
-    
+
     // Reset state
     setDeletingData(null);
   };
@@ -255,7 +266,10 @@ function RouteComponent() {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="#" onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} />
+          <PaginationPrevious
+            href="#"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          />
         </PaginationItem>
         {[...Array(totalPages)].map((_, i) => (
           <PaginationItem key={i}>
@@ -269,7 +283,10 @@ function RouteComponent() {
           </PaginationItem>
         ))}
         <PaginationItem>
-          <PaginationNext href="#" onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} />
+          <PaginationNext
+            href="#"
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+          />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
@@ -311,7 +328,7 @@ function RouteComponent() {
             onChange={(e) => setSelectedTanggal(e.target.value)}
             className="flex-1 min-w-[100px]"
           />
-          
+
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -327,25 +344,26 @@ function RouteComponent() {
                 <DialogHeader>
                   <DialogTitle>Tambah Penerima Bantuan Baru</DialogTitle>
                   <DialogDescription>
-                    Lengkapi form di bawah ini untuk menambahkan data penerima bantuan baru.
+                    Lengkapi form di bawah ini untuk menambahkan data penerima
+                    bantuan baru.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-3">
                       <Label htmlFor="nama">Nama Lengkap</Label>
-                      <Input 
-                        id="nama" 
-                        name="nama" 
+                      <Input
+                        id="nama"
+                        name="nama"
                         placeholder="Masukkan nama lengkap"
                         required
                       />
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="nik">NIK</Label>
-                      <Input 
-                        id="nik" 
-                        name="nik" 
+                      <Input
+                        id="nik"
+                        name="nik"
                         placeholder="Masukkan NIK"
                         required
                         pattern="[0-9]{16}"
@@ -354,9 +372,9 @@ function RouteComponent() {
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="usia">Usia</Label>
-                      <Input 
-                        id="usia" 
-                        name="usia" 
+                      <Input
+                        id="usia"
+                        name="usia"
                         type="number"
                         placeholder="Masukkan usia"
                         required
@@ -365,18 +383,18 @@ function RouteComponent() {
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="telepon">No. Telepon</Label>
-                      <Input 
-                        id="telepon" 
-                        name="telepon" 
+                      <Input
+                        id="telepon"
+                        name="telepon"
                         placeholder="Masukkan nomor telepon"
                         required
                       />
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="alamat">Alamat Lengkap</Label>
-                      <Input 
-                        id="alamat" 
-                        name="alamat" 
+                      <Input
+                        id="alamat"
+                        name="alamat"
                         placeholder="Masukkan alamat lengkap"
                         required
                       />
@@ -410,20 +428,15 @@ function RouteComponent() {
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="tanggal">Tanggal Pemberian</Label>
-                      <Input 
-                        id="tanggal" 
-                        name="tanggal" 
-                        type="date"
-                        required
-                      />
+                      <Input id="tanggal" name="tanggal" type="date" required />
                     </div>
                   </div>
                   <div className="grid gap-3">
                     <Label htmlFor="foto">Foto Penerima</Label>
-                    <Input 
-                      id="foto" 
-                      name="foto" 
-                      type="file" 
+                    <Input
+                      id="foto"
+                      name="foto"
+                      type="file"
                       accept="image/*"
                       required
                     />
@@ -431,14 +444,14 @@ function RouteComponent() {
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
                     >
                       Batal
                     </Button>
                   </DialogClose>
-                  <Button 
+                  <Button
                     type="submit"
                     className="text-white transition-transform hover:scale-105"
                     style={{ backgroundColor: "#1f77b4" }}
@@ -458,52 +471,94 @@ function RouteComponent() {
           <Table className="text-left text-sm border-collapse w-full">
             <TableHeader className="bg-gray-50 border-b">
               <TableRow>
-                {["No", "Nama", "NIK", "Usia", "Telepon", "Alamat", "DTKS", "Kategori Bantuan", "Tanggal", "Foto", "Aksi"].map(
-                  (col, i) => (
-                    <TableHead
-                      key={i}
-                      className={`px-4 py-3 font-semibold text-gray-700 ${i < 10 ? "border-r" : ""} whitespace-nowrap ${i === 10 ? "text-center" : ""}`}
-                    >
-                      {col}
-                    </TableHead>
-                  )
-                )}
+                {[
+                  "No",
+                  "Nama",
+                  "NIK",
+                  "Usia",
+                  "Telepon",
+                  "Alamat",
+                  "DTKS",
+                  "Kategori Bantuan",
+                  "Tanggal",
+                  "Foto",
+                  "Aksi",
+                ].map((col, i) => (
+                  <TableHead
+                    key={i}
+                    className={`px-4 py-3 font-semibold text-gray-700 ${i < 10 ? "border-r" : ""} whitespace-nowrap ${i === 10 ? "text-center" : ""}`}
+                  >
+                    {col}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-6 text-gray-500">
+                  <TableCell
+                    colSpan={11}
+                    className="text-center py-6 text-gray-500"
+                  >
                     Tidak ada data penerima bantuan ditemukan.
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedData.map((item, idx) => (
                   <TableRow key={idx} className="hover:bg-gray-50 border-b">
-                    <TableCell className="px-4 py-1 border-r">{item.nomor}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.nama}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.nik}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.usia} tahun</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.telepon}</TableCell>
-                    <TableCell className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal" title={item.alamat}>{item.alamat}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.dtks}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.kategori}</TableCell>
-                    <TableCell className="px-4 py-1 border-r">{item.tanggal}</TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.nomor}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.nama}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.nik}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.usia} tahun
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.telepon}
+                    </TableCell>
+                    <TableCell
+                      className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
+                      title={item.alamat}
+                    >
+                      {item.alamat}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.dtks}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.kategori}
+                    </TableCell>
+                    <TableCell className="px-4 py-1 border-r">
+                      {item.tanggal}
+                    </TableCell>
                     <TableCell className="px-4 py-1 border-r">
                       <div className="w-12 h-12 rounded-full overflow-hidden border">
-                        <img src={item.foto} alt={item.nama} className="w-full h-full object-cover" />
+                        <img
+                          src={item.foto}
+                          alt={item.nama}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="px-4 py-1 text-center">
                       <div className="grid grid-cols-2 gap-1 justify-center items-center">
-                        <button onClick={() => handleEdit(item)} className="text-yellow-600 hover:text-yellow-800 p-1 rounded" title="Edit">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
+                          title="Edit"
+                        >
                           <MdEdit size={18} />
                         </button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <button 
-                              onClick={() => handleDelete(item)} 
-                              className="text-red-600 hover:text-red-800 p-1 rounded" 
+                            <button
+                              onClick={() => handleDelete(item)}
+                              className="text-red-600 hover:text-red-800 p-1 rounded"
                               title="Hapus"
                             >
                               <MdDelete size={18} />
@@ -511,15 +566,18 @@ function RouteComponent() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Konfirmasi Hapus Data</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Konfirmasi Hapus Data
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Apakah Anda yakin ingin menghapus data penerima bantuan "{item.nama}"? 
-                                Tindakan ini tidak dapat dibatalkan.
+                                Apakah Anda yakin ingin menghapus data penerima
+                                bantuan "{item.nama}"? Tindakan ini tidak dapat
+                                dibatalkan.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction 
+                              <AlertDialogAction
                                 onClick={confirmDelete}
                                 className="bg-red-500 hover:bg-red-600 text-white"
                               >
@@ -540,14 +598,25 @@ function RouteComponent() {
         {/* Mobile Card */}
         <div className="md:hidden space-y-4 px-2 pb-6">
           {paginatedData.map((item, idx) => (
-            <Card key={idx} className="rounded-xl shadow border space-y-0 p-4 mt-2">
+            <Card
+              key={idx}
+              className="rounded-xl shadow border space-y-0 p-4 mt-2"
+            >
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden border">
-                  <img src={item.foto} alt={item.nama} className="w-full h-full object-cover" />
+                  <img
+                    src={item.foto}
+                    alt={item.nama}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-base text-gray-900">{item.nama}</h3>
-                  <p className="text-sm text-gray-600">{item.nomor} • {item.usia} tahun</p>
+                  <h3 className="font-semibold text-base text-gray-900">
+                    {item.nama}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {item.nomor} • {item.usia} tahun
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">{item.nik}</p>
                 </div>
               </div>
@@ -562,7 +631,9 @@ function RouteComponent() {
                 </div>
                 <div className="flex items-center gap-1">
                   <MdHome size={14} className="text-gray-500" />
-                  <span className="truncate" title={item.alamat}>{item.alamat}</span>
+                  <span className="truncate" title={item.alamat}>
+                    {item.alamat}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <MdDateRange size={14} className="text-gray-500" />
@@ -574,13 +645,16 @@ function RouteComponent() {
                   {item.kategori}
                 </span>
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(item)} className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
+                  >
                     <MdEdit size={16} />
                   </button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button 
-                        onClick={() => handleDelete(item)} 
+                      <button
+                        onClick={() => handleDelete(item)}
                         className="flex items-center gap-1 text-red-600 hover:text-red-800"
                       >
                         <MdDelete size={16} />
@@ -588,15 +662,18 @@ function RouteComponent() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Konfirmasi Hapus Data</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          Konfirmasi Hapus Data
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Apakah Anda yakin ingin menghapus data penerima bantuan "{item.nama}"? 
-                          Tindakan ini tidak dapat dibatalkan.
+                          Apakah Anda yakin ingin menghapus data penerima
+                          bantuan "{item.nama}"? Tindakan ini tidak dapat
+                          dibatalkan.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                           onClick={confirmDelete}
                           className="bg-red-500 hover:bg-red-600 text-white"
                         >
@@ -610,7 +687,9 @@ function RouteComponent() {
             </Card>
           ))}
           {paginatedData.length === 0 && (
-            <div className="text-center py-8 text-gray-500">Tidak ada data penerima bantuan ditemukan.</div>
+            <div className="text-center py-8 text-gray-500">
+              Tidak ada data penerima bantuan ditemukan.
+            </div>
           )}
         </div>
       </div>
@@ -626,16 +705,17 @@ function RouteComponent() {
             <DialogHeader>
               <DialogTitle>Edit Data Penerima Bantuan</DialogTitle>
               <DialogDescription>
-                Ubah informasi penerima bantuan di bawah ini. Klik simpan untuk menyimpan perubahan.
+                Ubah informasi penerima bantuan di bawah ini. Klik simpan untuk
+                menyimpan perubahan.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-3">
                   <Label htmlFor="edit-nama">Nama Lengkap</Label>
-                  <Input 
-                    id="edit-nama" 
-                    name="nama" 
+                  <Input
+                    id="edit-nama"
+                    name="nama"
                     placeholder="Masukkan nama lengkap"
                     defaultValue={editingData?.nama || ""}
                     required
@@ -643,9 +723,9 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-nik">NIK</Label>
-                  <Input 
-                    id="edit-nik" 
-                    name="nik" 
+                  <Input
+                    id="edit-nik"
+                    name="nik"
                     placeholder="Masukkan NIK"
                     defaultValue={editingData?.nik || ""}
                     required
@@ -655,9 +735,9 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-usia">Usia</Label>
-                  <Input 
-                    id="edit-usia" 
-                    name="usia" 
+                  <Input
+                    id="edit-usia"
+                    name="usia"
                     type="number"
                     placeholder="Masukkan usia"
                     defaultValue={editingData?.usia || ""}
@@ -667,9 +747,9 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-telepon">No. Telepon</Label>
-                  <Input 
-                    id="edit-telepon" 
-                    name="telepon" 
+                  <Input
+                    id="edit-telepon"
+                    name="telepon"
                     placeholder="Masukkan nomor telepon"
                     defaultValue={editingData?.telepon || ""}
                     required
@@ -677,9 +757,9 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-alamat">Alamat Lengkap</Label>
-                  <Input 
-                    id="edit-alamat" 
-                    name="alamat" 
+                  <Input
+                    id="edit-alamat"
+                    name="alamat"
                     placeholder="Masukkan alamat lengkap"
                     defaultValue={editingData?.alamat || ""}
                     required
@@ -687,7 +767,11 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-dtks">Status DTKS</Label>
-                  <Select name="dtks" defaultValue={editingData?.dtks || ""} required>
+                  <Select
+                    name="dtks"
+                    defaultValue={editingData?.dtks || ""}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status DTKS" />
                     </SelectTrigger>
@@ -699,7 +783,11 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-kategori">Kategori Bantuan</Label>
-                  <Select name="kategori" defaultValue={editingData?.kategori || ""} required>
+                  <Select
+                    name="kategori"
+                    defaultValue={editingData?.kategori || ""}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kategori bantuan" />
                     </SelectTrigger>
@@ -714,9 +802,9 @@ function RouteComponent() {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="edit-tanggal">Tanggal Pemberian</Label>
-                  <Input 
-                    id="edit-tanggal" 
-                    name="tanggal" 
+                  <Input
+                    id="edit-tanggal"
+                    name="tanggal"
                     type="date"
                     defaultValue={editingData?.tanggal || ""}
                     required
@@ -725,30 +813,36 @@ function RouteComponent() {
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="edit-foto">Foto Penerima (Opsional)</Label>
-                <Input 
-                  id="edit-foto" 
-                  name="foto" 
-                  type="file" 
+                <Input
+                  id="edit-foto"
+                  name="foto"
+                  type="file"
                   accept="image/*"
                 />
                 {editingData?.foto && (
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500">Foto saat ini:</span>
-                    <img src={editingData.foto} alt="Foto saat ini" className="w-8 h-8 rounded-full object-cover" />
+                    <span className="text-xs text-gray-500">
+                      Foto saat ini:
+                    </span>
+                    <img
+                      src={editingData.foto}
+                      alt="Foto saat ini"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                   </div>
                 )}
               </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
                 >
                   Batal
                 </Button>
               </DialogClose>
-              <Button 
+              <Button
                 type="submit"
                 className="text-white transition-transform hover:scale-105"
                 style={{ backgroundColor: "#1f77b4" }}
