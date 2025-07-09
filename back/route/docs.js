@@ -16,11 +16,11 @@ router.use(protect);
 
 router.post("/upload", upload.single("file"), createDocument);
 
-router.get("/search", searchDocuments); // ← pindah ke atas
+router.get("/search", searchDocuments);
 router.post("/", createDocument);
 router.get("/", getAllDocuments);
 router.get("/:id", getDocumentById);
-router.put("/:id", updateDocument);
+router.put("/document/:id", upload.single("file"), updateDocument);
 router.delete("/:id", deleteDocument);
 
 export default router;
