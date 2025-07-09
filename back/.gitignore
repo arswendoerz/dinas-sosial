@@ -3,6 +3,7 @@
 node_modules
 uploads
 dinas-sosial-archive.json
+<<<<<<< HEAD
 =======
 node_modules
 >>>>>>> 5e05e11 (Update API & Add Endpoint Get Profile)
@@ -10,3 +11,6 @@ node_modules
 node_modules
 uploads
 >>>>>>> 71e1219 (Add Endpoint CRUD & Search Document)
+=======
+.env
+>>>>>>> c379a09 (Update File)
