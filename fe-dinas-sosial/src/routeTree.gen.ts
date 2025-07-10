@@ -11,6 +11,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as R403RouteImport } from './routes/403'
 
 const HomeLazyRouteImport = createFileRoute('/home')()
 const AccountLazyRouteImport = createFileRoute('/account')()
@@ -21,9 +22,6 @@ const DashboardBidResosLazyRouteImport = createFileRoute(
 )()
 const DashboardBidPerencanaanLazyRouteImport = createFileRoute(
   '/dashboard/bid-perencanaan',
-)()
-const DashboardBidLinjamsosLazyRouteImport = createFileRoute(
-  '/dashboard/bid-linjamsos',
 )()
 const AuthLoginLazyRouteImport = createFileRoute('/Auth/login')()
 
@@ -42,6 +40,11 @@ const AboutLazyRoute = AboutLazyRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+const R403Route = R403RouteImport.update({
+  id: '/403',
+  path: '/403',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
@@ -62,14 +65,6 @@ const DashboardBidPerencanaanLazyRoute =
   } as any).lazy(() =>
     import('./routes/dashboard/bid-perencanaan.lazy').then((d) => d.Route),
   )
-const DashboardBidLinjamsosLazyRoute =
-  DashboardBidLinjamsosLazyRouteImport.update({
-    id: '/dashboard/bid-linjamsos',
-    path: '/dashboard/bid-linjamsos',
-    getParentRoute: () => rootRouteImport,
-  } as any).lazy(() =>
-    import('./routes/dashboard/bid-linjamsos.lazy').then((d) => d.Route),
-  )
 const AuthLoginLazyRoute = AuthLoginLazyRouteImport.update({
   id: '/Auth/login',
   path: '/Auth/login',
@@ -78,32 +73,32 @@ const AuthLoginLazyRoute = AuthLoginLazyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/403': typeof R403Route
   '/about': typeof AboutLazyRoute
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/403': typeof R403Route
   '/about': typeof AboutLazyRoute
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
+  '/403': typeof R403Route
   '/about': typeof AboutLazyRoute
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
@@ -111,42 +106,42 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/403'
     | '/about'
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/403'
     | '/about'
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   id:
     | '__root__'
     | '/'
+    | '/403'
     | '/about'
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  R403Route: typeof R403Route
   AboutLazyRoute: typeof AboutLazyRoute
   AccountLazyRoute: typeof AccountLazyRoute
   HomeLazyRoute: typeof HomeLazyRoute
   AuthLoginLazyRoute: typeof AuthLoginLazyRoute
-  DashboardBidLinjamsosLazyRoute: typeof DashboardBidLinjamsosLazyRoute
   DashboardBidPerencanaanLazyRoute: typeof DashboardBidPerencanaanLazyRoute
   DashboardBidResosLazyRoute: typeof DashboardBidResosLazyRoute
 }
@@ -174,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/403': {
+      id: '/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof R403RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -195,13 +197,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBidPerencanaanLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/bid-linjamsos': {
-      id: '/dashboard/bid-linjamsos'
-      path: '/dashboard/bid-linjamsos'
-      fullPath: '/dashboard/bid-linjamsos'
-      preLoaderRoute: typeof DashboardBidLinjamsosLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/Auth/login': {
       id: '/Auth/login'
       path: '/Auth/login'
@@ -214,11 +209,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  R403Route: R403Route,
   AboutLazyRoute: AboutLazyRoute,
   AccountLazyRoute: AccountLazyRoute,
   HomeLazyRoute: HomeLazyRoute,
   AuthLoginLazyRoute: AuthLoginLazyRoute,
-  DashboardBidLinjamsosLazyRoute: DashboardBidLinjamsosLazyRoute,
   DashboardBidPerencanaanLazyRoute: DashboardBidPerencanaanLazyRoute,
   DashboardBidResosLazyRoute: DashboardBidResosLazyRoute,
 }

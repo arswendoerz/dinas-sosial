@@ -41,7 +41,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f6f6f6] w-full">
+    <div className="h-full w-full flex justify-center bg-[#f6f6f6]">
       <div className="w-full px-4 sm:px-6 md:px-8 max-w-full mx-auto space-y-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {widgets.map((item, index) => (
@@ -68,7 +68,6 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Tampilkan komponen berdasarkan klik */}
         {view === "dokumen" && <Dokumen />}
         {view === "surat" && <Surat />}
       </div>

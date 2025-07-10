@@ -117,4 +117,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html, body {
+    @apply h-full w-full overflow-x-hidden;
+  }
 }
+
