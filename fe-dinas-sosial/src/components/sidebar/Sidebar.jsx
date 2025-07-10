@@ -2,13 +2,14 @@ import {
   FaHome,
   FaInfoCircle,
   FaUserAlt,
+  FaHandsHelping
 } from "react-icons/fa";
 import {
   RiSidebarUnfoldFill,
   RiSidebarFoldFill,
 } from "react-icons/ri";
+import { FaBarsStaggered } from "react-icons/fa6";
 import { GrPlan } from "react-icons/gr";
-import { MdViewSidebar } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const user = {
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
   { label: "Perencanaan", icon: GrPlan, to: "/dashboard/bid-perencanaan" },
+  {label: "Rehabilitasi Sosial", icon: FaHandsHelping, to: "/dashboard/bid-resos" },
   { label: "About", icon: FaInfoCircle, to: "/about" },
 ];
 
@@ -121,7 +123,7 @@ export default function Sidebar() {
           onClick={() => setSidebarOpen(true)}
           className="text-[#1f77b4] hover:text-orange-600 transition-colors cursor-pointer"
         >
-          <MdViewSidebar size={35} />
+          <FaBarsStaggered size={35} />
         </button>
       </div>
 

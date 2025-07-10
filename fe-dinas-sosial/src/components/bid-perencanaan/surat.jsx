@@ -33,6 +33,28 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
 
 export default function Surat() {
   const kategoriList = ["Surat Edaran", "Undangan", "Permohonan", "Lain-lain"];
@@ -40,6 +62,9 @@ export default function Surat() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedKategori, setSelectedKategori] = useState("__semua__");
   const [selectedTanggal, setSelectedTanggal] = useState("");
+  const [editingDoc, setEditingDoc] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deletingDoc, setDeletingDoc] = useState(null);
 
   const uploadedDocuments = [
     {
@@ -85,6 +110,66 @@ export default function Surat() {
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
   const paginatedDocuments = filteredDocuments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const surat = {
+      nomor: formData.get('nomor'),
+      nama: formData.get('nama'),
+      perihal: formData.get('perihal'),
+      kategori: formData.get('kategori'),
+      jenis: formData.get('jenis'),
+      file: formData.get('file'),
+    };
+    
+    // Proses simpan surat di sini
+    console.log('Surat baru:', surat);
+    alert('Surat berhasil ditambahkan!');
+    
+    // Reset form
+    e.target.reset();
+  };
+
+  const handleEdit = (doc) => {
+    setEditingDoc(doc);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updatedDoc = {
+      ...editingDoc,
+      nomor: formData.get('nomor'),
+      nama: formData.get('nama'),
+      perihal: formData.get('perihal'),
+      kategori: formData.get('kategori'),
+      jenis: formData.get('jenis'),
+      file: formData.get('file'),
+    };
+    
+    // Proses update surat di sini
+    console.log('Surat diupdate:', updatedDoc);
+    alert('Surat berhasil diperbarui!');
+    
+    // Reset dan tutup dialog
+    setEditingDoc(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleDelete = (doc) => {
+    setDeletingDoc(doc);
+  };
+
+  const confirmDelete = () => {
+    // Proses hapus surat di sini
+    console.log('Surat dihapus:', deletingDoc);
+    alert(`Surat "${deletingDoc.nama}" berhasil dihapus!`);
+    
+    // Reset state
+    setDeletingDoc(null);
+  };
 
   const PaginationComponent = () => (
     <Pagination>
@@ -141,14 +226,114 @@ export default function Surat() {
             onChange={(e) => setSelectedTanggal(e.target.value)}
             className="flex-1 min-w-[100px]"
           />
-          <Button
-            onClick={() => alert("Tambah surat")}
-            className="gap-2 text-white transition-transform hover:scale-105"
-            style={{ backgroundColor: "#ff7f0e" }}
-          >
-            <MdAdd size={20} />
-            Tambah
-          </Button>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                className="gap-2 text-white transition-transform hover:scale-105"
+                style={{ backgroundColor: "#ff7f0e" }}
+              >
+                <MdAdd size={20} />
+                Tambah
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Tambah Surat Baru</DialogTitle>
+                  <DialogDescription>
+                    Lengkapi form di bawah ini untuk menambahkan surat baru.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-3">
+                    <Label htmlFor="nomor">Nomor Surat</Label>
+                    <Input 
+                      id="nomor" 
+                      name="nomor" 
+                      placeholder="Masukkan nomor surat"
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="nama">Nama Surat</Label>
+                    <Input 
+                      id="nama" 
+                      name="nama" 
+                      placeholder="Masukkan nama surat"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="perihal">Perihal</Label>
+                    <Input 
+                      id="perihal" 
+                      name="perihal" 
+                      placeholder="Masukkan perihal surat"
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="kategori">Kategori</Label>
+                    <Select name="kategori" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih kategori surat" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {kategoriList.map((kat) => (
+                          <SelectItem key={kat} value={kat}>
+                            {kat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="jenis">Jenis File</Label>
+                    <Select name="jenis" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih jenis file" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PDF">PDF</SelectItem>
+                        <SelectItem value="DOCX">DOCX</SelectItem>
+                        <SelectItem value="DOC">DOC</SelectItem>
+                        <SelectItem value="XLS">XLS</SelectItem>
+                        <SelectItem value="XLSX">XLSX</SelectItem>
+                        <SelectItem value="PPT">PPT</SelectItem>
+                        <SelectItem value="PPTX">PPTX</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="file">Upload File</Label>
+                    <Input 
+                      id="file" 
+                      name="file" 
+                      type="file" 
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                      required
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button 
+                      type="button" 
+                      className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
+                    >
+                      Batal
+                    </Button>
+                  </DialogClose>
+                  <Button 
+                    type="submit"
+                    className="text-white transition-transform hover:scale-105"
+                    style={{ backgroundColor: "#ff7f0e" }}
+                  >
+                    Simpan Surat
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -194,12 +379,38 @@ export default function Surat() {
                         <a href={doc.url} download className="text-green-600 hover:text-green-800 p-1 rounded" title="Download">
                           <MdDownload size={18} />
                         </a>
-                        <button onClick={() => alert(`Edit: ${doc.nomor}`)} className="text-yellow-600 hover:text-yellow-800 p-1 rounded" title="Edit">
+                        <button onClick={() => handleEdit(doc)} className="text-yellow-600 hover:text-yellow-800 p-1 rounded" title="Edit">
                           <MdEdit size={18} />
                         </button>
-                        <button onClick={() => alert(`Delete: ${doc.nomor}`)} className="text-red-600 hover:text-red-800 p-1 rounded" title="Hapus">
-                          <MdDelete size={18} />
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button 
+                              onClick={() => handleDelete(doc)} 
+                              className="text-red-600 hover:text-red-800 p-1 rounded" 
+                              title="Hapus"
+                            >
+                              <MdDelete size={18} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Konfirmasi Hapus Surat</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus surat "{doc.nama}"? 
+                                Tindakan ini tidak dapat dibatalkan.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={confirmDelete}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                              >
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -232,12 +443,37 @@ export default function Surat() {
                 <a href={doc.url} download className="flex items-center gap-1 text-green-600 hover:text-green-800">
                   <MdDownload size={16} /> Unduh
                 </a>
-                <button onClick={() => alert(`Edit: ${doc.nomor}`)} className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800">
+                <button onClick={() => handleEdit(doc)} className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800">
                   <MdEdit size={16} /> Edit
                 </button>
-                <button onClick={() => alert(`Delete: ${doc.nomor}`)} className="flex items-center gap-1 text-red-600 hover:text-red-800">
-                  <MdDelete size={16} /> Hapus
-                </button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button 
+                      onClick={() => handleDelete(doc)} 
+                      className="flex items-center gap-1 text-red-600 hover:text-red-800"
+                    >
+                      <MdDelete size={16} /> Hapus
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Konfirmasi Hapus Surat</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Apakah Anda yakin ingin menghapus surat "{doc.nama}"? 
+                        Tindakan ini tidak dapat dibatalkan.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={confirmDelete}
+                        className="bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        Hapus
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </Card>
           ))}
@@ -250,6 +486,109 @@ export default function Surat() {
       <div className="mt-4">
         <PaginationComponent />
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <form onSubmit={handleEditSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit Surat</DialogTitle>
+              <DialogDescription>
+                Ubah informasi surat di bawah ini. Klik simpan untuk menyimpan perubahan.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="edit-nomor">Nomor Surat</Label>
+                <Input 
+                  id="edit-nomor" 
+                  name="nomor" 
+                  placeholder="Masukkan nomor surat"
+                  defaultValue={editingDoc?.nomor || ""}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="edit-nama">Nama Surat</Label>
+                <Input 
+                  id="edit-nama" 
+                  name="nama" 
+                  placeholder="Masukkan nama surat"
+                  defaultValue={editingDoc?.nama || ""}
+                  required
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="edit-perihal">Perihal</Label>
+                <Input 
+                  id="edit-perihal" 
+                  name="perihal" 
+                  placeholder="Masukkan perihal surat"
+                  defaultValue={editingDoc?.perihal || ""}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="edit-kategori">Kategori</Label>
+                <Select name="kategori" defaultValue={editingDoc?.kategori || ""} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori surat" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {kategoriList.map((kat) => (
+                      <SelectItem key={kat} value={kat}>
+                        {kat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="edit-jenis">Jenis File</Label>
+                <Select name="jenis" defaultValue={editingDoc?.jenis || ""} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih jenis file" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PDF">PDF</SelectItem>
+                    <SelectItem value="DOCX">DOCX</SelectItem>
+                    <SelectItem value="DOC">DOC</SelectItem>
+                    <SelectItem value="XLS">XLS</SelectItem>
+                    <SelectItem value="XLSX">XLSX</SelectItem>
+                    <SelectItem value="PPT">PPT</SelectItem>
+                    <SelectItem value="PPTX">PPTX</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="edit-file">Upload File Baru (Opsional)</Label>
+                <Input 
+                  id="edit-file" 
+                  name="file" 
+                  type="file" 
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                />
+                <p className="text-xs text-gray-500">Biarkan kosong jika tidak ingin mengganti file</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button 
+                  type="button" 
+                  className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
+                >
+                  Batal
+                </Button>
+              </DialogClose>
+              <Button 
+                type="submit"
+                className="text-white transition-transform hover:scale-105"
+                style={{ backgroundColor: "#ff7f0e" }}
+              >
+                Simpan Perubahan
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
