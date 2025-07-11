@@ -16,7 +16,7 @@ export const getProfile = async (req, res) => {
         email: user.email,
         name: user.nama,
         role: user.role,
-        lastLogin: user.lastLogin,
+        lastLogin: user.previousLogin,
       },
     });
   } catch (err) {

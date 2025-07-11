@@ -5,9 +5,10 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FaEye, FaEyeSlash, FaUser, FaLock, FaShieldAlt } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUser, FaLock } from "react-icons/fa";
 import { FaPeopleRoof } from "react-icons/fa6";
 import { useNavigate } from "@tanstack/react-router";
+import toast from 'react-hot-toast';
 
 export const Route = createLazyFileRoute('/Auth/login')({
   component: RouteComponent,
@@ -25,17 +26,84 @@ function RouteComponent() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState({});
 
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email tidak boleh kosong';
+    }
+    
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password tidak boleh kosong';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
+    const loadingToast = toast.loading('Sedang memproses login...');
     
-    // Simulasiloading
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    navigate({ to: "/home" });
+    try {
+      const response = await fetch('http://localhost:9000/api/auth/login', {
+        method: 'POST',
+        credentials: 'include', // untuk mengirim dan menerima cookies
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+      
+      toast.dismiss(loadingToast);
+      
+      if (response.ok && data.success) {
+        toast.success(data.message || 'Login berhasil!');
+        navigate({ to: "/home" });
+      } else {
+        toast.error(data.message || 'Login gagal!');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.dismiss(loadingToast);
+      toast.error('Koneksi ke server gagal. Periksa koneksi internet Anda.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -102,7 +170,7 @@ function RouteComponent() {
                 data-aos="fade-down"
                 data-aos-delay="500"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-3 sm:mb-4 shadow-lg">
+                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#ff7f0e] rounded-full mb-3 sm:mb-4 shadow-lg">
                   <FaPeopleRoof className="text-white text-2xl sm:text-3xl"/>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
@@ -119,19 +187,30 @@ function RouteComponent() {
                   data-aos-delay="700"
                 >
                   <label className="block mb-2 text-sm font-semibold text-gray-700">
-                    Email / Username
+                    Email
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaUser className="text-gray-400" />
                     </div>
                     <Input
-                      type="text"
-                      placeholder="masukkan username..."
-                      className="pl-10 h-11 sm:h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="masukkan email..."
+                      className={`pl-10 h-11 sm:h-12 border-2 rounded-xl focus:ring-2 focus:ring-blue-200 transition-all duration-300 ${
+                        errors.email 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-gray-200 focus:border-blue-500'
+                      }`}
+                      disabled={isLoading}
                       required
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 <div 
@@ -147,8 +226,16 @@ function RouteComponent() {
                     </div>
                     <Input
                       type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
                       placeholder="masukkan password..."
-                      className="pl-10 pr-12 h-11 sm:h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                      className={`pl-10 pr-12 h-11 sm:h-12 border-2 rounded-xl focus:ring-2 focus:ring-blue-200 transition-all duration-300 ${
+                        errors.password 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-gray-200 focus:border-blue-500'
+                      }`}
+                      disabled={isLoading}
                       required
                     />
                     <button
@@ -156,10 +243,14 @@ function RouteComponent() {
                       onClick={togglePasswordVisibility}
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors duration-200"
                       tabIndex={-1}
+                      disabled={isLoading}
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                  )}
                 </div>
 
                 <div 
@@ -174,7 +265,7 @@ function RouteComponent() {
                     {isLoading ? (
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Masuk...
+                        Memproses...
                       </div>
                     ) : (
                       'Masuk ke Dashboard'
@@ -191,8 +282,7 @@ function RouteComponent() {
                     Belum punya akun?{' '}
                     <button
                       type="button"
-                      className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
-                    >
+                      className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200">
                       Hubungi Admin
                     </button>
                   </p>

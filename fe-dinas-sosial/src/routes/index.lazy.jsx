@@ -96,7 +96,7 @@ function Index() {
         </h1>
 
         <div 
-          className="max-w-3xl mb-12 md:mb-16"
+          className="max-w-3xl mb-8 md:mb-8"
           data-aos="fade-up"
           data-aos-delay="600"
         >
@@ -119,7 +119,7 @@ function Index() {
           <Button
             variant="default"
             onClick={() => navigate({ to: '/Auth/login' })}
-            className="relative bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-110 transition-all duration-300 ease-in-out text-white font-bold text-lg px-12 py-4 rounded-full shadow-2xl uppercase tracking-wider cursor-pointer border-2 border-orange-400/50 hover:border-orange-300 overflow-hidden group"
+            className="relative bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-110 transition-all duration-300 ease-in-out text-white font-bold text-lg px-6 py-4 rounded-full shadow-2xl uppercase tracking-wider cursor-pointer border-2 border-orange-400/50 hover:border-orange-300 overflow-hidden group"
           >
             <span className="relative z-10 flex items-center gap-3">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

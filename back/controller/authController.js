@@ -101,6 +101,7 @@ export const login = async (req, res) => {
     generateTokenSetCookie(res, user.id);
 
     // Update last login time
+    user.previousLogin = user.lastLogin;
     user.lastLogin = new Date();
     await user.save();
 
