@@ -266,3 +266,38 @@ export const deleteDocument = async (req, res) => {
     });
   }
 };
+
+export const searchDocuments = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Query pencarian tidak boleh kosong",
+      });
+    }
+
+    const documents = await Document.findAll({
+      where: {
+        userId: req.user.userId,
+        [Op.or]: [
+          { nama: { [Op.like]: `%${query}%` } },
+          { perihal: { [Op.like]: `%${query}%` } },
+          { kategori: { [Op.like]: `%${query}%` } },
+        ],
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: documents,
+    });
+  } catch (error) {
+    console.error("Gagal mencari dokumen:", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan saat mencari dokumen",
+    });
+  }
+};

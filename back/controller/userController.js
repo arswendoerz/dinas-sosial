@@ -14,7 +14,7 @@ export const getProfile = async (req, res) => {
       success: true,
       data: {
         email: user.email,
-        name: user.name,
+        name: user.nama,
         role: user.role,
         lastLogin: user.lastLogin,
       },
