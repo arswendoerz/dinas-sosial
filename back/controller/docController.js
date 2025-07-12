@@ -1,9 +1,9 @@
 import Document from "../model/document.model.js";
+import User from "../model/user.model.js";
 import { Op } from "sequelize";
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
-import path from "path";
 
 dotenv.config();
 
@@ -11,24 +11,29 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET
 );
-
 oauth2Client.setCredentials({
   refresh_token: process.env.REFRESH_TOKEN,
 });
-
 const drive = google.drive({ version: "v3", auth: oauth2Client });
 
 function extractFileId(url) {
-  const regexList = [
-    /id=([^&/]+)/, // cocok untuk uc?id=
-    /\/d\/([a-zA-Z0-9_-]+)/, // cocok untuk /file/d/<ID>/
-  ];
+  const regexList = [/id=([^&/]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
   for (const regex of regexList) {
     const match = url.match(regex);
     if (match) return match[1];
   }
   return null;
 }
+
+// Reusable helper to get userIds with same role
+const getUserIdsByRole = async (role) => {
+  const users = await User.findAll({
+    where: { role },
+    attributes: ["id"],
+  });
+  return users.map((user) => user.id);
+};
+
 export const createDocument = async (req, res) => {
   try {
     const { nomor, nama, perihal, kategori } = req.body;
@@ -52,21 +57,20 @@ export const createDocument = async (req, res) => {
 
     const file = await drive.files.create({
       requestBody: fileMeta,
-      media: media,
+      media,
       fields: "id",
     });
 
-    const fileId = file.data.id;
-    const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
+    const fileUrl = `https://drive.google.com/file/d/${file.data.id}/view`;
 
     const document = await Document.create({
       nomor,
       nama,
       perihal,
       kategori,
-      jenis: req.file.mimetype, // otomatis dari file
+      jenis: req.file.mimetype,
       url: fileUrl,
-      userId: req.userId,
+      userId: req.user.userId,
       tanggalUpload: new Date().toISOString().split("T")[0],
       tanggalUpdate: new Date().toISOString().split("T")[0],
     });
@@ -87,16 +91,18 @@ export const createDocument = async (req, res) => {
 
 export const getAllDocuments = async (req, res) => {
   try {
-    const document = await Document.findAll({
-      where: {
-        userId: req.user.userId,
-      },
+    const userIds = await getUserIdsByRole(req.user.role);
+    if (userIds.length === 0)
+      return res.status(200).json({ success: true, data: [] });
+
+    const documents = await Document.findAll({
+      where: { userId: { [Op.in]: userIds } },
+      include: { model: User, attributes: ["id", "email", "role"] },
     });
-    res.status(200).json({
-      success: true,
-      data: document,
-    });
+
+    res.status(200).json({ success: true, data: documents });
   } catch (error) {
+    console.error("Gagal mengambil dokumen:", error);
     res.status(500).json({
       success: false,
       message: "Terjadi kesalahan saat mengambil dokumen",
@@ -106,10 +112,12 @@ export const getAllDocuments = async (req, res) => {
 
 export const getDocumentById = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const document = await Document.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -119,10 +127,8 @@ export const getDocumentById = async (req, res) => {
         message: "Dokumen tidak ditemukan",
       });
     }
-    res.status(200).json({
-      success: true,
-      data: document,
-    });
+
+    res.status(200).json({ success: true, data: document });
   } catch (error) {
     console.error("Gagal mengambil dokumen:", error);
     res.status(500).json({
@@ -134,10 +140,12 @@ export const getDocumentById = async (req, res) => {
 
 export const updateDocument = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const existingDocument = await Document.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -150,9 +158,8 @@ export const updateDocument = async (req, res) => {
 
     let fileUrl = existingDocument.url;
     let jenis = existingDocument.jenis;
-    let oldFileId = extractFileId(existingDocument.url);
+    const oldFileId = extractFileId(fileUrl);
 
-    // Ketika update dengan unggahan file baru
     if (req.file) {
       if (!oldFileId) {
         return res.status(400).json({
@@ -161,12 +168,9 @@ export const updateDocument = async (req, res) => {
         });
       }
 
-      // Upload file baru
       const newFile = await drive.files.update({
-        requestBody: {
-          name: req.file.originalname,
-        },
         fileId: oldFileId,
+        requestBody: { name: req.file.originalname },
         media: {
           mimeType: req.file.mimetype,
           body: Readable.from(req.file.buffer),
@@ -174,9 +178,7 @@ export const updateDocument = async (req, res) => {
         fields: "id",
       });
 
-      const newFileId = newFile.data.id;
-
-      fileUrl = `https://drive.google.com/uc?id=${newFileId}/view`;
+      fileUrl = `https://drive.google.com/file/d/${newFile.data.id}/view`;
       jenis = req.file.mimetype;
     }
 
@@ -190,16 +192,13 @@ export const updateDocument = async (req, res) => {
       {
         where: {
           id: req.params.id,
-          userId: req.user.userId,
+          userId: { [Op.in]: userIds },
         },
       }
     );
 
     const updatedDocument = await Document.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.user.userId,
-      },
+      where: { id: req.params.id },
     });
 
     res.status(200).json({
@@ -218,10 +217,12 @@ export const updateDocument = async (req, res) => {
 
 export const deleteDocument = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const existingDocument = await Document.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -236,23 +237,16 @@ export const deleteDocument = async (req, res) => {
 
     try {
       if (fileId) {
-        await drive.files.delete({
-          fileId: fileId,
-        });
+        await drive.files.delete({ fileId });
       }
     } catch (error) {
       console.warn(
-        "File tidak berhasil dihapus dari Google Drive",
+        "File tidak berhasil dihapus dari Google Drive:",
         error.message
       );
     }
 
-    await Document.destroy({
-      where: {
-        id: req.params.id,
-        userId: req.user.userId,
-      },
-    });
+    await Document.destroy({ where: { id: req.params.id } });
 
     res.status(200).json({
       success: true,
@@ -270,7 +264,6 @@ export const deleteDocument = async (req, res) => {
 export const searchDocuments = async (req, res) => {
   try {
     const { query } = req.query;
-
     if (!query) {
       return res.status(400).json({
         success: false,
@@ -278,9 +271,11 @@ export const searchDocuments = async (req, res) => {
       });
     }
 
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const documents = await Document.findAll({
       where: {
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
         [Op.or]: [
           { nama: { [Op.like]: `%${query}%` } },
           { perihal: { [Op.like]: `%${query}%` } },
@@ -289,10 +284,7 @@ export const searchDocuments = async (req, res) => {
       },
     });
 
-    res.status(200).json({
-      success: true,
-      data: documents,
-    });
+    res.status(200).json({ success: true, data: documents });
   } catch (error) {
     console.error("Gagal mencari dokumen:", error);
     res.status(500).json({

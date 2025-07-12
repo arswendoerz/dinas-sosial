@@ -37,6 +37,10 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    previousLogin: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     verificationToken: {
       type: DataTypes.STRING,
       allowNull: true,

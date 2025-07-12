@@ -44,14 +44,31 @@ export const verifyToken = async (req, res, next) => {
 
 export const protect = (req, res, next) => {
   const token = req.cookies.token;
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized - No token provided",
+    });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    req.userId = decoded.userId;
+
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role,
+    };
+
     next();
-  } catch (err) {
-    return res.status(401).json({ message: "Token tidak valid" });
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    console.error("Token verification error:", error);
+    return res.status(500).json({ message: "Server error during token check" });
   }
 };

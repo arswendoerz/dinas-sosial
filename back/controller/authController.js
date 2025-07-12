@@ -42,7 +42,7 @@ export const register = async (req, res) => {
 
     await user.save();
 
-    generateTokenSetCookie(res, user.id);
+    generateTokenSetCookie(res, user);
 
     return res.status(201).json({
       success: true,
@@ -98,9 +98,10 @@ export const login = async (req, res) => {
     }
 
     // Generate token dan set cookie login
-    generateTokenSetCookie(res, user.id);
+    generateTokenSetCookie(res, user);
 
     // Update last login time
+    user.previousLogin = user.lastLogin;
     user.lastLogin = new Date();
     await user.save();
 

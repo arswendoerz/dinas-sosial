@@ -2,8 +2,8 @@ import { DataTypes } from "sequelize";
 import sequelize from "../db/db.js";
 import User from "./user.model.js";
 
-const Document = sequelize.define(
-  "Document",
+const Letter = sequelize.define(
+  "Letter",
   {
     id: {
       type: DataTypes.UUID,
@@ -29,7 +29,6 @@ const Document = sequelize.define(
     },
     jenis: {
       type: DataTypes.STRING(255),
-      type: DataTypes.STRING,
       allowNull: false,
     },
     tanggalUpload: {
@@ -51,7 +50,7 @@ const Document = sequelize.define(
   }
 );
 
-User.hasMany(Document, { foreignKey: "userId", onDelete: "CASCADE" });
-Document.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Letter, { foreignKey: "userId", onDelete: "CASCADE" });
+Letter.belongsTo(User, { foreignKey: "userId" });
 
-export default Document;
+export default Letter;
