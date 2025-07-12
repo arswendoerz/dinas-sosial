@@ -9,30 +9,47 @@ import { FaBarsStaggered } from "react-icons/fa6";
 import { GrPlan } from "react-icons/gr";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "@/assets/lampung.png";
-
-const user = {
-  name: "Arswendo Erza",
-  email: "arswendo@gmail.com",
-};
 
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
   { label: "Perencanaan", icon: GrPlan, to: "/dashboard/bid-perencanaan" },
-  {
-    label: "Rehabilitasi Sosial",
-    icon: FaHandsHelping,
-    to: "/dashboard/bid-resos",
-  },
+  { label: "Rehabilitasi Sosial", icon: FaHandsHelping,to: "/dashboard/bid-resos" },
   { label: "About", icon: FaInfoCircle, to: "/about" },
 ];
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const location = useLocation();
   const iconSize = collapsed ? 28 : 22;
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('http://localhost:9000/api/user/profile', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const SidebarContent = (
     <aside
@@ -103,9 +120,11 @@ export default function Sidebar() {
             <FaUserAlt size={iconSize} />
             {!collapsed && (
               <div className="flex flex-col text-left">
-                <span className="font-semibold leading-tight">{user.name}</span>
+                <span className="font-semibold leading-tight">
+                  {user?.name || "Loading..."}
+                </span>
                 <span className="text-sm text-[#f6f6f6] leading-none">
-                  {user.email}
+                  {user?.email || "Loading..."}
                 </span>
               </div>
             )}
