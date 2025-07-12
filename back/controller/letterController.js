@@ -1,5 +1,6 @@
 import Letter from "../model/letter.model.js";
-import { Op } from " sequelize";
+import User from "../model/user.model.js";
+import { Op } from "sequelize";
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
@@ -10,7 +11,6 @@ const oauth2client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET
 );
-
 oauth2client.setCredentials({
   refresh_token: process.env.REFRESH_TOKEN,
 });
@@ -25,6 +25,14 @@ function extractFileId(url) {
   }
   return null;
 }
+
+const getUserIdsByRole = async (role) => {
+  const users = await User.findAll({
+    where: { role },
+    attributes: ["id"],
+  });
+  return users.map((user) => user.id);
+};
 
 export const createLetter = async (req, res) => {
   try {
@@ -49,21 +57,20 @@ export const createLetter = async (req, res) => {
 
     const file = await drive.files.create({
       requestBody: fileMeta,
-      media: media,
+      media,
       fields: "id",
     });
 
-    const fileId = file.data.id;
-    const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
+    const fileUrl = `https://drive.google.com/file/d/${file.data.id}/view`;
 
     const letter = await Letter.create({
-      jenis: req.file.mimetype,
       nomor,
       nama,
       perihal,
       kategori,
+      jenis: req.file.mimetype,
       url: fileUrl,
-      userId: req.userId,
+      userId: req.user.userId,
       tanggalUpload: new Date().toISOString().split("T")[0],
       tanggalUpdate: new Date().toISOString().split("T")[0],
     });
@@ -84,10 +91,13 @@ export const createLetter = async (req, res) => {
 
 export const getAllLetters = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+    if (userIds.length === 0)
+      return req.status(200).json({ success: true, data: [] });
+
     const letters = await Letter.findAll({
-      where: {
-        userId: req.user.userId,
-      },
+      where: { userId: { [Op.in]: userIds } },
+      include: { model: User, attributes: ["id", "email", "role"] },
     });
     res.status(200).json({
       success: true,
@@ -103,10 +113,12 @@ export const getAllLetters = async (req, res) => {
 
 export const getLetterById = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const letter = await Letter.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -131,10 +143,12 @@ export const getLetterById = async (req, res) => {
 
 export const updateLetter = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const letter = await Letter.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -147,7 +161,7 @@ export const updateLetter = async (req, res) => {
 
     let fileUrl = letter.url;
     let jenis = letter.jenis;
-    let oldFileId = extractFileId(letter.url);
+    let oldFileId = extractFileId(fileUrl);
 
     if (req.file) {
       if (!oldFileId) {
@@ -158,10 +172,8 @@ export const updateLetter = async (req, res) => {
       }
 
       const newFile = await drive.files.update({
-        requestBody: {
-          name: req.file.originalname,
-        },
         fileId: oldFileId,
+        requestBody: { name: req.file.originalname },
         media: {
           mimeType: req.file.mimetype,
           body: Readable.from(req.file.buffer),
@@ -169,9 +181,7 @@ export const updateLetter = async (req, res) => {
         fields: "id",
       });
 
-      const newFileId = newFile.data.id;
-
-      fileUrl = `https://drive.google.com/file/d/${newFileId}/view`;
+      fileUrl = `https://drive.google.com/file/d/${newFile.data.id}/view`;
       jenis = req.file.mimetype;
     }
 
@@ -185,16 +195,13 @@ export const updateLetter = async (req, res) => {
       {
         where: {
           id: req.params.id,
-          userId: req.user.userId,
+          userId: { [Op.in]: userIds },
         },
       }
     );
 
     const updateLetter = await Letter.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.user.userId,
-      },
+      where: { id: req.params.id },
     });
 
     res.status(200).json({
@@ -213,10 +220,12 @@ export const updateLetter = async (req, res) => {
 
 export const deleteLetter = async (req, res) => {
   try {
+    const userIds = await getUserIdsByRole(req.user.role);
+
     const letter = await Letter.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.userId,
+        userId: { [Op.in]: userIds },
       },
     });
 
@@ -231,9 +240,7 @@ export const deleteLetter = async (req, res) => {
 
     try {
       if (fileId) {
-        await drive.files.delete({
-          fileId: fileId,
-        });
+        await drive.files.delete({ fileId });
       }
     } catch (error) {
       console.warn(
@@ -242,12 +249,7 @@ export const deleteLetter = async (req, res) => {
       );
     }
 
-    await letter.destroy({
-      where: {
-        id: req.params.id,
-        userId: req.user.userId,
-      },
-    });
+    await letter.destroy({ where: { id: req.params.id } });
 
     res.status(200).json({
       success: true,
@@ -258,6 +260,40 @@ export const deleteLetter = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Terjadi kesalahan dalam menghapus surat",
+    });
+  }
+};
+
+export const searchLetters = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Query pencarian tidak boleh kosong",
+      });
+    }
+
+    const userIds = await getUserIdsByRole(req.user.role);
+
+    const letters = await Letter.findAll({
+      where: {
+        userId: { [Op.in]: userIds },
+        [Op.or]: [
+          { nama: { [Op.like]: `%${query}%` } },
+          { nomor: { [Op.like]: `%${query}%` } },
+          { perihal: { [Op.like]: `%${query}%` } },
+          { kategori: { [Op.like]: `%${query}%` } },
+        ],
+      },
+    });
+
+    res.status(200).json({ success: true, data: letters });
+  } catch (error) {
+    console.error("Gagal mencari surat:", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan saat mencari surat",
     });
   }
 };

@@ -278,6 +278,7 @@ export const searchDocuments = async (req, res) => {
         userId: { [Op.in]: userIds },
         [Op.or]: [
           { nama: { [Op.like]: `%${query}%` } },
+          { nomor: { [Op.like]: `%${query}%` } },
           { perihal: { [Op.like]: `%${query}%` } },
           { kategori: { [Op.like]: `%${query}%` } },
         ],

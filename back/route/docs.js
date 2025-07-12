@@ -20,7 +20,7 @@ router.get("/search", searchDocuments);
 router.post("/", createDocument);
 router.get("/", getAllDocuments);
 router.get("/:id", getDocumentById);
-router.put("/document/:id", upload.single("file"), updateDocument);
+router.put("/:id", upload.single("file"), updateDocument);
 router.delete("/:id", deleteDocument);
 
 export default router;
