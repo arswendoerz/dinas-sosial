@@ -1,11 +1,11 @@
-import Letter from "../model/letter.model.js";
-import User from "../model/user.model.js";
-import { Op } from "sequelize";
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
+import db from "../firestore.js";
 
 dotenv.config();
+
+const lettersCollection = db.collection("letters");
 
 const oauth2client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
@@ -17,38 +17,38 @@ oauth2client.setCredentials({
 
 const drive = google.drive({ version: "v3", auth: oauth2client });
 
-function extractFileId(url) {
+const extractFileId = (url) => {
   const regexList = [/id=([^&/]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
   for (const regex of regexList) {
     const match = url.match(regex);
     if (match) return match[1];
   }
   return null;
-}
+};
 
-const getUserIdsByRole = async (role) => {
-  const users = await User.findAll({
-    where: { role },
-    attributes: ["id"],
+const formatTimestamp = (timestamp) => {
+  if (!timestamp || !timestamp._seconds) return null;
+  const date = new Date(timestamp._seconds * 1000);
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
   });
-  return users.map((user) => user.id);
 };
 
 export const createLetter = async (req, res) => {
   try {
     const { nomor, nama, perihal, kategori } = req.body;
-
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "File surat wajib diunggah!",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "File surat wajib diunggah!" });
     }
-
-    const fileMeta = {
-      name: req.file.originalname,
-      parents: [process.env.DRIVE_FOLDER_ID_SURAT],
-    };
 
     const media = {
       mimetype: req.file.mimetype,
@@ -56,14 +56,20 @@ export const createLetter = async (req, res) => {
     };
 
     const file = await drive.files.create({
-      requestBody: fileMeta,
+      requestBody: {
+        name: req.file.originalname,
+        parents: [process.env.DRIVE_FOLDER_ID_SURAT],
+      },
       media,
       fields: "id",
     });
 
     const fileUrl = `https://drive.google.com/file/d/${file.data.id}/view`;
+    const now = new Date();
 
-    const letter = await Letter.create({
+    const letRef = lettersCollection.doc();
+    const letData = {
+      id: letRef.id,
       nomor,
       nama,
       perihal,
@@ -71,14 +77,21 @@ export const createLetter = async (req, res) => {
       jenis: req.file.mimetype,
       url: fileUrl,
       userId: req.user.userId,
-      tanggalUpload: new Date().toISOString().split("T")[0],
-      tanggalUpdate: new Date().toISOString().split("T")[0],
-    });
+      role: req.user.role,
+      tanggalUpload: now,
+      tanggalUpdate: now,
+    };
+
+    await letRef.set(letData);
 
     res.status(201).json({
       success: true,
       message: "Surat berhasil dibuat",
-      data: letter,
+      data: {
+        ...letData,
+        tanggalUpload: formatTimestamp(now),
+        tanggalUpdate: formatTimestamp(now),
+      },
     });
   } catch (error) {
     console.error("Gagal membuat surat:", error);
@@ -91,19 +104,23 @@ export const createLetter = async (req, res) => {
 
 export const getAllLetters = async (req, res) => {
   try {
-    const userIds = await getUserIdsByRole(req.user.role);
-    if (userIds.length === 0)
-      return req.status(200).json({ success: true, data: [] });
+    const snapshot = await lettersCollection
+      .where("role", "==", req.user.role)
+      .get();
 
-    const letters = await Letter.findAll({
-      where: { userId: { [Op.in]: userIds } },
-      include: { model: User, attributes: ["id", "email", "role"] },
+    const letters = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        tanggalUpload: formatTimestamp(data.tanggalUpload),
+        tanggalUpdate: formatTimestamp(data.tanggalUpdate),
+      };
     });
-    res.status(200).json({
-      success: true,
-      data: letters,
-    });
+
+    res.status(200).json({ success: true, data: letters });
   } catch (error) {
+    console.error("Error mengambil surat:", error);
     res.status(500).json({
       success: false,
       message: "Terjadi kesalahan saat mengambil surat",
@@ -113,28 +130,36 @@ export const getAllLetters = async (req, res) => {
 
 export const getLetterById = async (req, res) => {
   try {
-    const userIds = await getUserIdsByRole(req.user.role);
+    const doc = await lettersCollection.doc(req.params.id).get();
 
-    const letter = await Letter.findOne({
-      where: {
-        id: req.params.id,
-        userId: { [Op.in]: userIds },
-      },
-    });
-
-    if (!letter) {
+    if (!doc.exists) {
       return res.status(404).json({
         success: false,
-        message: "Surat yang diminta tidak ditemukan",
+        message: "Surat tidak ditemukan",
       });
     }
+
+    const data = doc.data();
+
+    // Cek apakah user berhak melihat data ini
+    if (data.userId !== req.user.userId && data.role !== req.user.role) {
+      return res.status(403).json({
+        success: false,
+        message: "Akses ditolak",
+      });
+    }
+
     res.status(200).json({
       success: true,
-      data: letter,
+      data: {
+        ...data,
+        tanggalUpload: formatTimestamp(data.tanggalUpload),
+        tanggalUpdate: formatTimestamp(data.tanggalUpdate),
+      },
     });
   } catch (error) {
     console.error("Gagal mengambil surat:", error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Terjadi kesalahan dalam mengambil surat",
     });
@@ -143,32 +168,30 @@ export const getLetterById = async (req, res) => {
 
 export const updateLetter = async (req, res) => {
   try {
-    const userIds = await getUserIdsByRole(req.user.role);
+    const letRef = lettersCollection.doc(req.params.id);
+    const doc = await letRef.get();
 
-    const letter = await Letter.findOne({
-      where: {
-        id: req.params.id,
-        userId: { [Op.in]: userIds },
-      },
-    });
+    if (!doc.exists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Surat tidak ditemukan" });
+    }
 
-    if (!letter) {
-      return res.status(404).json({
-        success: false,
-        message: "Surat yang diminta tidak ditemukan",
-      });
+    const letter = doc.data();
+
+    if (letter.userId !== req.user.userId && letter.role !== req.user.role) {
+      return res.status(403).json({ success: false, message: "Akses ditolak" });
     }
 
     let fileUrl = letter.url;
     let jenis = letter.jenis;
-    let oldFileId = extractFileId(fileUrl);
+    const oldFileId = extractFileId(fileUrl);
 
     if (req.file) {
       if (!oldFileId) {
-        return res.status(400).json({
-          success: false,
-          message: "File ID ditemukan dalam surat lama",
-        });
+        return res
+          .status(400)
+          .json({ success: false, message: "File ID tidak ditemukan" });
       }
 
       const newFile = await drive.files.update({
@@ -185,29 +208,24 @@ export const updateLetter = async (req, res) => {
       jenis = req.file.mimetype;
     }
 
-    await Letter.update(
-      {
-        ...req.body,
-        url: fileUrl,
-        jenis,
-        tanggalUpdate: new Date().toISOString().split("T")[0],
-      },
-      {
-        where: {
-          id: req.params.id,
-          userId: { [Op.in]: userIds },
-        },
-      }
-    );
+    const updateData = {
+      ...req.body,
+      url: fileUrl,
+      jenis,
+      tanggalUpdate: new Date(),
+    };
 
-    const updateLetter = await Letter.findOne({
-      where: { id: req.params.id },
-    });
+    await letRef.update(updateData);
 
+    const updatedDoc = await letRef.get();
     res.status(200).json({
       success: true,
       message: "Surat berhasil diperbarui",
-      data: updateLetter,
+      data: {
+        ...updatedDoc.data(),
+        tanggalUpload: formatTimestamp(updatedDoc.data().tanggalUpload),
+        tanggalUpdate: formatTimestamp(updatedDoc.data().tanggalUpdate),
+      },
     });
   } catch (error) {
     console.error("Gagal memperbarui surat:", error);
@@ -220,41 +238,34 @@ export const updateLetter = async (req, res) => {
 
 export const deleteLetter = async (req, res) => {
   try {
-    const userIds = await getUserIdsByRole(req.user.role);
+    const letRef = lettersCollection.doc(req.params.id);
+    const doc = await letRef.get();
 
-    const letter = await Letter.findOne({
-      where: {
-        id: req.params.id,
-        userId: { [Op.in]: userIds },
-      },
-    });
+    if (!doc.exists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Surat tidak ditemukan" });
+    }
 
-    if (!letter) {
-      return res.status(404).json({
-        success: false,
-        message: "Surat yang diminta tidak ditemukan",
-      });
+    const letter = doc.data();
+
+    if (letter.userId !== req.user.userId && letter.role !== req.user.role) {
+      return res.status(403).json({ success: false, message: "Akses ditolak" });
     }
 
     const fileId = extractFileId(letter.url);
 
-    try {
-      if (fileId) {
+    if (fileId) {
+      try {
         await drive.files.delete({ fileId });
+      } catch (error) {
+        console.warn("Gagal menghapus file dari Google Drive:", error.message);
       }
-    } catch (error) {
-      console.warn(
-        "File tidak berhasil dihapus dari Google Drive:",
-        error.message
-      );
     }
 
-    await letter.destroy({ where: { id: req.params.id } });
+    await letRef.delete();
 
-    res.status(200).json({
-      success: true,
-      message: "Surat berhasil dihapus",
-    });
+    res.status(200).json({ success: true, message: "Surat berhasil dihapus" });
   } catch (error) {
     console.error("Gagal menghapus surat:", error);
     res.status(500).json({
@@ -274,21 +285,19 @@ export const searchLetters = async (req, res) => {
       });
     }
 
-    const userIds = await getUserIdsByRole(req.user.role);
+    const snapshot = await lettersCollection
+      .where("role", "==", req.user.role)
+      .get();
 
-    const letters = await Letter.findAll({
-      where: {
-        userId: { [Op.in]: userIds },
-        [Op.or]: [
-          { nama: { [Op.like]: `%${query}%` } },
-          { nomor: { [Op.like]: `%${query}%` } },
-          { perihal: { [Op.like]: `%${query}%` } },
-          { kategori: { [Op.like]: `%${query}%` } },
-        ],
-      },
-    });
+    const results = snapshot.docs
+      .map((doc) => doc.data())
+      .filter((doc) =>
+        [doc.nama, doc.nomor, doc.perihal, doc.kategori].some((field) =>
+          field?.toLowerCase().includes(query.toLowerCase())
+        )
+      );
 
-    res.status(200).json({ success: true, data: letters });
+    res.status(200).json({ success: true, data: results });
   } catch (error) {
     console.error("Gagal mencari surat:", error);
     res.status(500).json({

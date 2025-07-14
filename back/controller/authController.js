@@ -1,12 +1,13 @@
 import bcryptjs from "bcryptjs";
-import User from "../model/user.model.js";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 import { Op } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
+import db from "../firestore.js";
+
+const usersCollection = db.collection("users");
 
 export const register = async (req, res) => {
   try {
-    console.log("Body Data:", req.body);
     const { email, password, nama, role } = req.body;
 
     if (!email || !password || !nama || !role) {
@@ -16,8 +17,11 @@ export const register = async (req, res) => {
       });
     }
 
-    const userAlreadyExists = await User.findOne({ where: { email } });
-    if (userAlreadyExists != null) {
+    const userAlreadyExists = await usersCollection
+      .where("email", "==", email)
+      .get();
+
+    if (!userAlreadyExists.empty) {
       return res.status(400).json({
         success: false,
         message: "Pengguna sudah ada, silahkan masukkan kembali!",
@@ -29,20 +33,24 @@ export const register = async (req, res) => {
     const verificationToken = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
+    const userId = uuidv4();
 
-    const user = await User.create({
-      id: uuidv4(),
+    const newUser = {
+      id: userId,
       email,
       nama,
       role,
       password: hashedPassword,
       verificationToken,
       verificationTokenExpiresAt: new Date(Date.now() + 1 + 60 * 60 * 1000),
-    });
+      createdAt: new Date(),
+      lastLogin: null,
+      previousLogin: null,
+    };
 
-    await user.save();
+    await usersCollection.doc(userId).set(newUser);
 
-    generateTokenSetCookie(res, user);
+    generateTokenSetCookie(res, newUser);
 
     return res.status(201).json({
       success: true,
@@ -75,18 +83,20 @@ export const login = async (req, res) => {
       });
     }
 
-    // Search for user in the database
-    const user = await User.findOne({
-      where: { [Op.or]: [{ email: email }] },
-    });
+    const snapshot = await usersCollection
+      .where("email", "==", email)
+      .limit(1)
+      .get();
 
-    // Check if user exists
-    if (!user) {
-      return res.status(400).json({
+    if (snapshot.empty) {
+      return res.status(404).json({
         success: false,
-        message: "Oooppss! Email atau password anda salah",
+        message: "Ooooppss! Email atau password anda salah",
       });
     }
+
+    const userDoc = snapshot.docs[0];
+    const user = userDoc.data();
 
     // Validasi password after hashing
     const isMatch = await bcryptjs.compare(password, user.password);
@@ -101,9 +111,10 @@ export const login = async (req, res) => {
     generateTokenSetCookie(res, user);
 
     // Update last login time
-    user.previousLogin = user.lastLogin;
-    user.lastLogin = new Date();
-    await user.save();
+    await usersCollection.doc(user.id).update({
+      previousLogin: user.lastLogin || null,
+      lastLogin: new Date(),
+    });
 
     // Return success response
     return res.status(200).json({
@@ -119,7 +130,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = async (res) => {
+export const logout = async (req, res) => {
   res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
   return res.status(200).json({
     success: true,
