@@ -5,6 +5,7 @@ import authRoutes from "./route/auth.js";
 import userRoutes from "./route/user.js";
 import docsRoutes from "./route/docs.js";
 import letterRoutes from "./route/letter.js";
+import recipiRoutes from "./route/resos.js";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use("/api/auth", authRoutes); // Autentikasi
 app.use("/api/user", userRoutes); // Account
 app.use("/api/docs", docsRoutes); // Document
 app.use("/api/letter", letterRoutes); // Letter
+app.use("/api/recipi", recipiRoutes); // Recipient Resos
 
 app.get("/", (req, res) => {
   res.send("Selamat Datang Dinas Sosial");
