@@ -9,11 +9,11 @@ import {
 import {
   MdAdd,
   MdVisibility,
-  MdDownload,
+  MdSend,
   MdEdit,
   MdDelete,
 } from "react-icons/md";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,16 +33,6 @@ import {
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -53,11 +43,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
+import toast from 'react-hot-toast';
+import AddDokumen from "./add-dokumen";
+import UpdateDokumen from "./update-dokumen";
 
 export default function Dokumen() {
   const kategoriList = [
-    "Term Of Reference (TOR)",
+    "Term of Refference (TOR)",
     "Petunjuk Operasional Kegiatan (POK)",
     "Laporan Tahunan",
     "LPPD (Laporan Penyelenggaraan Pemerintahan Daerah)",
@@ -92,70 +84,105 @@ export default function Dokumen() {
   const [editingDoc, setEditingDoc] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deletingDoc, setDeletingDoc] = useState(null);
+  
+  // State untuk data dari API
+  const [uploadedDocuments, setUploadedDocuments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const API_BASE_URL = "http://localhost:9000/api/docs";
 
-  const uploadedDocuments = [
-    {
-      nomor: "001/TOR/2025",
-      nama: "Penyusunan TOR Kegiatan Sosialisasi",
-      perihal: "TOR untuk kegiatan sosialisasi program kerja 2025",
-      kategori: "Term Of Reference (TOR)",
-      jenis: "PDF",
-      tanggalUpload: "2025-06-10",
-      tanggalUpdate: "2025-06-12",
-      url: "#",
-    },
-    {
-      nomor: "002/POK/2025",
-      nama: "Petunjuk Operasional Kegiatan Pelatihan",
-      perihal: "POK pelatihan peningkatan kapasitas SDM",
-      kategori: "Petunjuk Operasional Kegiatan (POK)",
-      jenis: "DOCX",
-      tanggalUpload: "2025-06-11",
-      tanggalUpdate: "2025-06-15",
-      url: "#",
-    },
-    {
-      nomor: "003/LAPTAH/2024",
-      nama: "Laporan Tahunan 2024",
-      perihal: "Ringkasan kinerja tahunan 2024",
-      kategori: "Laporan Tahunan",
-      jenis: "PDF",
-      tanggalUpload: "2025-01-05",
-      tanggalUpdate: "2025-01-10",
-      url: "#",
-    },
-    {
-      nomor: "004/LKPJ/2024",
-      nama: "LKPJ Wali Kota 2024",
-      perihal: "Laporan Keterangan Pertanggungjawaban akhir tahun",
-      kategori: "LKPJ (Laporan Keterangan Pertanggungjawaban)",
-      jenis: "PDF",
-      tanggalUpload: "2025-03-20",
-      tanggalUpdate: "",
-      url: "#",
-    },
-    {
-      nomor: "005/RENJA/2025",
-      nama: "Rencana Kerja Tahun 2025",
-      perihal: "RENJA Dinas Perencanaan Pembangunan Daerah",
-      kategori: "RENJA dan RENJA Perubahan",
-      jenis: "PDF",
-      tanggalUpload: "2025-05-01",
-      tanggalUpdate: "2025-05-03",
-      url: "#",
-    },
-    {
-      nomor: "006/SPIP/2025",
-      nama: "Sistem Pengendalian Intern Pemerintah 2025",
-      perihal: "Dokumen pengendalian intern tahunan",
-      kategori: "SPIP (Sistem Pengendalian Intern Pemerintah)",
-      jenis: "PDF",
-      tanggalUpload: "2025-06-20",
-      tanggalUpdate: "",
-      url: "#",
-    },
-  ];
+  // Fetch documents dari API
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        const transformedData = result.data.map(doc => ({
+          id: doc.id,
+          nomor: doc.nomor,
+          nama: doc.nama,
+          perihal: doc.perihal,
+          kategori: doc.kategori,
+          jenis: getFileTypeFromMimeType(doc.jenis),
+          tanggalUpload: doc.tanggalUpload,
+          tanggalUpdate: doc.tanggalUpdate,
+          url: doc.url,
+          userId: doc.userId,
+          createdAt: doc.createdAt,
+          updatedAt: doc.updatedAt,
+        }));
+        
+        setUploadedDocuments(transformedData);
+      } else {
+        throw new Error(result.message || 'Gagal mengambil data dokumen');
+      }
+    } catch (err) {
+      console.error('Error fetching documents:', err);
+      const errorMessage = err.message || 'Terjadi kesalahan saat mengambil data dokumen';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFileTypeFromMimeType = (mimeType) => {
+    const mimeToType = {
+      'application/pdf': 'PDF',
+      'application/msword': 'DOC',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+      'application/vnd.ms-excel': 'XLS',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+      'application/vnd.ms-powerpoint': 'PPT',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
+    };
+    
+    return mimeToType[mimeType] || 'OTHER';
+  };
+
+  // Function untuk mengirim file ke WhatsApp
+  const sendToWhatsApp = async (doc) => {
+    try {
+      toast.loading('Menyiapkan file untuk WhatsApp...', { id: 'whatsapp-send' });
+      const message = `*Dokumen: ${doc.nama}*\n\n` +
+                     `*Perihal:* ${doc.perihal}\n` +
+                     `*Kategori:* ${doc.kategori}\n` +
+                     `*Tanggal Upload:* ${doc.tanggalUpload}\n` +
+                     `*Link:* ${doc.url}`;
+      
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, '_blank');
+      toast.success('File berhasil disiapkan untuk WhatsApp!', { id: 'whatsapp-send' });
+      
+    } catch (error) {
+      console.error('Error sending to WhatsApp:', error);
+      toast.error('Gagal mengirim ke WhatsApp!', { id: 'whatsapp-send' });
+    }
+  };
+  
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  // Filter documents
   const filteredDocuments = uploadedDocuments.filter((doc) => {
     const searchMatch =
       doc.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -179,64 +206,59 @@ export default function Dokumen() {
     currentPage * itemsPerPage
   );
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const dokumen = {
-      nomor: formData.get("nomor"),
-      nama: formData.get("nama"),
-      perihal: formData.get("perihal"),
-      kategori: formData.get("kategori"),
-      jenis: formData.get("jenis"),
-      file: formData.get("file"),
-    };
-
-    // Proses simpan dokumen di sini
-    console.log("Dokumen baru:", dokumen);
-    alert("Dokumen berhasil ditambahkan!");
-
-    // Reset form
-    e.target.reset();
-  };
-
   const handleEdit = (doc) => {
     setEditingDoc(doc);
     setIsEditDialogOpen(true);
-  };
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updatedDoc = {
-      ...editingDoc,
-      nomor: formData.get("nomor"),
-      nama: formData.get("nama"),
-      perihal: formData.get("perihal"),
-      kategori: formData.get("kategori"),
-      jenis: formData.get("jenis"),
-      file: formData.get("file"),
-    };
-
-    // Proses update dokumen di sini
-    console.log("Dokumen diupdate:", updatedDoc);
-    alert("Dokumen berhasil diperbarui!");
-
-    // Reset dan tutup dialog
-    setEditingDoc(null);
-    setIsEditDialogOpen(false);
   };
 
   const handleDelete = (doc) => {
     setDeletingDoc(doc);
   };
 
-  const confirmDelete = () => {
-    // Proses hapus dokumen di sini
-    console.log("Dokumen dihapus:", deletingDoc);
-    alert(`Dokumen "${deletingDoc.nama}" berhasil dihapus!`);
+  const confirmDelete = async () => {
+    if (!deletingDoc) return;
+    
+    setIsSubmitting(true);
+    
+    const loadingToast = toast.loading('Menghapus dokumen...');
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/${deletingDoc.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    // Reset state
-    setDeletingDoc(null);
+      if (!response.ok) {
+        const errorResult = await response.json();
+        throw new Error(errorResult.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success(`Dokumen "${deletingDoc.nama}" berhasil dihapus!`, {
+          id: loadingToast,
+          duration: 4000,
+        });
+        
+        await fetchDocuments();
+      } else {
+        throw new Error(result.message || 'Gagal menghapus dokumen');
+      }
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      const errorMessage = err.message || 'Terjadi kesalahan saat menghapus dokumen';
+      toast.error(errorMessage, {
+        id: loadingToast,
+        duration: 4000,
+      });
+    } finally {
+      setIsSubmitting(false);
+      setDeletingDoc(null);
+    }
   };
 
   const PaginationComponent = () => (
@@ -275,6 +297,19 @@ export default function Dokumen() {
         Daftar Dokumen Diupload
       </h2>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="text-center py-4">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">Memuat data dokumen...</p>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
@@ -306,113 +341,14 @@ export default function Dokumen() {
             className="flex-1 min-w-[100px]"
           />
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="gap-2 text-white transition-transform hover:scale-105"
-                style={{ backgroundColor: "#1f77b4" }}
-              >
-                <MdAdd size={20} />
-                Tambah
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <form onSubmit={handleSubmit}>
-                <DialogHeader>
-                  <DialogTitle>Tambah Dokumen Baru</DialogTitle>
-                  <DialogDescription>
-                    Lengkapi form di bawah ini untuk menambahkan dokumen baru.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-3">
-                    <Label htmlFor="nomor">Nomor Dokumen</Label>
-                    <Input
-                      id="nomor"
-                      name="nomor"
-                      placeholder="Masukkan nomor dokumen"
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="nama">Nama Dokumen</Label>
-                    <Input
-                      id="nama"
-                      name="nama"
-                      placeholder="Masukkan nama dokumen"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="perihal">Perihal</Label>
-                    <Input
-                      id="perihal"
-                      name="perihal"
-                      placeholder="Masukkan perihal dokumen"
-                    />
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="kategori">Kategori</Label>
-                    <Select name="kategori" required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih kategori dokumen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {kategoriList.map((kat) => (
-                          <SelectItem key={kat} value={kat}>
-                            {kat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="jenis">Jenis File</Label>
-                    <Select name="jenis" required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih jenis file" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PDF">PDF</SelectItem>
-                        <SelectItem value="DOCX">DOCX</SelectItem>
-                        <SelectItem value="DOC">DOC</SelectItem>
-                        <SelectItem value="XLS">XLS</SelectItem>
-                        <SelectItem value="XLSX">XLSX</SelectItem>
-                        <SelectItem value="PPT">PPT</SelectItem>
-                        <SelectItem value="PPTX">PPTX</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-3">
-                    <Label htmlFor="file">Upload File</Label>
-                    <Input
-                      id="file"
-                      name="file"
-                      type="file"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                      required
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button
-                      type="button"
-                      className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
-                    >
-                      Batal
-                    </Button>
-                  </DialogClose>
-                  <Button
-                    type="submit"
-                    className="text-white transition-transform hover:scale-105"
-                    style={{ backgroundColor: "#1f77b4" }}
-                  >
-                    Simpan Dokumen
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddDokumen 
+            kategoriList={kategoriList}
+            isSubmitting={isSubmitting}
+            setIsSubmitting={setIsSubmitting}
+            setError={setError}
+            fetchDocuments={fetchDocuments}
+            API_BASE_URL={API_BASE_URL}
+          />
         </div>
       </div>
 
@@ -448,12 +384,12 @@ export default function Dokumen() {
                     colSpan={8}
                     className="text-center py-6 text-gray-500"
                   >
-                    Tidak ada dokumen ditemukan.
+                    {isLoading ? "Memuat data..." : "Tidak ada dokumen ditemukan."}
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedDocuments.map((doc, idx) => (
-                  <TableRow key={idx} className="hover:bg-gray-50 border-b">
+                paginatedDocuments.map((doc) => (
+                  <TableRow key={doc.id} className="hover:bg-gray-50 border-b">
                     <TableCell className="px-4 py-1 border-r">
                       {doc.nomor}
                     </TableCell>
@@ -495,18 +431,19 @@ export default function Dokumen() {
                         >
                           <MdVisibility size={18} />
                         </a>
-                        <a
-                          href={doc.url}
-                          download
+                        <button
+                          onClick={() => sendToWhatsApp(doc)}
                           className="text-green-600 hover:text-green-800 p-1 rounded"
-                          title="Download"
+                          title="Kirim ke WhatsApp"
+                          disabled={isSubmitting}
                         >
-                          <MdDownload size={18} />
-                        </a>
+                          <MdSend size={18} />
+                        </button>
                         <button
                           onClick={() => handleEdit(doc)}
                           className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
                           title="Edit"
+                          disabled={isSubmitting}
                         >
                           <MdEdit size={18} />
                         </button>
@@ -516,6 +453,7 @@ export default function Dokumen() {
                               onClick={() => handleDelete(doc)}
                               className="text-red-600 hover:text-red-800 p-1 rounded"
                               title="Hapus"
+                              disabled={isSubmitting}
                             >
                               <MdDelete size={18} />
                             </button>
@@ -532,12 +470,15 @@ export default function Dokumen() {
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogCancel disabled={isSubmitting}>
+                                Batal
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={confirmDelete}
                                 className="bg-red-500 hover:bg-red-600 text-white"
+                                disabled={isSubmitting}
                               >
-                                Hapus
+                                {isSubmitting ? "Menghapus..." : "Hapus"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -553,9 +494,9 @@ export default function Dokumen() {
 
         {/* Mobile Card */}
         <div className="md:hidden space-y-4 px-2 pb-6">
-          {paginatedDocuments.map((doc, idx) => (
+          {paginatedDocuments.map((doc) => (
             <Card
-              key={idx}
+              key={doc.id}
               className="rounded-xl shadow border space-y-0 p-4 mt-2"
             >
               <div>
@@ -588,16 +529,17 @@ export default function Dokumen() {
                 >
                   <MdVisibility size={16} /> Lihat
                 </a>
-                <a
-                  href={doc.url}
-                  download
+                <button
+                  onClick={() => sendToWhatsApp(doc)}
                   className="flex items-center gap-1 text-green-600 hover:text-green-800"
+                  disabled={isSubmitting}
                 >
-                  <MdDownload size={16} /> Unduh
-                </a>
+                  <MdSend size={16} /> Kirim
+                </button>
                 <button
                   onClick={() => handleEdit(doc)}
                   className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
+                  disabled={isSubmitting}
                 >
                   <MdEdit size={16} /> Edit
                 </button>
@@ -606,6 +548,7 @@ export default function Dokumen() {
                     <button
                       onClick={() => handleDelete(doc)}
                       className="flex items-center gap-1 text-red-600 hover:text-red-800"
+                      disabled={isSubmitting}
                     >
                       <MdDelete size={16} /> Hapus
                     </button>
@@ -621,12 +564,15 @@ export default function Dokumen() {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogCancel disabled={isSubmitting}>
+                        Batal
+                      </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={confirmDelete}
                         className="bg-red-500 hover:bg-red-600 text-white"
+                        disabled={isSubmitting}
                       >
-                        Hapus
+                        {isSubmitting ? "Menghapus..." : "Hapus"}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -636,7 +582,7 @@ export default function Dokumen() {
           ))}
           {paginatedDocuments.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              Tidak ada dokumen ditemukan.
+              {isLoading ? "Memuat data..." : "Tidak ada dokumen ditemukan."}
             </div>
           )}
         </div>
@@ -646,119 +592,17 @@ export default function Dokumen() {
         <PaginationComponent />
       </div>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleEditSubmit}>
-            <DialogHeader>
-              <DialogTitle>Edit Dokumen</DialogTitle>
-              <DialogDescription>
-                Ubah informasi dokumen di bawah ini. Klik simpan untuk menyimpan
-                perubahan.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-3">
-                <Label htmlFor="edit-nomor">Nomor Dokumen</Label>
-                <Input
-                  id="edit-nomor"
-                  name="nomor"
-                  placeholder="Masukkan nomor dokumen"
-                  defaultValue={editingDoc?.nomor || ""}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="edit-nama">Nama Dokumen</Label>
-                <Input
-                  id="edit-nama"
-                  name="nama"
-                  placeholder="Masukkan nama dokumen"
-                  defaultValue={editingDoc?.nama || ""}
-                  required
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="edit-perihal">Perihal</Label>
-                <Input
-                  id="edit-perihal"
-                  name="perihal"
-                  placeholder="Masukkan perihal dokumen"
-                  defaultValue={editingDoc?.perihal || ""}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="edit-kategori">Kategori</Label>
-                <Select
-                  name="kategori"
-                  defaultValue={editingDoc?.kategori || ""}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih kategori dokumen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {kategoriList.map((kat) => (
-                      <SelectItem key={kat} value={kat}>
-                        {kat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="edit-jenis">Jenis File</Label>
-                <Select
-                  name="jenis"
-                  defaultValue={editingDoc?.jenis || ""}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih jenis file" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PDF">PDF</SelectItem>
-                    <SelectItem value="DOCX">DOCX</SelectItem>
-                    <SelectItem value="DOC">DOC</SelectItem>
-                    <SelectItem value="XLS">XLS</SelectItem>
-                    <SelectItem value="XLSX">XLSX</SelectItem>
-                    <SelectItem value="PPT">PPT</SelectItem>
-                    <SelectItem value="PPTX">PPTX</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="edit-file">Upload File Baru (Opsional)</Label>
-                <Input
-                  id="edit-file"
-                  name="file"
-                  type="file"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                />
-                <p className="text-xs text-gray-500">
-                  Biarkan kosong jika tidak ingin mengganti file
-                </p>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  className="bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"
-                >
-                  Batal
-                </Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                className="text-white transition-transform hover:scale-105"
-                style={{ backgroundColor: "#1f77b4" }}
-              >
-                Simpan Perubahan
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Update Dialog */}
+      <UpdateDokumen 
+        editingDoc={editingDoc}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        setEditingDoc={setEditingDoc}
+        kategoriList={kategoriList}
+        fetchDocuments={fetchDocuments}
+        setError={setError}
+        API_BASE_URL={API_BASE_URL}
+      />
     </div>
   );
 }

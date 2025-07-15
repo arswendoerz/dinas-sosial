@@ -110,8 +110,13 @@ function RouteComponent() {
   };
 
   const formatLastLogin = (lastLogin) => {
-    if (!lastLogin) return 'Tidak diketahui';
-    
+  if (!lastLogin) return 'Tidak diketahui';
+  
+  if (typeof lastLogin === 'string') {
+    return lastLogin;
+  }
+
+  try {
     const date = new Date(lastLogin);
     return date.toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -120,7 +125,11 @@ function RouteComponent() {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
+  } catch (error) {
+    console.error('Error formatting lastLogin:', error);
+    return 'Format tanggal tidak valid';
+  }
+};
 
   const getBidangDisplay = (role) => {
     switch (role?.toLowerCase()) {
