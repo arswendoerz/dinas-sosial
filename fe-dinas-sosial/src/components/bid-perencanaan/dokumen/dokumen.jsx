@@ -83,7 +83,7 @@ export default function Dokumen() {
   const [selectedTanggal, setSelectedTanggal] = useState("");
   const [editingDoc, setEditingDoc] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [deletingDoc, setDeletingDoc] = useState(null);
+  const [deletingDocument, setDeletingDocument] = useState(null);
   
   // State untuk data dari API
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
@@ -113,19 +113,18 @@ export default function Dokumen() {
       const result = await response.json();
       
       if (result.success) {
-        const transformedData = result.data.map(doc => ({
-          id: doc.id,
-          nomor: doc.nomor,
-          nama: doc.nama,
-          perihal: doc.perihal,
-          kategori: doc.kategori,
-          jenis: getFileTypeFromMimeType(doc.jenis),
-          tanggalUpload: doc.tanggalUpload,
-          tanggalUpdate: doc.tanggalUpdate,
-          url: doc.url,
-          userId: doc.userId,
-          createdAt: doc.createdAt,
-          updatedAt: doc.updatedAt,
+        const transformedData = result.data.map(document => ({
+          id: document.id,
+          nomor: document.nomor,
+          nama: document.nama,
+          perihal: document.perihal,
+          kategori: document.kategori,
+          jenis: getFileTypeFromMimeType(document.jenis),
+          tanggalUpload: document.tanggalUpload,
+          tanggalUpdate: document.tanggalUpdate,
+          url: document.url,
+          userId: document.userId,
+          role: document.role,
         }));
         
         setUploadedDocuments(transformedData);
@@ -157,14 +156,15 @@ export default function Dokumen() {
   };
 
   // Function untuk mengirim file ke WhatsApp
-  const sendToWhatsApp = async (doc) => {
+  const sendToWhatsApp = async (document) => {
     try {
       toast.loading('Menyiapkan file untuk WhatsApp...', { id: 'whatsapp-send' });
-      const message = `*Dokumen: ${doc.nama}*\n\n` +
-                     `*Perihal:* ${doc.perihal}\n` +
-                     `*Kategori:* ${doc.kategori}\n` +
-                     `*Tanggal Upload:* ${doc.tanggalUpload}\n` +
-                     `*Link:* ${doc.url}`;
+      const message = `*Dokumen: ${document.nama}*\n\n` +
+                     `*Nomor:* ${document.nomor}\n` +
+                     `*Perihal:* ${document.perihal}\n` +
+                     `*Kategori:* ${document.kategori}\n` +
+                     `*Tanggal Upload:* ${document.tanggalUpload}\n` +
+                     `*Link:* ${document.url}`;
       
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
@@ -183,17 +183,18 @@ export default function Dokumen() {
   }, []);
 
   // Filter documents
-  const filteredDocuments = uploadedDocuments.filter((doc) => {
+  const filteredDocuments = uploadedDocuments.filter((document) => {
     const searchMatch =
-      doc.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.nomor.toLowerCase().includes(searchTerm.toLowerCase());
+      document.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      document.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      document.perihal.toLowerCase().includes(searchTerm.toLowerCase());
 
     const kategoriMatch =
-      selectedKategori === "__semua__" || doc.kategori === selectedKategori;
+      selectedKategori === "__semua__" || document.kategori === selectedKategori;
 
     const tanggalMatch =
       selectedTanggal === "" ||
-      doc.tanggalUpload.slice(0, 7) === selectedTanggal;
+      document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/');
 
     return searchMatch && kategoriMatch && tanggalMatch;
   });
@@ -206,24 +207,24 @@ export default function Dokumen() {
     currentPage * itemsPerPage
   );
 
-  const handleEdit = (doc) => {
-    setEditingDoc(doc);
+  const handleEdit = (document) => {
+    setEditingDoc(document);
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (doc) => {
-    setDeletingDoc(doc);
+  const handleDelete = (document) => {
+    setDeletingDocument(document);
   };
 
   const confirmDelete = async () => {
-    if (!deletingDoc) return;
+    if (!deletingDocument) return;
     
     setIsSubmitting(true);
     
     const loadingToast = toast.loading('Menghapus dokumen...');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/${deletingDoc.id}`, {
+      const response = await fetch(`${API_BASE_URL}/${deletingDocument.id}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -239,7 +240,7 @@ export default function Dokumen() {
       const result = await response.json();
       
       if (result.success) {
-        toast.success(`Dokumen "${deletingDoc.nama}" berhasil dihapus!`, {
+        toast.success(`Dokumen "${deletingDocument.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
@@ -257,7 +258,7 @@ export default function Dokumen() {
       });
     } finally {
       setIsSubmitting(false);
-      setDeletingDoc(null);
+      setDeletingDocument(null);
     }
   };
 
@@ -313,7 +314,7 @@ export default function Dokumen() {
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
-          placeholder="Cari nama atau nomor dokumen"
+          placeholder="Cari nama, nomor, atau perihal dokumen"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 min-w-[200px]"
@@ -388,42 +389,42 @@ export default function Dokumen() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedDocuments.map((doc) => (
-                  <TableRow key={doc.id} className="hover:bg-gray-50 border-b">
+                paginatedDocuments.map((document) => (
+                  <TableRow key={document.id} className="hover:bg-gray-50 border-b">
                     <TableCell className="px-4 py-1 border-r">
-                      {doc.nomor}
+                      {document.nomor}
                     </TableCell>
                     <TableCell
                       className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                      title={doc.nama}
+                      title={document.nama}
                     >
-                      {doc.nama}
+                      {document.nama}
                     </TableCell>
                     <TableCell
                       className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                      title={doc.perihal}
+                      title={document.perihal}
                     >
-                      {doc.perihal}
+                      {document.perihal}
                     </TableCell>
                     <TableCell
                       className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal"
-                      title={doc.kategori}
+                      title={document.kategori}
                     >
-                      {doc.kategori}
+                      {document.kategori}
                     </TableCell>
                     <TableCell className="px-4 py-1 border-r">
-                      {doc.jenis}
+                      {document.jenis}
                     </TableCell>
                     <TableCell className="px-4 py-1 border-r">
-                      {doc.tanggalUpload}
+                      {document.tanggalUpload}
                     </TableCell>
                     <TableCell className="px-4 py-1 border-r">
-                      {doc.tanggalUpdate || "-"}
+                      {document.tanggalUpdate || "-"}
                     </TableCell>
                     <TableCell className="px-4 py-1 text-center">
                       <div className="grid grid-cols-2 gap-1 justify-center items-center">
                         <a
-                          href={doc.url}
+                          href={document.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-800 p-1 rounded"
@@ -432,7 +433,7 @@ export default function Dokumen() {
                           <MdVisibility size={18} />
                         </a>
                         <button
-                          onClick={() => sendToWhatsApp(doc)}
+                          onClick={() => sendToWhatsApp(document)}
                           className="text-green-600 hover:text-green-800 p-1 rounded"
                           title="Kirim ke WhatsApp"
                           disabled={isSubmitting}
@@ -440,7 +441,7 @@ export default function Dokumen() {
                           <MdSend size={18} />
                         </button>
                         <button
-                          onClick={() => handleEdit(doc)}
+                          onClick={() => handleEdit(document)}
                           className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
                           title="Edit"
                           disabled={isSubmitting}
@@ -450,7 +451,7 @@ export default function Dokumen() {
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button
-                              onClick={() => handleDelete(doc)}
+                              onClick={() => handleDelete(document)}
                               className="text-red-600 hover:text-red-800 p-1 rounded"
                               title="Hapus"
                               disabled={isSubmitting}
@@ -465,7 +466,7 @@ export default function Dokumen() {
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Apakah Anda yakin ingin menghapus dokumen "
-                                {doc.nama}"? Tindakan ini tidak dapat
+                                {document.nama}"? Tindakan ini tidak dapat
                                 dibatalkan.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -493,36 +494,39 @@ export default function Dokumen() {
         </div>
 
         {/* Mobile Card */}
-        <div className="md:hidden space-y-4 px-2 pb-6">
-          {paginatedDocuments.map((doc) => (
+        <div className="md:hidden space-y-4 p-4">
+          {paginatedDocuments.map((document) => (
             <Card
-              key={doc.id}
-              className="rounded-xl shadow border space-y-0 p-4 mt-2"
+              key={document.id}
+              className="rounded-xl shadow border p-4"
             >
-              <div>
+              <div className="space-y-2">
                 <h3 className="font-semibold text-base text-gray-900">
-                  {doc.nomor}
+                  {document.nomor}
                 </h3>
-                <p className="text-sm font-medium text-gray-800 truncate">
-                  {doc.nama}
+                <p className="text-sm font-medium text-gray-800">
+                  {document.nama}
                 </p>
-                <p className="text-xs text-gray-600">{doc.perihal}</p>
+                <p className="text-xs text-gray-600">{document.perihal}</p>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs">
+              
+              <div className="flex flex-wrap gap-2 text-xs mt-3">
                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  {doc.kategori}
+                  {document.kategori}
                 </span>
                 <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                  {doc.jenis}
+                  {document.jenis}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Upload: {doc.tanggalUpload}</span>
-                <span>Update: {doc.tanggalUpdate || "-"}</span>
+              
+              <div className="flex justify-between text-xs text-gray-500 mt-3">
+                <span>Upload: {document.tanggalUpload}</span>
+                <span>Update: {document.tanggalUpdate || "-"}</span>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t text-sm text-gray-700">
+              
+              <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
                 <a
-                  href={doc.url}
+                  href={document.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
@@ -530,14 +534,14 @@ export default function Dokumen() {
                   <MdVisibility size={16} /> Lihat
                 </a>
                 <button
-                  onClick={() => sendToWhatsApp(doc)}
+                  onClick={() => sendToWhatsApp(document)}
                   className="flex items-center gap-1 text-green-600 hover:text-green-800"
                   disabled={isSubmitting}
                 >
                   <MdSend size={16} /> Kirim
                 </button>
                 <button
-                  onClick={() => handleEdit(doc)}
+                  onClick={() => handleEdit(document)}
                   className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
                   disabled={isSubmitting}
                 >
@@ -546,7 +550,7 @@ export default function Dokumen() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
-                      onClick={() => handleDelete(doc)}
+                      onClick={() => handleDelete(document)}
                       className="flex items-center gap-1 text-red-600 hover:text-red-800"
                       disabled={isSubmitting}
                     >
@@ -559,7 +563,7 @@ export default function Dokumen() {
                         Konfirmasi Hapus Dokumen
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Apakah Anda yakin ingin menghapus dokumen "{doc.nama}"?
+                        Apakah Anda yakin ingin menghapus dokumen "{document.nama}"?
                         Tindakan ini tidak dapat dibatalkan.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
