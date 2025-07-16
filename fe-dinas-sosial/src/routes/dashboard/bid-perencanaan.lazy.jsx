@@ -91,14 +91,14 @@ export default function Dashboard() {
       title: "Dokumen",
       icon: <MdDescription size={32} />,
       value: loading ? "..." : documentCount,
-      bgColor: "#1F3A93",
+      bgColor: "#ff7f0e",
     },
     {
       id: "surat",
       title: "Surat",
       icon: <MdMarkEmailUnread size={32} />,
       value: loading ? "..." : suratCount,
-      bgColor: "#ff7f0e",
+      bgColor: "#1F3A93",
     },
   ];
 

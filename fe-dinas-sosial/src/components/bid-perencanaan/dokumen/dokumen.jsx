@@ -32,6 +32,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,12 +86,98 @@ export default function Dokumen() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deletingDocument, setDeletingDocument] = useState(null);
   
-  // State untuk data dari API
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "http://localhost:9000/api/docs";
+
+  // Skeleton Components
+  const TableSkeleton = () => (
+    <Table className="text-left text-sm border-collapse w-full">
+      <TableHeader className="bg-gray-50 border-b">
+        <TableRow>
+          {[
+            "Nomor",
+            "Nama",
+            "Perihal",
+            "Kategori",
+            "Jenis",
+            "Tgl Upload",
+            "Tgl Update",
+            "Aksi",
+          ].map((col, i) => (
+            <TableHead
+              key={i}
+              className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
+            >
+              {col}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow className="hover:bg-gray-50 border-b">
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-16" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-32" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-40" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-28" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-12" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-20" />
+          </TableCell>
+          <TableCell className="px-4 py-3 border-r">
+            <Skeleton className="h-4 w-20" />
+          </TableCell>
+          <TableCell className="px-4 py-3 text-center">
+            <div className="grid grid-cols-2 gap-1 justify-center items-center">
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-6 rounded" />
+            </div>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+
+  const CardSkeleton = () => (
+    <Card className="rounded-xl shadow border p-4">
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-full" />
+      </div>
+      
+      <div className="flex flex-wrap gap-2 mt-3">
+        <Skeleton className="h-6 w-20 rounded" />
+        <Skeleton className="h-6 w-16 rounded" />
+      </div>
+      
+      <div className="flex justify-between mt-3">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-3 w-20" />
+      </div>
+      
+      <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-12" />
+      </div>
+    </Card>
+  );
 
   // Fetch documents dari API
   const fetchDocuments = async () => {
@@ -155,7 +242,6 @@ export default function Dokumen() {
     return mimeToType[mimeType] || 'OTHER';
   };
 
-  // Function untuk mengirim file ke WhatsApp
   const sendToWhatsApp = async (document) => {
     try {
       toast.loading('Menyiapkan file untuk WhatsApp...', { id: 'whatsapp-send' });
@@ -304,13 +390,6 @@ export default function Dokumen() {
         </div>
       )}
 
-      {isLoading && (
-        <div className="text-center py-4">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">Memuat data dokumen...</p>
-        </div>
-      )}
-
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
@@ -356,238 +435,248 @@ export default function Dokumen() {
       {/* Desktop Table */}
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
-          <Table className="text-left text-sm border-collapse w-full">
-            <TableHeader className="bg-gray-50 border-b">
-              <TableRow>
-                {[
-                  "Nomor",
-                  "Nama",
-                  "Perihal",
-                  "Kategori",
-                  "Jenis",
-                  "Tgl Upload",
-                  "Tgl Update",
-                  "Aksi",
-                ].map((col, i) => (
-                  <TableHead
-                    key={i}
-                    className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
-                  >
-                    {col}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedDocuments.length === 0 ? (
+          {isLoading ? (
+            <TableSkeleton />
+          ) : (
+            <Table className="text-left text-sm border-collapse w-full">
+              <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    {isLoading ? "Memuat data..." : "Tidak ada dokumen ditemukan."}
-                  </TableCell>
+                  {[
+                    "Nomor",
+                    "Nama",
+                    "Perihal",
+                    "Kategori",
+                    "Jenis",
+                    "Tgl Upload",
+                    "Tgl Update",
+                    "Aksi",
+                  ].map((col, i) => (
+                    <TableHead
+                      key={i}
+                      className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
+                    >
+                      {col}
+                    </TableHead>
+                  ))}
                 </TableRow>
-              ) : (
-                paginatedDocuments.map((document) => (
-                  <TableRow key={document.id} className="hover:bg-gray-50 border-b">
-                    <TableCell className="px-4 py-1 border-r">
-                      {document.nomor}
-                    </TableCell>
+              </TableHeader>
+              <TableBody>
+                {paginatedDocuments.length === 0 ? (
+                  <TableRow>
                     <TableCell
-                      className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                      title={document.nama}
+                      colSpan={8}
+                      className="text-center py-6 text-gray-500"
                     >
-                      {document.nama}
-                    </TableCell>
-                    <TableCell
-                      className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                      title={document.perihal}
-                    >
-                      {document.perihal}
-                    </TableCell>
-                    <TableCell
-                      className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal"
-                      title={document.kategori}
-                    >
-                      {document.kategori}
-                    </TableCell>
-                    <TableCell className="px-4 py-1 border-r">
-                      {document.jenis}
-                    </TableCell>
-                    <TableCell className="px-4 py-1 border-r">
-                      {document.tanggalUpload}
-                    </TableCell>
-                    <TableCell className="px-4 py-1 border-r">
-                      {document.tanggalUpdate || "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-1 text-center">
-                      <div className="grid grid-cols-2 gap-1 justify-center items-center">
-                        <a
-                          href={document.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 p-1 rounded"
-                          title="Lihat"
-                        >
-                          <MdVisibility size={18} />
-                        </a>
-                        <button
-                          onClick={() => sendToWhatsApp(document)}
-                          className="text-green-600 hover:text-green-800 p-1 rounded"
-                          title="Kirim ke WhatsApp"
-                          disabled={isSubmitting}
-                        >
-                          <MdSend size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(document)}
-                          className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
-                          title="Edit"
-                          disabled={isSubmitting}
-                        >
-                          <MdEdit size={18} />
-                        </button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button
-                              onClick={() => handleDelete(document)}
-                              className="text-red-600 hover:text-red-800 p-1 rounded"
-                              title="Hapus"
-                              disabled={isSubmitting}
-                            >
-                              <MdDelete size={18} />
-                            </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Konfirmasi Hapus Dokumen
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Apakah Anda yakin ingin menghapus dokumen "
-                                {document.nama}"? Tindakan ini tidak dapat
-                                dibatalkan.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel disabled={isSubmitting}>
-                                Batal
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={confirmDelete}
-                                className="bg-red-500 hover:bg-red-600 text-white"
-                                disabled={isSubmitting}
-                              >
-                                {isSubmitting ? "Menghapus..." : "Hapus"}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
+                      Tidak ada dokumen ditemukan.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  paginatedDocuments.map((document) => (
+                    <TableRow key={document.id} className="hover:bg-gray-50 border-b">
+                      <TableCell className="px-4 py-1 border-r">
+                        {document.nomor}
+                      </TableCell>
+                      <TableCell
+                        className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
+                        title={document.nama}
+                      >
+                        {document.nama}
+                      </TableCell>
+                      <TableCell
+                        className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
+                        title={document.perihal}
+                      >
+                        {document.perihal}
+                      </TableCell>
+                      <TableCell
+                        className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal"
+                        title={document.kategori}
+                      >
+                        {document.kategori}
+                      </TableCell>
+                      <TableCell className="px-4 py-1 border-r">
+                        {document.jenis}
+                      </TableCell>
+                      <TableCell className="px-4 py-1 border-r">
+                        {document.tanggalUpload}
+                      </TableCell>
+                      <TableCell className="px-4 py-1 border-r">
+                        {document.tanggalUpdate || "-"}
+                      </TableCell>
+                      <TableCell className="px-4 py-1 text-center">
+                        <div className="grid grid-cols-2 gap-1 justify-center items-center">
+                          <a
+                            href={document.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded"
+                            title="Lihat"
+                          >
+                            <MdVisibility size={18} />
+                          </a>
+                          <button
+                            onClick={() => sendToWhatsApp(document)}
+                            className="text-green-600 hover:text-green-800 p-1 rounded"
+                            title="Kirim ke WhatsApp"
+                            disabled={isSubmitting}
+                          >
+                            <MdSend size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(document)}
+                            className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
+                            title="Edit"
+                            disabled={isSubmitting}
+                          >
+                            <MdEdit size={18} />
+                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                onClick={() => handleDelete(document)}
+                                className="text-red-600 hover:text-red-800 p-1 rounded"
+                                title="Hapus"
+                                disabled={isSubmitting}
+                              >
+                                <MdDelete size={18} />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Konfirmasi Hapus Dokumen
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Apakah Anda yakin ingin menghapus dokumen "
+                                  {document.nama}"? Tindakan ini tidak dapat
+                                  dibatalkan.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel disabled={isSubmitting}>
+                                  Batal
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={confirmDelete}
+                                  className="bg-red-500 hover:bg-red-600 text-white"
+                                  disabled={isSubmitting}
+                                >
+                                  {isSubmitting ? "Menghapus..." : "Hapus"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </div>
 
         {/* Mobile Card */}
         <div className="md:hidden space-y-4 p-4">
-          {paginatedDocuments.map((document) => (
-            <Card
-              key={document.id}
-              className="rounded-xl shadow border p-4"
-            >
-              <div className="space-y-2">
-                <h3 className="font-semibold text-base text-gray-900">
-                  {document.nomor}
-                </h3>
-                <p className="text-sm font-medium text-gray-800">
-                  {document.nama}
-                </p>
-                <p className="text-xs text-gray-600">{document.perihal}</p>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 text-xs mt-3">
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  {document.kategori}
-                </span>
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                  {document.jenis}
-                </span>
-              </div>
-              
-              <div className="flex justify-between text-xs text-gray-500 mt-3">
-                <span>Upload: {document.tanggalUpload}</span>
-                <span>Update: {document.tanggalUpdate || "-"}</span>
-              </div>
-              
-              <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
-                <a
-                  href={document.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+          {isLoading ? (
+            <CardSkeleton />
+          ) : (
+            <>
+              {paginatedDocuments.map((document) => (
+                <Card
+                  key={document.id}
+                  className="rounded-xl shadow border p-4"
                 >
-                  <MdVisibility size={16} /> Lihat
-                </a>
-                <button
-                  onClick={() => sendToWhatsApp(document)}
-                  className="flex items-center gap-1 text-green-600 hover:text-green-800"
-                  disabled={isSubmitting}
-                >
-                  <MdSend size={16} /> Kirim
-                </button>
-                <button
-                  onClick={() => handleEdit(document)}
-                  className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
-                  disabled={isSubmitting}
-                >
-                  <MdEdit size={16} /> Edit
-                </button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-base text-gray-900">
+                      {document.nomor}
+                    </h3>
+                    <p className="text-sm font-medium text-gray-800">
+                      {document.nama}
+                    </p>
+                    <p className="text-xs text-gray-600">{document.perihal}</p>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 text-xs mt-3">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {document.kategori}
+                    </span>
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
+                      {document.jenis}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between text-xs text-gray-500 mt-3">
+                    <span>Upload: {document.tanggalUpload}</span>
+                    <span>Update: {document.tanggalUpdate || "-"}</span>
+                  </div>
+                  
+                  <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
+                    <a
+                      href={document.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                    >
+                      <MdVisibility size={16} /> Lihat
+                    </a>
                     <button
-                      onClick={() => handleDelete(document)}
-                      className="flex items-center gap-1 text-red-600 hover:text-red-800"
+                      onClick={() => sendToWhatsApp(document)}
+                      className="flex items-center gap-1 text-green-600 hover:text-green-800"
                       disabled={isSubmitting}
                     >
-                      <MdDelete size={16} /> Hapus
+                      <MdSend size={16} /> Kirim
                     </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Konfirmasi Hapus Dokumen
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Apakah Anda yakin ingin menghapus dokumen "{document.nama}"?
-                        Tindakan ini tidak dapat dibatalkan.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isSubmitting}>
-                        Batal
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={confirmDelete}
-                        className="bg-red-500 hover:bg-red-600 text-white"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Menghapus..." : "Hapus"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </Card>
-          ))}
-          {paginatedDocuments.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              {isLoading ? "Memuat data..." : "Tidak ada dokumen ditemukan."}
-            </div>
+                    <button
+                      onClick={() => handleEdit(document)}
+                      className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
+                      disabled={isSubmitting}
+                    >
+                      <MdEdit size={16} /> Edit
+                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          onClick={() => handleDelete(document)}
+                          className="flex items-center gap-1 text-red-600 hover:text-red-800"
+                          disabled={isSubmitting}
+                        >
+                          <MdDelete size={16} /> Hapus
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Konfirmasi Hapus Dokumen
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Apakah Anda yakin ingin menghapus dokumen "{document.nama}"?
+                            Tindakan ini tidak dapat dibatalkan.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isSubmitting}>
+                            Batal
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={confirmDelete}
+                            className="bg-red-500 hover:bg-red-600 text-white"
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? "Menghapus..." : "Hapus"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </Card>
+              ))}
+              {paginatedDocuments.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  Tidak ada dokumen ditemukan.
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
