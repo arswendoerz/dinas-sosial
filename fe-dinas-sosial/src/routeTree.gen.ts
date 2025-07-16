@@ -23,9 +23,6 @@ const DashboardBidResosLazyRouteImport = createFileRoute(
 const DashboardBidPerencanaanLazyRouteImport = createFileRoute(
   '/dashboard/bid-perencanaan',
 )()
-const DashboardBidLinjamsosLazyRouteImport = createFileRoute(
-  '/dashboard/bid-linjamsos',
-)()
 const AuthLoginLazyRouteImport = createFileRoute('/Auth/login')()
 
 const HomeLazyRoute = HomeLazyRouteImport.update({
@@ -68,14 +65,6 @@ const DashboardBidPerencanaanLazyRoute =
   } as any).lazy(() =>
     import('./routes/dashboard/bid-perencanaan.lazy').then((d) => d.Route),
   )
-const DashboardBidLinjamsosLazyRoute =
-  DashboardBidLinjamsosLazyRouteImport.update({
-    id: '/dashboard/bid-linjamsos',
-    path: '/dashboard/bid-linjamsos',
-    getParentRoute: () => rootRouteImport,
-  } as any).lazy(() =>
-    import('./routes/dashboard/bid-linjamsos.lazy').then((d) => d.Route),
-  )
 const AuthLoginLazyRoute = AuthLoginLazyRouteImport.update({
   id: '/Auth/login',
   path: '/Auth/login',
@@ -89,7 +78,6 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
@@ -100,7 +88,6 @@ export interface FileRoutesByTo {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
@@ -112,7 +99,6 @@ export interface FileRoutesById {
   '/account': typeof AccountLazyRoute
   '/home': typeof HomeLazyRoute
   '/Auth/login': typeof AuthLoginLazyRoute
-  '/dashboard/bid-linjamsos': typeof DashboardBidLinjamsosLazyRoute
   '/dashboard/bid-perencanaan': typeof DashboardBidPerencanaanLazyRoute
   '/dashboard/bid-resos': typeof DashboardBidResosLazyRoute
 }
@@ -125,7 +111,6 @@ export interface FileRouteTypes {
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   fileRoutesByTo: FileRoutesByTo
@@ -136,7 +121,6 @@ export interface FileRouteTypes {
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   id:
@@ -147,7 +131,6 @@ export interface FileRouteTypes {
     | '/account'
     | '/home'
     | '/Auth/login'
-    | '/dashboard/bid-linjamsos'
     | '/dashboard/bid-perencanaan'
     | '/dashboard/bid-resos'
   fileRoutesById: FileRoutesById
@@ -159,7 +142,6 @@ export interface RootRouteChildren {
   AccountLazyRoute: typeof AccountLazyRoute
   HomeLazyRoute: typeof HomeLazyRoute
   AuthLoginLazyRoute: typeof AuthLoginLazyRoute
-  DashboardBidLinjamsosLazyRoute: typeof DashboardBidLinjamsosLazyRoute
   DashboardBidPerencanaanLazyRoute: typeof DashboardBidPerencanaanLazyRoute
   DashboardBidResosLazyRoute: typeof DashboardBidResosLazyRoute
 }
@@ -215,13 +197,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBidPerencanaanLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/bid-linjamsos': {
-      id: '/dashboard/bid-linjamsos'
-      path: '/dashboard/bid-linjamsos'
-      fullPath: '/dashboard/bid-linjamsos'
-      preLoaderRoute: typeof DashboardBidLinjamsosLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/Auth/login': {
       id: '/Auth/login'
       path: '/Auth/login'
@@ -239,7 +214,6 @@ const rootRouteChildren: RootRouteChildren = {
   AccountLazyRoute: AccountLazyRoute,
   HomeLazyRoute: HomeLazyRoute,
   AuthLoginLazyRoute: AuthLoginLazyRoute,
-  DashboardBidLinjamsosLazyRoute: DashboardBidLinjamsosLazyRoute,
   DashboardBidPerencanaanLazyRoute: DashboardBidPerencanaanLazyRoute,
   DashboardBidResosLazyRoute: DashboardBidResosLazyRoute,
 }

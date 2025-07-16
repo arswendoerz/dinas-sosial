@@ -13,17 +13,16 @@ function RootComponent() {
   const currentPath = location.pathname.toLowerCase();
 
   const hideLayout = currentPath === '/' || currentPath === '/auth/login';
-  const showMotif = !hideLayout; // Motif hanya tampil di page yang tidak hideLayout
+  const showMotif = !hideLayout;
 
   return (
     <div className="min-h-screen bg-gray-100 relative">
-      {/* Motif Kanan - hanya tampil jika bukan di index atau login */}
       {showMotif && (
         <div className="fixed right-0 top-0 h-full w-auto z-10 pointer-events-none">
           <img
             src={motifKanan}
             alt="Motif Kanan"
-            className="h-full w-auto object-contain opacity-20"
+            className="h-full w-auto object-contain opacity-30"
           />
         </div>
       )}

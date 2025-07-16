@@ -1,7 +1,6 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { MdOutlineDashboardCustomize } from "react-icons/md";
-import { FaHandsHelping } from "react-icons/fa";
+import iconResosUrl from "../assets/icon/icon-resos.svg";
 import { GrPlan } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import AOS from "aos";
@@ -67,7 +66,7 @@ function Home() {
       title: "Rehabilitasi Sosial",
       color: "#ff7f0e",
       to: "/dashboard/bid-resos",
-      icon: <FaHandsHelping size={48} />,
+      icon: <img src={iconResosUrl} alt="Icon Resos" width={48} height={48} className="text-white" />,
       buttonBg: "#1F3A93",
       description: "Kelola data rehabilitasi sosial",
     },
@@ -125,7 +124,7 @@ function Home() {
             data-aos-delay={index * 100}
           >
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="p-2 bg-white/30 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+              <div className="p-2  backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
                 {section.icon}
               </div>
               <h3 className="text-base sm:text-lg font-bold">{section.title}</h3>

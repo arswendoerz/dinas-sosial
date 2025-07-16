@@ -2,7 +2,6 @@ import {
   FaHome,
   FaInfoCircle,
   FaUserAlt,
-  FaHandsHelping,
 } from "react-icons/fa";
 import { RiSidebarUnfoldFill, RiSidebarFoldFill } from "react-icons/ri";
 import { FaBarsStaggered } from "react-icons/fa6";
@@ -11,20 +10,40 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import logo from "@/assets/lampung.png";
+import motifKiriPutih from "@/assets/motif-kiri-putih.svg";
+import iconResosUrl from "../../assets/icon/icon-resos.png";
+
+const IconResos = ({ size = 22, isBlue = false }) => (
+  <img 
+    src={iconResosUrl} 
+    alt="Icon Rehabilitasi Sosial" 
+    width={size} 
+    height={size}
+    className="flex-shrink-0 transition-all duration-200"
+    style={{
+      filter: isBlue 
+        ? 'brightness(0) saturate(100%) invert(12%) sepia(85%) saturate(1729%) hue-rotate(218deg) brightness(96%) contrast(94%)'
+        : 'brightness(0) invert(1)'
+    }}
+  />
+);
 
 const navItems = [
   { label: "Home", icon: FaHome, to: "/home" },
   { label: "Perencanaan", icon: GrPlan, to: "/dashboard/bid-perencanaan" },
-  { label: "Rehabilitasi Sosial", icon: FaHandsHelping,to: "/dashboard/bid-resos" },
-  { label: "About", icon: FaInfoCircle, to: "/about" },
+  { label: "Rehabilitasi Sosial", icon: IconResos, to: "/dashboard/bid-resos" },
 ];
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
   const location = useLocation();
-  const iconSize = collapsed ? 28 : 22;
+  
+  // Ukuran ikon yang bisa disesuaikan
+  const iconSize = collapsed ? 24 : 20;
+  const resosIconSize = collapsed ? 22 : 18; // Khusus untuk ikon Rehabilitasi Sosial
 
   useEffect(() => {
     fetchUserProfile();
@@ -53,83 +72,127 @@ export default function Sidebar() {
 
   const SidebarContent = (
     <aside
-      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#135a96] text-white p-4 transition-all duration-300 shadow-xl
+      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#1F3A75] text-white p-4 transition-all duration-300 shadow-xl relative overflow-hidden
         ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
-      <div
-        className={`mb-4 flex ${collapsed ? "justify-center" : "justify-end"} transition-all duration-300`}
-      >
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-white hover:text-gray-200 transition cursor-pointer"
-        >
-          {collapsed ? (
-            <RiSidebarUnfoldFill size={30} />
-          ) : (
-            <RiSidebarFoldFill size={30} />
-          )}
-        </button>
-      </div>
-
-      <div className="flex justify-center mb-6">
+      <div className="absolute inset-0 pointer-events-none">
         <img
-          src={logo}
-          alt="Logo"
-          className={`transition-all duration-700 ease-in-out transform
-            ${collapsed ? "w-30 rotate-[360deg]" : "w-40 rotate-0"}`}
+          src={motifKiriPutih}
+          alt="Background Motif"
+          className="absolute left-0 top-0 h-full w-auto opacity-50 object-cover"
         />
       </div>
 
-      <nav className="flex flex-col gap-2">
-        {navItems.map(({ label, icon, to }) => {
-          const isActive = location.pathname === to;
-          const IconComponent = icon;
-          return (
-            <Link
-              key={label}
-              to={to}
-              title={collapsed ? label : ""}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <Button
-                variant="ghost"
-                className={`w-full justify-start items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer
-                  ${isActive ? "bg-white text-[#1F3A93]" : "hover:bg-white hover:text-[#1F3A93]"}`}
-              >
-                <IconComponent size={iconSize} />
-                <span
-                  className={`overflow-hidden transition-all duration-300 ${
-                    collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-                  }`}
-                >
-                  {label}
-                </span>
-              </Button>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* User */}
-      <div className="mt-auto pt-4 border-t border-white/20">
-        <Link to="/account" onClick={() => setSidebarOpen(false)}>
-          <Button
-            variant="ghost"
-            className="w-full flex items-center justify-start gap-3 px-3 py-2 hover:bg-white hover:text-[#1F3A93] transition-all duration-200 cursor-pointer"
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Toggle Button */}
+        <div
+          className={`mb-4 flex ${collapsed ? "justify-center" : "justify-end"} transition-all duration-300`}
+        >
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-white hover:text-gray-200 transition cursor-pointer"
           >
-            <FaUserAlt size={iconSize} className="flex-shrink-0" />
-            {!collapsed && (
-              <div className="flex flex-col text-left min-w-0 flex-1">
-                <span className="font-semibold leading-tight truncate">
-                  {user?.name || "Loading..."}
-                </span>
-                <span className="text-sm text-[#f6f6f6] leading-none truncate">
-                  {user?.email || "Loading..."}
-                </span>
-              </div>
+            {collapsed ? (
+              <RiSidebarUnfoldFill size={30} />
+            ) : (
+              <RiSidebarFoldFill size={30} />
             )}
-          </Button>
-        </Link>
+          </button>
+        </div>
+
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src={logo}
+            alt="Logo"
+            className={`transition-all duration-700 ease-in-out transform
+              ${collapsed ? "w-80 rotate-[360deg]" : "w-80 rotate-0"}`}
+          />
+        </div>
+
+        <nav className="flex flex-col gap-2">
+          {navItems.map(({ label, icon, to }) => {
+            const isActive = location.pathname === to;
+            const isHovered = hoveredItem === label;
+            const IconComponent = icon;
+            
+            return (
+              <Link
+                key={label}
+                to={to}
+                title={collapsed ? label : ""}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  className={`w-full items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer
+                    ${collapsed ? "justify-center" : "justify-start"}
+                    ${isActive ? "bg-white text-[#1F3A93]" : "hover:bg-white hover:text-[#1F3A93]"}`}
+                  onMouseEnter={() => setHoveredItem(label)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                  <div 
+                    className="flex items-center justify-center flex-shrink-0" 
+                    style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
+                  >
+                    {label === "Rehabilitasi Sosial" ? (
+                      <IconComponent 
+                        size={resosIconSize} 
+                        isBlue={isActive || isHovered}
+                      />
+                    ) : (
+                      <IconComponent size={iconSize} />
+                    )}
+                  </div>
+                  <span
+                    className={`overflow-hidden transition-all duration-300 ${
+                      collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </Button>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User */}
+        <div className="mt-auto pt-4 border-t border-white/20">
+          <Link to="/account" onClick={() => setSidebarOpen(false)}>
+            <Button
+              variant="ghost"
+              className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-white hover:text-[#1F3A93] transition-all duration-200 cursor-pointer group
+                ${collapsed ? "justify-center" : "justify-start"}`}
+            >
+              <div 
+                className="flex items-center justify-center flex-shrink-0" 
+                style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
+              >
+                <FaUserAlt size={iconSize} />
+              </div>
+              {!collapsed && (
+                <div className="flex flex-col text-left min-w-0 flex-1">
+                  <span className="font-semibold leading-tight truncate">
+                    {user?.name || "Loading..."}
+                  </span>
+                  <span className="text-sm text-[#f6f6f6] leading-normal truncate group-hover:text-[#1F3A93] transition-colors duration-200">
+                    {user?.email || "Loading..."}
+                  </span>
+                </div>
+              )}
+            </Button>
+          </Link>
+          
+          {/* Watermark */}
+          {!collapsed && (
+            <div className="mt-3 text-center">
+              <p className="text-xs text-white/60 font-medium">
+                Magang Dinas Sosial ©2025
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );
