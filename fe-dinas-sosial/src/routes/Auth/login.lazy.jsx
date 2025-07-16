@@ -1,12 +1,14 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from "react";
 import logo from "@/assets/lampung.png";
+import motifKanan from "@/assets/motif-kanan.svg";
+import motifKiri from "@/assets/motif-kiri.svg";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FaEye, FaEyeSlash, FaUser, FaLock } from "react-icons/fa";
-import { FaPeopleRoof } from "react-icons/fa6";
+import iconLogin from "@/assets/icon/icon-login.svg";
 import { useNavigate } from "@tanstack/react-router";
 import toast from 'react-hot-toast';
 
@@ -107,21 +109,39 @@ function RouteComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center p-2 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-transparent rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-orange-400/20 to-transparent rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-200/10 to-orange-200/10 rounded-full blur-3xl" />
       </div>
 
+      {/* Motif Kiri */}
+      <div className="absolute left-0 top-0 h-full w-auto z-5">
+        <img
+          src={motifKiri}
+          alt="Motif Kiri"
+          className="h-full w-auto object-contain opacity-30"
+        />
+      </div>
+
+      {/* Motif Kanan */}
+      <div className="absolute right-0 top-0 h-full w-auto z-5">
+        <img
+          src={motifKanan}
+          alt="Motif Kanan"
+          className="h-full w-auto object-contain opacity-30"
+        />
+      </div>
+
       <div
-        className="relative w-full max-w-6xl bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20"
+        className="relative w-full max-w-6xl bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20 z-10"
         data-aos="zoom-in"
         data-aos-duration="1000"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[85vh] lg:min-h-[600px]">
           <div
-            className="relative bg-gradient-to-br from-[#1f77b4] via-[#2e8bc0] to-[#135a96] flex items-center justify-center p-6 sm:p-8 lg:p-12 min-h-[40vh] lg:min-h-full"
+            className="relative bg-gradient-to-br from-[#1F3A93] via-[#2e8bc0] to-[#1F3A93] flex items-center justify-center p-6 sm:p-8 lg:p-12 min-h-[40vh] lg:min-h-full"
             data-aos="fade-right"
             data-aos-delay="200"
           >
@@ -171,7 +191,7 @@ function RouteComponent() {
                 data-aos-delay="500"
               >
                 <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#ff7f0e] rounded-full mb-3 sm:mb-4 shadow-lg">
-                  <FaPeopleRoof className="text-white text-2xl sm:text-3xl"/>
+                  <img src={iconLogin} alt="Login Icon" className="w-6 h-6 sm:w-8 sm:h-8 text-white"/>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
                   Masuk ke Akun

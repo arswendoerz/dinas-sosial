@@ -91,7 +91,7 @@ export default function Dashboard() {
       title: "Dokumen",
       icon: <MdDescription size={32} />,
       value: loading ? "..." : documentCount,
-      bgColor: "#1f77b4",
+      bgColor: "#1F3A93",
     },
     {
       id: "surat",
@@ -103,7 +103,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="h-full w-full flex justify-center bg-[#f6f6f6]">
+    <div className="h-full w-full flex justify-center bg-opacity-100">
       <div className="w-full px-4 sm:px-6 md:px-8 max-w-full mx-auto space-y-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {widgets.map((item, index) => (

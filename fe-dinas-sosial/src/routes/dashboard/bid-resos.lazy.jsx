@@ -333,7 +333,7 @@ function RouteComponent() {
             <DialogTrigger asChild>
               <Button
                 className="gap-2 text-white transition-transform hover:scale-105"
-                style={{ backgroundColor: "#1f77b4" }}
+                style={{ backgroundColor: "#1F3A93" }}
               >
                 <MdAdd size={20} />
                 Tambah
@@ -454,7 +454,7 @@ function RouteComponent() {
                   <Button
                     type="submit"
                     className="text-white transition-transform hover:scale-105"
-                    style={{ backgroundColor: "#1f77b4" }}
+                    style={{ backgroundColor: "#1F3A93" }}
                   >
                     Simpan Data
                   </Button>
@@ -845,7 +845,7 @@ function RouteComponent() {
               <Button
                 type="submit"
                 className="text-white transition-transform hover:scale-105"
-                style={{ backgroundColor: "#1f77b4" }}
+                style={{ backgroundColor: "#1F3A93" }}
               >
                 Simpan Perubahan
               </Button>

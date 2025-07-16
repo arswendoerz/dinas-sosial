@@ -53,7 +53,7 @@ export default function Sidebar() {
 
   const SidebarContent = (
     <aside
-      className={`h-screen bg-gradient-to-b from-[#1f77b4] to-[#135a96] text-white p-4 transition-all duration-300 shadow-xl
+      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#135a96] text-white p-4 transition-all duration-300 shadow-xl
         ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
       <div
@@ -94,7 +94,7 @@ export default function Sidebar() {
               <Button
                 variant="ghost"
                 className={`w-full justify-start items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 cursor-pointer
-                  ${isActive ? "bg-white text-[#1f77b4]" : "hover:bg-white hover:text-[#1f77b4]"}`}
+                  ${isActive ? "bg-white text-[#1F3A93]" : "hover:bg-white hover:text-[#1F3A93]"}`}
               >
                 <IconComponent size={iconSize} />
                 <span
@@ -115,15 +115,15 @@ export default function Sidebar() {
         <Link to="/account" onClick={() => setSidebarOpen(false)}>
           <Button
             variant="ghost"
-            className="w-full flex items-center justify-start gap-3 px-3 py-2 hover:bg-white hover:text-[#1f77b4] transition-all duration-200 cursor-pointer"
+            className="w-full flex items-center justify-start gap-3 px-3 py-2 hover:bg-white hover:text-[#1F3A93] transition-all duration-200 cursor-pointer"
           >
-            <FaUserAlt size={iconSize} />
+            <FaUserAlt size={iconSize} className="flex-shrink-0" />
             {!collapsed && (
-              <div className="flex flex-col text-left">
-                <span className="font-semibold leading-tight">
+              <div className="flex flex-col text-left min-w-0 flex-1">
+                <span className="font-semibold leading-tight truncate">
                   {user?.name || "Loading..."}
                 </span>
-                <span className="text-sm text-[#f6f6f6] leading-none">
+                <span className="text-sm text-[#f6f6f6] leading-none truncate">
                   {user?.email || "Loading..."}
                 </span>
               </div>
@@ -140,7 +140,7 @@ export default function Sidebar() {
       <div className="md:hidden fixed top-4 right-4 z-50">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="text-[#1f77b4] hover:text-orange-600 transition-colors cursor-pointer"
+          className="text-[#1F3A93] hover:text-orange-600 transition-colors cursor-pointer"
         >
           <FaBarsStaggered size={35} />
         </button>

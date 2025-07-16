@@ -231,7 +231,7 @@ export default function UpdateSurat({
             <Button
               type="submit"
               className="text-white transition-transform hover:scale-105"
-              style={{ backgroundColor: "#1f77b4" }}
+              style={{ backgroundColor: "#1F3A93" }}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Memperbarui..." : "Simpan Perubahan"}

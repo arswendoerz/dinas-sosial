@@ -8,7 +8,7 @@ export const Route = createFileRoute('/403')({
 
 function RouteComponent() {
   return (
-    <div className="h-full w-full flex items-center justify-center bg-[#f6f6f6]" style={{ backgroundColor: "#f6f6f6" }}>
+    <div className="h-full w-full flex items-center justify-center bg-opacity-100">
       <div className="max-w-md w-full space-y-8 text-center">
         <div className="relative">
           <div 
@@ -23,7 +23,7 @@ function RouteComponent() {
           <div className="absolute -top-2 -right-2 animate-bounce delay-300">
             <div 
               className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: '#1f77b4' }}
+              style={{ backgroundColor: '#1F3A93' }}
             >
               <MdLock className="w-4 h-4 text-white" />
             </div>
@@ -43,7 +43,7 @@ function RouteComponent() {
           <div className="space-y-2">
             <h1 
               className="text-6xl font-bold animate-pulse"
-              style={{ color: '#1f77b4' }}
+              style={{ color: '#1F3A93' }}
             >
               403
             </h1>
@@ -69,7 +69,7 @@ function RouteComponent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg transform"
-              style={{ backgroundColor: '#1f77b4' }}
+              style={{ backgroundColor: '#1F3A93' }}
               onClick={() => window.history.back()}
             >
               <MdArrowBack className="w-4 h-4" />
@@ -94,7 +94,7 @@ function RouteComponent() {
           />
           <div 
             className="absolute top-40 right-20 w-2 h-2 rounded-full animate-ping delay-500"
-            style={{ backgroundColor: '#1f77b4' }}
+            style={{ backgroundColor: '#1F3A93' }}
           />
           <div 
             className="absolute bottom-32 left-20 w-3 h-3 rounded-full animate-ping delay-1000"
@@ -102,7 +102,7 @@ function RouteComponent() {
           />
           <div 
             className="absolute bottom-20 right-10 w-2 h-2 rounded-full animate-ping delay-700"
-            style={{ backgroundColor: '#1f77b4' }}
+            style={{ backgroundColor: '#1F3A93' }}
           />
         </div>
       </div>

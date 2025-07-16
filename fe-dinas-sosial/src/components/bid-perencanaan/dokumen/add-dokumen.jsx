@@ -91,7 +91,7 @@ export default function AddDokumen({
       <DialogTrigger asChild>
         <Button
           className="gap-2 text-white transition-transform hover:scale-105"
-          style={{ backgroundColor: "#1f77b4" }}
+          style={{ backgroundColor: "#1F3A93" }}
           disabled={isSubmitting}
           onClick={() => setModalOpen(true)}
         >
@@ -178,7 +178,7 @@ export default function AddDokumen({
             <Button
               type="submit"
               className="text-white transition-transform hover:scale-105"
-              style={{ backgroundColor: "#1f77b4" }}
+              style={{ backgroundColor: "#1F3A93" }}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Mengunggah..." : "Simpan Dokumen"}

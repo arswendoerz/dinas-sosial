@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/lampung.png";
 import backgroundImage from "@/assets/dinsos.jpeg";
+import motifKanan from "@/assets/motif-kanan.svg";
+import motifKiri from "@/assets/motif-kiri.svg";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { TypeAnimation } from "react-type-animation";
@@ -40,6 +42,37 @@ function Index() {
       
       <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-orange-900/30 z-10" />
 
+      {/* Kiri */}
+      <div className="absolute left-0 top-0 h-full w-auto z-15">
+        <div className="relative h-full w-auto">
+          <div className="absolute inset-0 bg-gradient-to-r from-white/50 via-white/10 to-transparent rounded-r-lg animate-pulse"></div>
+          <img
+            src={motifKiri}
+            alt="Motif Kiri"
+            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg hover:opacity-90 transition-all duration-700 animate-pulse hover:scale-105"
+            style={{
+              animation: 'float 6s ease-in-out infinite, glow 3s ease-in-out infinite alternate'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Kanan */}
+      <div className="absolute right-0 top-0 h-full w-auto z-15">
+        <div className="relative h-full w-auto">
+          <div className="absolute inset-0 bg-gradient-to-l from-white/50 via-white/10 to-transparent rounded-l-lg animate-pulse"></div>
+          <img
+            src={motifKanan}
+            alt="Motif Kanan"
+            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg hover:opacity-90 transition-all duration-700 animate-pulse hover:scale-105"
+            style={{
+              animation: 'float 6s ease-in-out infinite reverse, glow 3s ease-in-out infinite alternate'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* partikel Floating */}
       <div className="absolute inset-0 z-15">
         {[...Array(20)].map((_, i) => (
           <div
@@ -53,13 +86,6 @@ function Index() {
             }}
           />
         ))}
-      </div>
-
-      <div className="absolute inset-0 z-15 overflow-hidden">
-        <div className="absolute top-20 left-10 w-20 h-20 border-2 border-orange-400/30 rotate-45 animate-spin" style={{animationDuration: '20s'}}></div>
-        <div className="absolute top-40 right-20 w-16 h-16 border-2 border-white/20 rounded-full animate-ping" style={{animationDuration: '4s'}}></div>
-        <div className="absolute bottom-32 left-20 w-12 h-12 bg-orange-500/20 rotate-12 animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-24 h-24 border-2 border-orange-300/20 rotate-45 animate-bounce" style={{animationDuration: '3s'}}></div>
       </div>
 
       <div className="relative z-20 flex flex-col items-center justify-center text-center min-h-screen px-6 md:px-10 lg:px-16 py-10">
@@ -131,6 +157,19 @@ function Index() {
           </Button>
         </div>
       </div>
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes glow {
+          0% { filter: drop-shadow(0 0 5px rgba(251, 146, 60, 0.3)); }
+          100% { filter: drop-shadow(0 0 20px rgba(251, 146, 60, 0.6)); }
+        }
+      `}</style>
     </div>
   );
 }

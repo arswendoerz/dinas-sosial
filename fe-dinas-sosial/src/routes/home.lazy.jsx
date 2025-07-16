@@ -57,7 +57,7 @@ function Home() {
   const sections = [
     {
       title: "Perencanaan",
-      color: "#1f77b4",
+      color: "#1F3A93",
       to: "/dashboard/bid-perencanaan",
       icon: <GrPlan size={48} />,
       buttonBg: "#ff7f0e",
@@ -68,7 +68,7 @@ function Home() {
       color: "#ff7f0e",
       to: "/dashboard/bid-resos",
       icon: <FaHandsHelping size={48} />,
-      buttonBg: "#1f77b4",
+      buttonBg: "#1F3A93",
       description: "Kelola data rehabilitasi sosial",
     },
   ];
@@ -82,7 +82,7 @@ function Home() {
     return (
       <div className="h-full w-full bg-[#f6f6f6] flex flex-col items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1f77b4] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1F3A93] mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">Memuat data...</p>
         </div>
       </div>
@@ -90,7 +90,7 @@ function Home() {
   }
 
   return (
-    <div className="h-full w-full bg-[#f6f6f6] flex flex-col items-center justify-center overflow-hidden">
+    <div className="h-full w-full bg-opacity-100 flex flex-col items-center justify-center overflow-hidden">
       <div data-aos="fade-down" className="mb-4 px-4 text-center">
         <img
           src="/lampung.png"
@@ -98,7 +98,7 @@ function Home() {
           className="w-28 h-28 md:w-36 md:h-36 mx-auto mb-2 object-contain"
         />
         <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
-          Selamat Datang, <span className="text-[#1f77b4]">{getDisplayName()}!</span>
+          Selamat Datang, <span className="text-[#1F3A93]">{getDisplayName()}!</span>
         </h1>
 
         {error && (
@@ -107,7 +107,7 @@ function Home() {
           </div>
         )}
 
-        <div className="w-16 h-1 bg-gradient-to-r from-[#1f77b4] to-[#ff7f0e] mx-auto mb-2 rounded-full"></div>
+        <div className="w-16 h-1 bg-gradient-to-r from-[#1F3A93] to-[#ff7f0e] mx-auto mb-2 rounded-full"></div>
         <p className="text-gray-700 text-sm md:text-base max-w-md mx-auto leading-snug">
           Silakan pilih bagian yang ingin diakses melalui dashboard berikut:
         </p>

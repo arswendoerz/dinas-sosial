@@ -151,9 +151,9 @@ function RouteComponent() {
           <div className="bg-[#ff7f0e] text-white py-4 px-6 text-xl font-bold rounded-t-2xl" data-aos="fade-down">
             Akun Saya
           </div>
-          <div className="px-6 py-8 text-[#1f77b4] space-y-6 flex items-center justify-center min-h-[300px]" data-aos="fade-up">
+          <div className="px-6 py-8 text-[#1F3A93] space-y-6 flex items-center justify-center min-h-[300px]" data-aos="fade-up">
             <div className="text-center" data-aos="zoom-in" data-aos-delay="200">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1f77b4] mx-auto mb-4" data-aos="fade-in" data-aos-delay="300"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1F3A93] mx-auto mb-4" data-aos="fade-in" data-aos-delay="300"></div>
               <p className="text-gray-600" data-aos="fade-in" data-aos-delay="400">Memuat data...</p>
             </div>
           </div>
@@ -170,7 +170,7 @@ function RouteComponent() {
           <div className="bg-[#ff7f0e] text-white py-4 px-6 text-xl font-bold rounded-t-2xl" data-aos="fade-down">
             Akun Saya
           </div>
-          <div className="px-6 py-8 text-[#1f77b4] space-y-6 flex items-center justify-center min-h-[300px]" data-aos="fade-up">
+          <div className="px-6 py-8 text-[#1F3A93] space-y-6 flex items-center justify-center min-h-[300px]" data-aos="fade-up">
             <div className="text-center" data-aos="zoom-in" data-aos-delay="200">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4" data-aos="fade-in" data-aos-delay="300">
                 <FaUser className="text-red-500 w-8 h-8" data-aos="fade-in" data-aos-delay="400" />
@@ -200,7 +200,7 @@ function RouteComponent() {
 
   return (
     <div
-      className="h-full w-full flex items-center justify-center bg-[#f6f6f6] py-10 px-4"
+      className="h-full w-full flex items-center justify-center bg-opacity-100 py-10 px-4"
       data-aos="fade"
     >
       <div
@@ -219,7 +219,7 @@ function RouteComponent() {
 
         {/* Body */}
         <div
-          className="px-6 py-8 text-[#1f77b4] space-y-6"
+          className="px-6 py-8 text-[#1F3A93] space-y-6"
           data-aos="fade-up"
           data-aos-delay="200"
         >
@@ -229,7 +229,7 @@ function RouteComponent() {
             data-aos-delay="300"
           >
             <div className="relative" data-aos="fade-in" data-aos-delay="400">
-              <div className="w-20 h-20 bg-[#1f77b4] rounded-full flex items-center justify-center shadow-lg" data-aos="scale-up" data-aos-delay="500">
+              <div className="w-20 h-20 bg-[#1F3A93] rounded-full flex items-center justify-center shadow-lg" data-aos="scale-up" data-aos-delay="500">
                 <FaUser className="text-white w-10 h-10" data-aos="fade-in" data-aos-delay="600" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white" data-aos="fade-in" data-aos-delay="700"></div>
@@ -258,7 +258,7 @@ function RouteComponent() {
 
             <div className="pt-2 border-t border-[#eee]" data-aos="fade-right" data-aos-delay="650">
               <p className="text-sm font-semibold flex items-center gap-2" data-aos="fade-in" data-aos-delay="750">
-                <FaBriefcase className="text-[#1f77b4]" data-aos="fade-in" data-aos-delay="850" />
+                <FaBriefcase className="text-[#1F3A93]" data-aos="fade-in" data-aos-delay="850" />
                 Bidang
               </p>
               <p className="text-black font-medium" data-aos="fade-in" data-aos-delay="900">{userData.bidang}</p>
