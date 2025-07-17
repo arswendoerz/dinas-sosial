@@ -137,6 +137,7 @@ export const getRecipientById = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
+        id: doc.id,
         ...data,
         tanggalUpload: formatTimestamp(data.tanggalUpload),
         tanggalUpdate: formatTimestamp(data.tanggalUpdate),
