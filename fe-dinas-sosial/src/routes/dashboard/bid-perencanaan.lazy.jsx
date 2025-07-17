@@ -12,6 +12,7 @@ import "aos/dist/aos.css";
 import Dokumen from "@/components/bid-perencanaan/dokumen/dokumen";
 import Surat from "@/components/bid-perencanaan/surat/surat";
 import ProtectedRoute from "@/components/protected";
+import Loading from "@/components/loading";
 
 export const Route = createLazyFileRoute("/dashboard/bid-perencanaan")({
   component: () => (
@@ -89,6 +90,20 @@ function Dashboard() {
     };
     fetchAll();
   }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <Loading 
+        title="Loading ..."
+        subtitle="Menyiapkan data untuk Anda..."
+        showLogo={true}
+        logoSrc="/lampung.png"
+        logoAlt="Logo Lampung"
+        size="default"
+      />
+    );
+  }
 
   const widgets = [
     {

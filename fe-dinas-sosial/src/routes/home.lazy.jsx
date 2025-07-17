@@ -5,6 +5,7 @@ import { GrPlan } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "../components/loading";
 
 export const Route = createLazyFileRoute("/home")({
   component: Home,
@@ -79,17 +80,19 @@ function Home() {
 
   if (loading) {
     return (
-      <div className="h-full w-full bg-[#f6f6f6] flex flex-col items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1F3A93] mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Memuat data...</p>
-        </div>
-      </div>
+      <Loading 
+        title="Loading ..."
+        subtitle="Menyiapkan data untuk Anda..."
+        showLogo={true}
+        logoSrc="/lampung.png"
+        logoAlt="Logo Lampung"
+        size="default"
+      />
     );
   }
 
   return (
-    <div className="h-full w-full bg-opacity-100 flex flex-col items-center justify-center overflow-hidden">
+    <div className="min-h-full w-full bg-opacity-100 flex flex-col items-center justify-center py-8 px-4">
       <div data-aos="fade-down" className="mb-4 px-4 text-center">
         <img
           src="/lampung.png"
@@ -112,7 +115,7 @@ function Home() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl">
         {sections.map((section, index) => (
           <div
             key={section.title}

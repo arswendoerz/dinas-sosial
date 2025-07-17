@@ -30,7 +30,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         
         if (data.success && data.data) {
           setUser(data.data);
-          console.log('User data loaded:', data.data); 
         } else {
           setError('Failed to get user data');
         }

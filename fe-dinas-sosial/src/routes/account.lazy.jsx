@@ -18,6 +18,7 @@ import { useNavigate } from "@tanstack/react-router";
 import toast from 'react-hot-toast';
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "../components/loading";
 
 export const Route = createLazyFileRoute("/account")({
   component: RouteComponent,
@@ -139,19 +140,14 @@ function RouteComponent() {
   // Loading state
   if (loading) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-[#f6f6f6] py-10 px-4" data-aos="fade">
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-[#eee]" data-aos="zoom-in">
-          <div className="bg-[#ff7f0e] text-white py-4 px-6 text-xl font-bold rounded-t-2xl" data-aos="fade-down">
-            Akun Saya
-          </div>
-          <div className="px-6 py-8 text-[#1F3A93] space-y-6 flex items-center justify-center min-h-[300px]" data-aos="fade-up">
-            <div className="text-center" data-aos="zoom-in" data-aos-delay="200">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1F3A93] mx-auto mb-4" data-aos="fade-in" data-aos-delay="300"></div>
-              <p className="text-gray-600" data-aos="fade-in" data-aos-delay="400">Memuat data...</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Loading 
+        title="Loading ..."
+        subtitle="Menyiapkan data untuk Anda..."
+        showLogo={true}
+        logoSrc="/lampung.png"
+        logoAlt="Logo Lampung"
+        size="default"
+      />
     );
   }
 
@@ -197,7 +193,7 @@ function RouteComponent() {
       data-aos="fade"
     >
       <div
-        className="w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden border border-[#eee]"
+        className="w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col border border-[#eee]"
         data-aos="zoom-in"
         data-aos-duration="600"
       >
