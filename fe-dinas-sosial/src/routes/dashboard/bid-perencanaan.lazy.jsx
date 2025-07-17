@@ -11,12 +11,17 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Dokumen from "@/components/bid-perencanaan/dokumen/dokumen";
 import Surat from "@/components/bid-perencanaan/surat/surat";
+import ProtectedRoute from "@/components/protected";
 
 export const Route = createLazyFileRoute("/dashboard/bid-perencanaan")({
-  component: Dashboard,
+  component: () => (
+    <ProtectedRoute allowedRoles={['perencanaan']}>
+      <Dashboard />
+    </ProtectedRoute>
+  ),
 });
 
-export default function Dashboard() {
+function Dashboard() {
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
