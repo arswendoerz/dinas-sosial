@@ -99,9 +99,7 @@ export const createRecipi = async (req, res) => {
 
 export const getAllRecipies = async (req, res) => {
   try {
-    const snapshot = await recipiCollection
-      .where("role", "==", req.user.role)
-      .get();
+    const snapshot = await recipiCollection.get();
 
     const recipiList = snapshot.docs.map((doc) => {
       const data = doc.data();
