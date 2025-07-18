@@ -52,7 +52,7 @@ export const createRecipi = async (req, res) => {
       });
     }
 
-    const { nama, alamat, kota, usia, nik, telepon, status_dtks, kategori } =
+    const { nama, alamat, kota, usia, nik, telepon, status, kategori } =
       req.body;
     let fotoUrl = null;
 
@@ -83,7 +83,7 @@ export const createRecipi = async (req, res) => {
       telepon,
       role: req.user.role,
       kategori: kategori || null,
-      status_dtks: status_dtks === "true" || status_dtks === true,
+      status: status === "true" || status === true,
       fotoUrl,
       tanggalUpload: now,
       tanggalUpdate: now,

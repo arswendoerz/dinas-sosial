@@ -72,7 +72,7 @@ export default function Sidebar() {
 
   const SidebarContent = (
     <aside
-      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#1F3A75] text-white p-4 transition-all duration-300 shadow-xl relative overflow-hidden
+      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#1F3A75] text-white transition-all duration-300 shadow-xl relative overflow-hidden
         ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
       <div className="absolute inset-0 pointer-events-none">
@@ -84,9 +84,9 @@ export default function Sidebar() {
       </div>
 
       <div className="relative z-10 flex flex-col h-full">
-        {/* Toggle Button */}
+        {/* Toggle Button - Fixed at top */}
         <div
-          className={`mb-4 flex ${collapsed ? "justify-center" : "justify-end"} transition-all duration-300`}
+          className={`flex-shrink-0 p-4 pb-0 flex ${collapsed ? "justify-center" : "justify-end"} transition-all duration-300`}
         >
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -100,8 +100,8 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
+        {/* Logo - Fixed */}
+        <div className="flex-shrink-0 flex justify-center mb-6 px-4">
           <img
             src={logo}
             alt="Logo"
@@ -110,7 +110,8 @@ export default function Sidebar() {
           />
         </div>
 
-        <nav className="flex flex-col gap-2">
+        {/* Navigation - Scrollable if needed */}
+        <nav className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto scrollbar-hide">
           {navItems.map(({ label, icon, to }) => {
             const isActive = location.pathname === to;
             const isHovered = hoveredItem === label;
@@ -157,8 +158,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* User */}
-        <div className="mt-auto pt-4 border-t border-white/20">
+        {/* User Profile - Fixed at bottom */}
+        <div className="flex-shrink-0 p-4 pt-4 border-t border-white/20">
           <Link to="/account" onClick={() => setSidebarOpen(false)}>
             <Button
               variant="ghost"
@@ -194,6 +195,17 @@ export default function Sidebar() {
           )}
         </div>
       </div>
+
+      {/* Custom scrollbar styles */}
+      <style jsx>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </aside>
   );
 
@@ -217,7 +229,7 @@ export default function Sidebar() {
       )}
 
       <div
-        className={`fixed z-50 md:relative top-0 left-0 h-full transition-transform duration-300 ${
+        className={`fixed z-50 md:sticky md:top-0 top-0 left-0 h-screen transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
