@@ -129,8 +129,7 @@ function RouteComponent() {
     switch (role?.toLowerCase()) {
       case 'perencanaan':
         return 'Perencanaan';
-      case 'rehabilitasi':
-      case 'resos':
+      case 'rehabilitasi sosial':
         return 'Rehabilitasi Sosial';
       default:
         return role || 'Tidak diketahui';
