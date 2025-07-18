@@ -45,8 +45,17 @@ const formatTimestamp = (timestamp) => {
 
 export const createRecipi = async (req, res) => {
   try {
-    const { nama, alamat, kota, usia, nik, telepon, status_dtks } = req.body;
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({
+        success: false,
+        message: "Akses ditolak. Token tidak valid atau tidak ditemukan.",
+      });
+    }
+
+    const { nama, alamat, kota, usia, nik, telepon, status_dtks, kategori } =
+      req.body;
     let fotoUrl = null;
+
     if (req.file) {
       const uploaded = await drive.files.create({
         requestBody: {
@@ -73,6 +82,7 @@ export const createRecipi = async (req, res) => {
       nik,
       telepon,
       role: req.user.role,
+      kategori: kategori || null,
       status_dtks: status_dtks === "true" || status_dtks === true,
       fotoUrl,
       tanggalUpload: now,
@@ -81,7 +91,7 @@ export const createRecipi = async (req, res) => {
 
     await recRef.set(data);
     res.status(201).json({
-      succes: true,
+      success: true,
       message: "Penerima berhasil ditambahkan",
       data: {
         ...data,
@@ -90,8 +100,9 @@ export const createRecipi = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Error createRecipi:", error);
     res.status(500).json({
-      succes: false,
+      success: false,
       message: "Maaf!! Anda gagal menambahkan penerima",
     });
   }

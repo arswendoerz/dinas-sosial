@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.use(protect);
 
-router.post("/upload", upload.single("file"), createRecipi);
+router.post("/upload", protect, upload.single("file"), createRecipi);
 router.get("/search", searchRecipi);
 router.post("/", createRecipi);
 router.get("/export", exportRecipi);
