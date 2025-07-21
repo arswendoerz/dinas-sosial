@@ -102,7 +102,7 @@ export const createRecipi = async (req, res) => {
       fields: "id",
     });
 
-    const fotoUrl = `https://drive.google.com/file/d/${uploaded.data.id}/view`;
+    const fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`; 
 
     const now = new Date();
     const recRef = recipiCollection.doc();
@@ -234,7 +234,7 @@ export const updateRecipi = async (req, res) => {
         fields: "id",
       });
 
-      fotoUrl = `https://drive.google.com/file/d/${newFile.data.id}/view`;
+      fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`; 
     }
 
     const now = new Date();
