@@ -52,9 +52,20 @@ export const createRecipi = async (req, res) => {
       });
     }
 
-    const { nama, alamat, kota, usia, nik, telepon, status, kategori } =
-      req.body;
+    const {
+      nama,
+      alamat,
+      kota,
+      usia,
+      nik,
+      telepon,
+      jenisAlat,
+      keterangan,
+      tanggalPenerimaan,
+    } = req.body;
+
     let fotoUrl = null;
+    let fileId = null;
 
     if (req.file) {
       const uploaded = await drive.files.create({
@@ -68,11 +79,14 @@ export const createRecipi = async (req, res) => {
         },
         fields: "id",
       });
-      fotoUrl = `https://drive.google.com/file/d/${uploaded.data.id}/view`;
+
+      fileId = uploaded.data.id;
+      fotoUrl = `https://drive.google.com/file/d/${fileId}/view`;
     }
 
     const now = new Date();
     const recRef = recipiCollection.doc();
+
     const data = {
       id: recRef.id,
       nama,
@@ -81,15 +95,18 @@ export const createRecipi = async (req, res) => {
       usia: parseInt(usia),
       nik,
       telepon,
-      role: req.user.role,
-      kategori: kategori || null,
-      status: status === "true" || status === true,
-      fotoUrl,
+      jenisAlat,
+      keterangan: keterangan || null,
+      tanggalPenerimaan,
       tanggalUpload: now,
       tanggalUpdate: now,
+      role: req.user.role,
+      fotoUrl: fotoUrl || null,
+      fileId: fileId || null,
     };
 
     await recRef.set(data);
+
     res.status(201).json({
       success: true,
       message: "Penerima berhasil ditambahkan",
@@ -176,28 +193,31 @@ export const updateRecipi = async (req, res) => {
 
     const recipi = doc.data();
 
-    // Akses kontrol berdasarkan userId dan role
+    // Akses kontrol
     if (recipi.userId !== req.user.userId && recipi.role !== req.user.role) {
       return res.status(403).json({ success: false, message: "Akses ditolak" });
     }
 
-    let fileUrl = recipi.foto || "";
-    let jenis = recipi.jenis || "";
-    const oldFileId = extractFileId(fileUrl);
+    let fotoUrl = recipi.fotoUrl || "";
+    let fileId = recipi.fileId || null;
 
-    // Update file jika ada file baru diunggah
+    // Jika ada file baru diunggah
     if (req.file) {
-      if (!oldFileId) {
+      if (!fileId) {
         return res.status(400).json({
           success: false,
           message: "File ID tidak ditemukan dalam data lama",
         });
       }
 
-      const newFile = await drive.files.update({
-        fileId: oldFileId,
+      // Hapus file lama
+      await drive.files.delete({ fileId });
+
+      // Upload file baru
+      const uploaded = await drive.files.create({
         requestBody: {
           name: req.file.originalname,
+          parents: [process.env.DRIVE_FOLDER_ID_RECIPI],
         },
         media: {
           mimeType: req.file.mimetype,
@@ -206,27 +226,34 @@ export const updateRecipi = async (req, res) => {
         fields: "id",
       });
 
-      fileUrl = `https://drive.google.com/file/d/${newFile.data.id}/view`;
-      jenis = req.file.mimetype;
+      // Set file baru
+      fileId = uploaded.data.id;
+      fotoUrl = `https://drive.google.com/file/d/${fileId}/view`;
     }
 
     const updateData = {
       ...req.body,
-      foto: fileUrl,
-      jenis,
       tanggalUpdate: new Date(),
     };
+
+    // Update file info jika diunggah ulang
+    if (req.file) {
+      updateData.fotoUrl = fotoUrl;
+      updateData.fileId = fileId;
+    }
 
     await recRef.update(updateData);
 
     const updateRecipi = await recRef.get();
+    const updated = updateRecipi.data();
+
     res.status(200).json({
       success: true,
       message: "Data penerima telah berhasil diperbarui",
       data: {
-        ...updateRecipi.data(),
-        tanggalUpload: formatTimestamp(updateRecipi.data().tanggalUpload),
-        tanggalUpdate: formatTimestamp(updateRecipi.data().tanggalUpdate),
+        ...updated,
+        tanggalUpload: formatTimestamp(updated.tanggalUpload),
+        tanggalUpdate: formatTimestamp(updated.tanggalUpdate),
       },
     });
   } catch (error) {
