@@ -64,45 +64,23 @@ export const createRecipi = async (req, res) => {
       tanggalPenerimaan,
     } = req.body;
 
-    // Validasi wajib diisi
-    if (
-      !nama ||
-      !alamat ||
-      !kota ||
-      !usia ||
-      !nik ||
-      !telepon ||
-      !jenisAlat ||
-      !tanggalPenerimaan
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Semua field wajib diisi!!.",
+    let fotoUrl = null;
+
+    if (req.file) {
+      const uploaded = await drive.files.create({
+        requestBody: {
+          name: req.file.originalname,
+          parents: [process.env.DRIVE_FOLDER_ID_RECIPI],
+        },
+        media: {
+          mimeType: req.file.mimetype,
+          body: Readable.from(req.file.buffer),
+        },
+        fields: "id",
       });
+
+      fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`;
     }
-
-    // Validasi foto wajib
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Foto wajib diunggah.",
-      });
-    }
-
-    // Upload ke Google Drive
-    const uploaded = await drive.files.create({
-      requestBody: {
-        name: req.file.originalname,
-        parents: [process.env.DRIVE_FOLDER_ID_RECIPI],
-      },
-      media: {
-        mimeType: req.file.mimetype,
-        body: Readable.from(req.file.buffer),
-      },
-      fields: "id",
-    });
-
-    const fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`; 
 
     const now = new Date();
     const recRef = recipiCollection.doc();
@@ -116,12 +94,12 @@ export const createRecipi = async (req, res) => {
       nik,
       telepon,
       jenisAlat,
-      keterangan: keterangan || "NON-DTKS",
+      keterangan: keterangan || null,
       tanggalPenerimaan,
       tanggalUpload: now,
       tanggalUpdate: now,
       role: req.user.role,
-      fotoUrl,
+      fotoUrl: fotoUrl || null,
     };
 
     await recRef.set(data);
@@ -222,22 +200,41 @@ export const updateRecipi = async (req, res) => {
 
     // Jika ada file baru diunggah
     if (req.file) {
-      const newFile = await drive.files.update({
-        fileId: oldFileId,
-        requestBody: {
-          name: req.file.originalname,
-        },
-        media: {
-          mimeType: req.file.mimetype,
-          body: Readable.from(req.file.buffer),
-        },
-        fields: "id",
-      });
+      let newFile;
 
-      fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`; 
+      if (oldFileId) {
+        // Jika sudah ada foto sebelumnya, update foto lama
+        newFile = await drive.files.update({
+          fileId: oldFileId,
+          requestBody: {
+            name: req.file.originalname,
+          },
+          media: {
+            mimeType: req.file.mimetype,
+            body: Readable.from(req.file.buffer),
+          },
+          fields: "id",
+        });
+      } else {
+        // Jika belum ada foto sebelumnya, upload file baru
+        newFile = await drive.files.create({
+          requestBody: {
+            name: req.file.originalname,
+            mimeType: req.file.mimetype,
+          },
+          media: {
+            mimeType: req.file.mimetype,
+            body: Readable.from(req.file.buffer),
+          },
+          fields: "id",
+        });
+      }
+
+      fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`;
     }
 
     const now = new Date();
+
     const updateData = {
       ...req.body,
       fotoUrl,

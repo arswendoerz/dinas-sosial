@@ -41,9 +41,8 @@ export default function Sidebar() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const location = useLocation();
   
-  // Ukuran ikon yang bisa disesuaikan
   const iconSize = collapsed ? 24 : 20;
-  const resosIconSize = collapsed ? 22 : 18; // Khusus untuk ikon Rehabilitasi Sosial
+  const resosIconSize = collapsed ? 22 : 18; 
 
   useEffect(() => {
     fetchUserProfile();
@@ -72,7 +71,7 @@ export default function Sidebar() {
 
   const SidebarContent = (
     <aside
-      className={`h-screen bg-gradient-to-b from-[#1F3A93] to-[#1F3A75] text-white transition-all duration-300 shadow-xl relative overflow-hidden
+      className={`h-screen bg-[#1F3A93] text-white transition-all duration-300 relative overflow-hidden
         ${collapsed ? "w-20" : "w-64"} flex flex-col`}
     >
       <div className="absolute inset-0 pointer-events-none">
@@ -106,7 +105,7 @@ export default function Sidebar() {
             src={logo}
             alt="Logo"
             className={`transition-all duration-700 ease-in-out transform
-              ${collapsed ? "w-80 rotate-[360deg]" : "w-80 rotate-0"}`}
+              ${collapsed ? "w-80" : "w-80"}`}
           />
         </div>
 
