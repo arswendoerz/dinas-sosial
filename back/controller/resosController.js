@@ -230,7 +230,7 @@ export const updateRecipi = async (req, res) => {
         });
       }
 
-      fotoUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`;
+      fotoUrl = `https://drive.google.com/uc?id=${newFile.data.id}`;
     }
 
     const now = new Date();
