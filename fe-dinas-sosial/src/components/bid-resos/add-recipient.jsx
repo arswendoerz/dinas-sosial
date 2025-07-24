@@ -21,10 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 
-export default function AddRecipient({ 
+export default function AddRecipient({
   isAddDialogOpen,
   setIsAddDialogOpen,
-  setIsSubmitting,
+  isSubmitting,
+  setIsSubmitting, 
   setError,
   fetchRecipients,
   API_BASE_URL
@@ -47,7 +48,7 @@ export default function AddRecipient({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsSubmitting(true); 
     setError(null);
 
     const loadingToast = toast.loading("Sedang menambahkan penerima...");
@@ -56,21 +57,23 @@ export default function AddRecipient({
       const formData = new FormData(e.target);
 
       const foto = formData.get("foto");
-      if (!foto || foto.size === 0) {
-        throw new Error("Foto penerima wajib diunggah!");
-      }
 
-      if (foto.size > 5 * 1024 * 1024) {
-        throw new Error("Ukuran file foto tidak boleh lebih dari 5MB!");
-      }
+      if (foto && foto.size > 0) {
+        if (foto.size > 5 * 1024 * 1024) {
+          throw new Error("Ukuran file foto tidak boleh lebih dari 5MB!");
+        }
 
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!allowedTypes.includes(foto.type)) {
-        throw new Error("Format file harus JPEG, JPG, atau PNG!");
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(foto.type)) {
+          throw new Error("Format file harus JPEG, JPG, atau PNG!");
+        }
       }
 
       const newFormData = new FormData();
-      newFormData.append('file', foto);
+      if (foto && foto.size > 0) {
+        newFormData.append('file', foto);
+      }
+      
       newFormData.append('nama', formData.get('nama'));
       newFormData.append('alamat', formData.get('alamat'));
       newFormData.append('kota', formData.get('kota'));
@@ -79,6 +82,7 @@ export default function AddRecipient({
       newFormData.append('telepon', formData.get('telepon'));
       newFormData.append('jenisAlat', formData.get('jenisAlat'));
       newFormData.append('keterangan', formData.get('keterangan') || '');
+
       newFormData.append('tanggalPenerimaan', formData.get('tanggalPenerimaan'));
 
       const nik = formData.get("nik");
@@ -105,7 +109,7 @@ export default function AddRecipient({
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
         let errorMessage = `HTTP error! status: ${response.status}`;
-        
+
         if (contentType && contentType.includes('application/json')) {
           try {
             const errorResult = await response.json();
@@ -116,23 +120,23 @@ export default function AddRecipient({
         } else {
           const errorText = await response.text();
           console.error('Server error response:', errorText);
-          
+
           if (response.status === 404) {
             errorMessage = 'Endpoint tidak ditemukan. Pastikan server backend berjalan di port 9000';
           } else if (response.status === 500) {
             errorMessage = 'Terjadi kesalahan di server. Periksa log server backend';
           }
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         toast.dismiss(loadingToast);
-        toast.success("Penerima berhasil ditambahkan!");
- 
+        toast.success("Data penerima berhasil ditambahkan!");
+
         e.target.reset();
         await fetchRecipients();
         setIsAddDialogOpen(false);
@@ -141,13 +145,13 @@ export default function AddRecipient({
       }
     } catch (err) {
       console.error('Error creating recipient:', err);
-      
+
       toast.dismiss(loadingToast);
       toast.error(err.message || 'Terjadi kesalahan saat menambahkan penerima', {
         duration: 5000,
         position: 'top-right',
       });
-      
+
       setError(err.message || 'Terjadi kesalahan saat menambahkan penerima');
     } finally {
       setIsSubmitting(false);
@@ -164,7 +168,7 @@ export default function AddRecipient({
               Lengkapi form di bawah ini untuk menambahkan penerima bantuan baru.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             {/* Nama */}
             <div className="grid gap-3">
@@ -180,13 +184,12 @@ export default function AddRecipient({
 
             {/* Foto */}
             <div className="grid gap-3">
-              <Label htmlFor="foto">Foto Penerima *</Label>
+              <Label htmlFor="foto">Foto Penerima</Label> 
               <Input
                 id="foto"
                 name="foto"
                 type="file"
                 accept="image/jpeg,image/jpg,image/png"
-                required
               />
               <p className="text-xs text-gray-500">
                 Format yang didukung: JPEG, JPG, PNG (Maksimal 5MB)
@@ -237,7 +240,7 @@ export default function AddRecipient({
                   max="150"
                 />
               </div>
-              
+
               <div className="grid gap-3">
                 <Label htmlFor="nik">NIK *</Label>
                 <Input
@@ -265,35 +268,38 @@ export default function AddRecipient({
               />
             </div>
 
-            {/* Jenis Alat */}
-            <div className="grid gap-3">
-              <Label htmlFor="jenisAlat">Jenis Alat Bantuan *</Label>
-              <Select name="jenisAlat" required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih jenis alat bantuan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jenisAlatList.map((alat) => (
-                    <SelectItem key={alat} value={alat}>
-                      {alat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Jenis Alat dan Keterangan dalam satu baris */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Jenis Alat */}
+              <div className="grid gap-3">
+                <Label htmlFor="jenisAlat">Jenis Alat Bantuan *</Label>
+                <Select name="jenisAlat" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih jenis alat bantuan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jenisAlatList.map((alat) => (
+                      <SelectItem key={alat} value={alat}>
+                        {alat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Keterangan */}
-            <div className="grid gap-3">
-              <Label htmlFor="keterangan">Keterangan</Label>
-              <Select name="keterangan">
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih keterangan (opsional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DTKS">DTKS</SelectItem>
-                  <SelectItem value="Non - DTKS">Non - DTKS</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Keterangan */}
+              <div className="grid gap-3">
+                <Label htmlFor="keterangan">Keterangan</Label> {/* Removed '*' to indicate optional */}
+                <Select name="keterangan"> {/* removed 'required' attribute */}
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih keterangan (opsional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DTKS">DTKS</SelectItem>
+                    <SelectItem value="Non - DTKS">Non - DTKS</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Tanggal Penerimaan */}
@@ -314,7 +320,6 @@ export default function AddRecipient({
                 type="button"
                 variant="outline"
                 className="bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600 transition-all hover:scale-105"
-                disabled={setIsSubmitting}
               >
                 Batal
               </Button>
@@ -322,9 +327,9 @@ export default function AddRecipient({
             <Button
               type="submit"
               className="bg-[#1F3A93] hover:bg-[#1A2E7A] text-white transition-transform hover:scale-105"
-              disabled={setIsSubmitting}
+              disabled={isSubmitting}
             >
-              {setIsSubmitting ? "Menyimpan..." : "Simpan Penerima"}
+              {isSubmitting ? "Menyimpan..." : "Simpan Penerima"}
             </Button>
           </DialogFooter>
         </form>

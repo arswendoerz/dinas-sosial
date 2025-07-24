@@ -21,11 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 
-export default function UpdateRecipient({ 
-  editingRecipient, 
-  isEditDialogOpen, 
-  setIsEditDialogOpen, 
-  setEditingRecipient, 
+export default function UpdateRecipient({
+  editingRecipient,
+  isEditDialogOpen,
+  setIsEditDialogOpen,
+  setEditingRecipient,
   fetchRecipients,
   setError,
   API_BASE_URL
@@ -37,7 +37,7 @@ export default function UpdateRecipient({
     const match = url.match(/[-\w]{25,}/);
     return match ? match[0] : "";
   };
-  
+
   const kotaListLampung = [
     "Bandar Lampung", "Metro", "Lampung Selatan", "Lampung Utara",
     "Lampung Tengah", "Lampung Timur", "Lampung Barat", "Tanggamus",
@@ -48,7 +48,7 @@ export default function UpdateRecipient({
   const jenisAlatList = [
     "Kursi roda regular",
     "Kursi roda Cerebral Palsy (CP)",
-    "Kruk", 
+    "Kruk",
     "Tripod",
     "Kaki Palsu",
     "Alat bantu dengar",
@@ -64,7 +64,7 @@ export default function UpdateRecipient({
     try {
       const formData = new FormData(e.target);
       const file = formData.get("file");
-      
+
       let requestBody;
       let headers = {};
 
@@ -131,7 +131,7 @@ export default function UpdateRecipient({
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
         let errorMessage = `HTTP error! status: ${response.status}`;
-        
+
         if (contentType && contentType.includes('application/json')) {
           try {
             const errorResult = await response.json();
@@ -142,26 +142,26 @@ export default function UpdateRecipient({
         } else {
           const errorText = await response.text();
           console.error('Server error response:', errorText);
-          
+
           if (response.status === 404) {
             errorMessage = 'Penerima tidak ditemukan atau endpoint tidak tersedia';
           } else if (response.status === 500) {
             errorMessage = 'Terjadi kesalahan di server. Periksa log server backend';
           }
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         toast.dismiss(loadingToast);
-        toast.success(`Penerima "${formData.get('nama')}" berhasil diperbarui!`);
-        
+        toast.success(`Data penerima "${formData.get('nama')}" berhasil diperbarui!`);
+
         setEditingRecipient(null);
         setIsEditDialogOpen(false);
-        
+
         if (fetchRecipients) {
           await fetchRecipients();
         }
@@ -170,10 +170,10 @@ export default function UpdateRecipient({
       }
     } catch (err) {
       console.error('Error updating recipient:', err);
-      
+
       toast.dismiss(loadingToast);
       const errorMessage = err.message || 'Terjadi kesalahan saat memperbarui penerima';
-      
+
       if (setError) {
         setError(errorMessage);
       }
@@ -196,7 +196,7 @@ export default function UpdateRecipient({
     if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
       return dateString;
     }
-    
+
     try {
       const date = new Date(dateString);
       return date.toISOString().split('T')[0];
@@ -215,7 +215,7 @@ export default function UpdateRecipient({
               Ubah informasi penerima bantuan di bawah ini. Klik simpan untuk menyimpan perubahan.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             {/* Nama */}
             <div className="grid gap-3">
@@ -310,7 +310,7 @@ export default function UpdateRecipient({
                   max="150"
                 />
               </div>
-              
+
               <div className="grid gap-3">
                 <Label htmlFor="edit-nik">NIK *</Label>
                 <Input
@@ -340,35 +340,38 @@ export default function UpdateRecipient({
               />
             </div>
 
-            {/* Jenis Alat */}
-            <div className="grid gap-3">
-              <Label htmlFor="edit-jenisAlat">Jenis Alat Bantuan *</Label>
-              <Select name="jenisAlat" defaultValue={editingRecipient?.jenisAlat || ""} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih jenis alat bantuan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jenisAlatList.map((alat) => (
-                    <SelectItem key={alat} value={alat}>
-                      {alat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Jenis Alat dan Keterangan - Arranged side-by-side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Jenis Alat */}
+              <div className="grid gap-3">
+                <Label htmlFor="edit-jenisAlat">Jenis Alat Bantuan *</Label>
+                <Select name="jenisAlat" defaultValue={editingRecipient?.jenisAlat || ""} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih jenis alat bantuan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jenisAlatList.map((alat) => (
+                      <SelectItem key={alat} value={alat}>
+                        {alat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Keterangan */}
-            <div className="grid gap-3">
-              <Label htmlFor="edit-keterangan">Keterangan</Label>
-              <Select name="keterangan" defaultValue={editingRecipient?.keterangan || ""}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih keterangan (opsional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DTKS">DTKS</SelectItem>
-                  <SelectItem value="Non - DTKS">Non - DTKS</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Keterangan */}
+              <div className="grid gap-3">
+                <Label htmlFor="edit-keterangan">Keterangan</Label>
+                <Select name="keterangan" defaultValue={editingRecipient?.keterangan || ""}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih keterangan (opsional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DTKS">DTKS</SelectItem>
+                    <SelectItem value="Non - DTKS">Non - DTKS</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Tanggal Penerimaan */}

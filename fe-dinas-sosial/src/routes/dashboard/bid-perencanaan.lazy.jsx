@@ -139,7 +139,7 @@ function Dashboard() {
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-8 translate-x-8" />
 
               <CardHeader className="flex flex-row items-center gap-4 pb-2 relative z-10">
-                <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm group-hover:bg-white/20 transition-colors duration-300">
+                <div className="py-2 rounded-sm backdrop-blur-sm transition-colors duration-300">
                   <div className="text-xl sm:text-2xl">{item.icon}</div>
                 </div>
                 <CardTitle className="text-sm sm:text-base font-semibold truncate">

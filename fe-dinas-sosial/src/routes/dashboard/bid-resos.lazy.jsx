@@ -8,10 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  MdAccessible, // Re-adding MdAccessible for generic accessibility if needed, though KursiRoda.svg is now used
-  MdHearing, // Keeping for other purposes if needed
-  MdDirectionsWalk, // Keeping for other purposes if needed
-  MdOutlineElderlyWoman, // This is the one for Kaki Palsu
   MdChevronLeft,
   MdChevronRight,
 } from "react-icons/md";
@@ -23,7 +19,7 @@ import Recipient from "@/components/bid-resos/recipient";
 import KursiRodaIcon from "@/assets/icon/KursiRoda.svg";
 import KrukIcon from "@/assets/icon/Kruk.svg";
 import TripodIcon from "@/assets/icon/Tripod.svg";
-import KakiPalsu from "@/assets/icon/kakiPalsu.svg"
+import KakiPalsu from "@/assets/icon/kakiPalsu.svg";
 import AlatBantuDengarIcon from "@/assets/icon/alatBantuDengar.svg";
 
 export const Route = createLazyFileRoute("/dashboard/bid-resos")({
@@ -95,7 +91,6 @@ function Dashboard() {
     }
   };
 
-  // Calculate counters from recipients data
   const calculateCounters = (recipientsData) => {
     const counters = {
       regular: 0,
@@ -168,42 +163,42 @@ function Dashboard() {
     {
       id: "regular",
       title: "Kursi Roda Regular",
-      icon: <img src={KursiRodaIcon} alt="Kursi Roda Regular Icon" className="w-8 h-8" />,
+      icon: <img src={KursiRodaIcon} alt="Kursi Roda Regular Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.regular,
       bgColor: "#ff7f0e",
     },
     {
       id: "cp",
       title: "Kursi Roda Cerebral Palsy (CP)",
-      icon: <img src={KursiRodaIcon} alt="Kursi Roda CP Icon" className="w-8 h-8" />,
+      icon: <img src={KursiRodaIcon} alt="Kursi Roda CP Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.cp,
       bgColor: "#1F3A93",
     },
     {
       id: "kruk",
       title: "Kruk",
-      icon: <img src={KrukIcon} alt="Kruk Icon" className="w-8 h-8" />,
+      icon: <img src={KrukIcon} alt="Kruk Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.kruk,
       bgColor: "#ff7f0e",
     },
     {
       id: "tripod",
       title: "Tripod",
-      icon: <img src={TripodIcon} alt="Tripod Icon" className="w-8 h-8" />,
+      icon: <img src={TripodIcon} alt="Tripod Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.tripod,
       bgColor: "#1F3A93",
     },
     {
       id: "kakiPalsu",
-      title: "Kaki Palsu", 
-      icon: <img src={KakiPalsu} alt="Kaki Palsu Icon" className="w-8 h-8" />,
+      title: "Kaki Palsu",
+      icon: <img src={KakiPalsu} alt="Kaki Palsu Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.kakiPalsu,
       bgColor: "#ff7f0e",
     },
     {
       id: "alatDengar",
       title: "Alat Bantu Dengar",
-      icon: <img src={AlatBantuDengarIcon} alt="Alat Bantu Dengar Icon" className="w-8 h-8" />,
+      icon: <img src={AlatBantuDengarIcon} alt="Alat Bantu Dengar Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.alatDengar,
       bgColor: "#1F3A93",
     },
@@ -255,7 +250,8 @@ function Dashboard() {
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-8 translate-x-8" />
 
                 <CardHeader className="flex flex-row items-center gap-4 pb-2 relative z-10">
-                  <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm group-hover:bg-white/20 transition-colors duration-300">
+                  <div className="py-2 rounded-sm backdrop-blur-sm transition-colors duration-300">
+                    {/* The icon itself now has fixed width and height */}
                     <div className="text-xl sm:text-2xl">{item.icon}</div>
                   </div>
                   <CardTitle className="text-sm sm:text-base font-semibold truncate">
@@ -315,7 +311,7 @@ function Dashboard() {
           <Recipient
             selectedJenisAlat={filterJenisAlat}
             onDataUpdate={handleDataUpdate}
-            recipients={recipients} 
+            recipients={recipients}
           />
         </div>
       </div>

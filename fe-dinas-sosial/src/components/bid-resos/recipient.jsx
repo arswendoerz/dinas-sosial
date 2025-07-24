@@ -254,7 +254,7 @@ export default function Recipient({ selectedJenisAlat }) {
       const result = await response.json();
 
       if (result.success) {
-        toast.success(`Penerima "${deletingRecipient.nama}" berhasil dihapus!`, {
+        toast.success(`Data penerima "${deletingRecipient.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
@@ -312,13 +312,23 @@ export default function Recipient({ selectedJenisAlat }) {
     </Pagination>
   );
 
+  // MODIFIED START
   const getUniqueYears = () => {
     const years = new Set();
     uploadedRecipients.forEach(recipient => {
       if (recipient.tanggalPenerimaan) {
-        const yearMatch = recipient.tanggalPenerimaan.match(/\d{4}$/);
+        // Assuming tanggalPenerimaan is in a format like 'DD-MM-YYYY' or 'YYYY-MM-DD'
+        // Extract the last 4 characters if it's 'DD-MM-YYYY' or first 4 if 'YYYY-MM-DD'
+        // A more robust solution would parse the date properly, but for extracting year
+        // based on common formats, this might suffice.
+        const yearMatch = recipient.tanggalPenerimaan.match(/\d{4}$/); // Matches 4 digits at the end
         if (yearMatch) {
           years.add(yearMatch[0]);
+        } else {
+          const yearMatchStart = recipient.tanggalPenerimaan.match(/^\d{4}/); // Matches 4 digits at the start
+          if (yearMatchStart) {
+            years.add(yearMatchStart[0]);
+          }
         }
       }
     });
@@ -326,6 +336,7 @@ export default function Recipient({ selectedJenisAlat }) {
   };
 
   const uniqueYears = getUniqueYears();
+  // MODIFIED END
 
   const ClickableImage = ({ src, alt, recipientName, className }) => (
     <img
@@ -443,16 +454,21 @@ export default function Recipient({ selectedJenisAlat }) {
                         {recipient.nama}
                       </TableCell>
                       <TableCell className="px-4 py-1 border-r">
-                        <ClickableImage
-                          src={
-                            recipient.fotoUrl?.includes("drive.google.com")
-                              ? `${API_BASE_URL.replace('/api/recipi', '')}/proxy/image/${getFileId(recipient.fotoUrl)}`
-                              : recipient.fotoUrl || '/default-profile.png'
-                          }
-                          alt="Foto Penerima"
-                          recipientName={recipient.nama}
-                          className="w-10 h-10 object-cover rounded-lg"
-                        />
+                        {/* Conditional rendering for fotoUrl */}
+                        {recipient.fotoUrl ? (
+                          <ClickableImage
+                            src={
+                              recipient.fotoUrl?.includes("drive.google.com")
+                                ? `${API_BASE_URL.replace('/api/recipi', '')}/proxy/image/${getFileId(recipient.fotoUrl)}`
+                                : recipient.fotoUrl
+                            }
+                            alt="Foto Penerima"
+                            recipientName={recipient.nama}
+                            className="w-10 h-10 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
                       </TableCell>
                       <TableCell className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal" title={recipient.alamat}>
                         {recipient.alamat}
@@ -553,16 +569,23 @@ export default function Recipient({ selectedJenisAlat }) {
                     className="rounded-xl shadow border p-4"
                   >
                     <div className="flex items-center gap-4 mb-3">
-                      <ClickableImage
-                        src={
-                          recipient.fotoUrl?.includes("drive.google.com")
-                            ? `${API_BASE_URL.replace('/api/recipi', '')}/proxy/image/${getFileId(recipient.fotoUrl)}`
-                            : recipient.fotoUrl || '/default-profile.png'
-                        }
-                        alt="Foto Penerima"
-                        recipientName={recipient.nama}
-                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                      />
+                      {/* Conditional rendering for fotoUrl */}
+                      {recipient.fotoUrl ? (
+                        <ClickableImage
+                          src={
+                            recipient.fotoUrl?.includes("drive.google.com")
+                              ? `${API_BASE_URL.replace('/api/recipi', '')}/proxy/image/${getFileId(recipient.fotoUrl)}`
+                              : recipient.fotoUrl
+                          }
+                          alt="Foto Penerima"
+                          recipientName={recipient.nama}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg flex-shrink-0 text-gray-500 text-3xl font-bold">
+                          -
+                        </div>
+                      )}
                       <div>
                         <h3 className="font-semibold text-base text-gray-900">
                           {recipient.nama} ({recipient.usia} th)
@@ -677,7 +700,8 @@ export default function Recipient({ selectedJenisAlat }) {
       <AddRecipient
         isAddDialogOpen={isAddDialogOpen}
         setIsAddDialogOpen={setIsAddDialogOpen}
-        setIsSubmitting={setIsSubmitting}
+        isSubmitting={isSubmitting} // Pass the state
+        setIsSubmitting={setIsSubmitting} // Pass the setter
         setError={setError}
         fetchRecipients={fetchRecipients}
         API_BASE_URL={API_BASE_URL}
