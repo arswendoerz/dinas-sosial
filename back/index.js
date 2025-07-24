@@ -7,6 +7,7 @@ import docsRoutes from "./route/docs.js";
 import letterRoutes from "./route/letter.js";
 import recipiRoutes from "./route/resos.js";
 import cookieParser from "cookie-parser";
+import proxyRoute from "./route/proxy.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/user", userRoutes); // Account
 app.use("/api/docs", docsRoutes); // Document
 app.use("/api/letter", letterRoutes); // Letter
 app.use("/api/recipi", recipiRoutes); // Recipient Resos
+app.use("/proxy", proxyRoute);
 
 app.get("/", (req, res) => {
   res.send("Selamat Datang Dinas Sosial");

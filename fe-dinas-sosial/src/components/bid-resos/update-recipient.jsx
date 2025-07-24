@@ -32,6 +32,12 @@ export default function UpdateRecipient({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const getFileId = (url) => {
+    if (!url) return "";
+    const match = url.match(/[-\w]{25,}/);
+    return match ? match[0] : "";
+  };
+  
   const kotaListLampung = [
     "Bandar Lampung", "Metro", "Lampung Selatan", "Lampung Utara",
     "Lampung Tengah", "Lampung Timur", "Lampung Barat", "Tanggamus",
@@ -63,7 +69,6 @@ export default function UpdateRecipient({
       let headers = {};
 
       if (file && file.size > 0) {
-
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error("Format file harus JPEG, JPG, atau PNG!");
@@ -243,7 +248,11 @@ export default function UpdateRecipient({
               {editingRecipient?.fotoUrl && (
                 <div className="flex items-center gap-2">
                   <img
-                    src={editingRecipient.fotoUrl.replace('uc?id=', 'thumbnail?id=')}
+                    src={
+                      editingRecipient.fotoUrl?.includes("drive.google.com")
+                        ? `${API_BASE_URL.replace('/api/recipi', '')}/proxy/image/${getFileId(editingRecipient.fotoUrl)}`
+                        : editingRecipient.fotoUrl
+                    }
                     alt="Foto saat ini"
                     className="w-12 h-12 object-cover rounded-lg"
                     onError={(e) => {
