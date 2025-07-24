@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   Table,
   TableHeader,
@@ -81,6 +82,69 @@ export default function Recipient({ selectedJenisAlat }) {
   const handleImageClick = (imageUrl, recipientName) => {
     setSelectedImage({ url: imageUrl, name: recipientName });
     setIsImageModalOpen(true);
+  };
+
+  const handleExportData = async () => {
+    toast.loading('Mengekspor data penerima bantuan...', { id: 'exportToast' });
+    try {
+      const queryParams = new URLSearchParams();
+      if (searchTerm) {
+        queryParams.append('search', searchTerm);
+      }
+      if (selectedKota !== "__semua__") {
+        queryParams.append('kota', selectedKota);
+      }
+      if (selectedYear !== "__semua__") {
+        queryParams.append('year', selectedYear);
+      }
+
+      if (selectedJenisAlat) {
+        queryParams.append('jenisAlat', selectedJenisAlat);
+      }
+
+      const exportUrl = `${API_BASE_URL}/export?${queryParams.toString()}`;
+
+      const response = await fetch(exportUrl, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Gagal mengekspor data: HTTP error! status: ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `data_penerima_bantuan_filtered_${new Date().toISOString().split('T')[0]}.csv`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Data penerima bantuan berhasil diekspor!', { id: 'exportToast' });
+    } catch (err) {
+      console.error('Error exporting data:', err);
+      toast.error(`Gagal mengekspor data: ${err.message}`, { id: 'exportToast' });
+    }
   };
 
   const TableSkeleton = () => (
@@ -285,12 +349,10 @@ export default function Recipient({ selectedJenisAlat }) {
   const PaginationComponent = () => (
     <Pagination>
       <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          />
-        </PaginationItem>
+        <PaginationPrevious
+          href="#"
+          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+        />
         {[...Array(totalPages)].map((_, i) => (
           <PaginationItem key={i}>
             <PaginationLink
@@ -312,20 +374,15 @@ export default function Recipient({ selectedJenisAlat }) {
     </Pagination>
   );
 
-  // MODIFIED START
   const getUniqueYears = () => {
     const years = new Set();
     uploadedRecipients.forEach(recipient => {
       if (recipient.tanggalPenerimaan) {
-        // Assuming tanggalPenerimaan is in a format like 'DD-MM-YYYY' or 'YYYY-MM-DD'
-        // Extract the last 4 characters if it's 'DD-MM-YYYY' or first 4 if 'YYYY-MM-DD'
-        // A more robust solution would parse the date properly, but for extracting year
-        // based on common formats, this might suffice.
-        const yearMatch = recipient.tanggalPenerimaan.match(/\d{4}$/); // Matches 4 digits at the end
+        const yearMatch = recipient.tanggalPenerimaan.match(/\d{4}$/);
         if (yearMatch) {
           years.add(yearMatch[0]);
         } else {
-          const yearMatchStart = recipient.tanggalPenerimaan.match(/^\d{4}/); // Matches 4 digits at the start
+          const yearMatchStart = recipient.tanggalPenerimaan.match(/^\d{4}/);
           if (yearMatchStart) {
             years.add(yearMatchStart[0]);
           }
@@ -336,7 +393,6 @@ export default function Recipient({ selectedJenisAlat }) {
   };
 
   const uniqueYears = getUniqueYears();
-  // MODIFIED END
 
   const ClickableImage = ({ src, alt, recipientName, className }) => (
     <img
@@ -375,23 +431,24 @@ export default function Recipient({ selectedJenisAlat }) {
           className="flex-1 min-w-[200px]"
         />
 
-        <Select value={selectedKota} onValueChange={setSelectedKota}>
-          <SelectTrigger className="w-full md:w-64">
-            <SelectValue placeholder="Pilih Kabupaten/Kota" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__semua__">Semua Kabupaten/Kota</SelectItem>
-            {kotaListLampung.map((kota) => (
-              <SelectItem key={kota} value={kota}>
-                {kota}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Filters and Buttons adjusted for mobile */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <Select value={selectedKota} onValueChange={setSelectedKota}>
+            <SelectTrigger className="w-full sm:w-64">
+              <SelectValue placeholder="Pilih Kabupaten/Kota" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__semua__">Semua Kabupaten/Kota</SelectItem>
+              {kotaListLampung.map((kota) => (
+                <SelectItem key={kota} value={kota}>
+                  {kota}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <div className="flex w-full md:w-auto gap-2">
           <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-full md:w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px]">
               <SelectValue placeholder="Pilih Tahun" />
             </SelectTrigger>
             <SelectContent>
@@ -403,10 +460,18 @@ export default function Recipient({ selectedJenisAlat }) {
               ))}
             </SelectContent>
           </Select>
+        </div>
 
+        <div className="flex w-full sm:w-auto gap-2">
+          <Button
+            onClick={handleExportData}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white transition-transform hover:scale-105 flex-1"
+          >
+            Ekspor Data
+          </Button>
           <Button
             onClick={() => setIsAddDialogOpen(true)}
-            className="flex items-center gap-2 bg-[#1F3A93] hover:bg-[#1A2E7A] text-white transition-transform hover:scale-105"
+            className="flex items-center gap-2 bg-[#1F3A93] hover:bg-[#1A2E7A] text-white transition-transform hover:scale-105 flex-1"
           >
             <MdAdd size={20} /> Tambah Penerima
           </Button>
@@ -587,17 +652,13 @@ export default function Recipient({ selectedJenisAlat }) {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold text-base text-gray-900">
-                          {recipient.nama} ({recipient.usia} th)
-                        </h3>
-                        <p className="text-sm font-medium text-gray-700">
-                          {recipient.jenisAlat}
-                        </p>
+                        <p className="font-semibold text-lg">{recipient.nama} ({recipient.usia || '-'}th)</p>
+                        <p className="text-gray-600 text-sm">{recipient.nik || '-'}</p>
                       </div>
                     </div>
 
-                    <div className="space-y-1 text-sm text-gray-700 mb-3">
-                      <p><span className="font-medium">NIK:</span> {recipient.nik}</p>
+                    <div className="space-y-1 text-sm text-gray-700">
+                      <p><span className="font-medium">Jenis Alat:</span> {recipient.jenisAlat}</p>
                       <p><span className="font-medium">Telp:</span> {recipient.telepon}</p>
                       <p><span className="font-medium">Alamat:</span> {recipient.alamat}, {recipient.kota}</p>
                       <p><span className="font-medium">Keterangan:</span> {recipient.keterangan || "-"}</p>
@@ -696,18 +757,16 @@ export default function Recipient({ selectedJenisAlat }) {
         </DialogContent>
       </Dialog>
 
-      {/* Add Recipient Dialog  */}
       <AddRecipient
         isAddDialogOpen={isAddDialogOpen}
         setIsAddDialogOpen={setIsAddDialogOpen}
-        isSubmitting={isSubmitting} // Pass the state
-        setIsSubmitting={setIsSubmitting} // Pass the setter
+        isSubmitting={isSubmitting}
+        setIsSubmitting={setIsSubmitting}
         setError={setError}
         fetchRecipients={fetchRecipients}
         API_BASE_URL={API_BASE_URL}
       />
 
-      {/* Update Recipient Dialog */}
       <UpdateRecipient
         editingRecipient={editingRecipient}
         isEditDialogOpen={isEditDialogOpen}

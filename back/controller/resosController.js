@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
-import db from "../firestore.js";
+import db from "../firestore.js"; // Pastikan ini mengarah ke inisialisasi Firestore Anda
 import { createObjectCsvStringifier } from "csv-writer";
 
 dotenv.config();
@@ -286,7 +286,7 @@ export const deleteRecipient = async (req, res) => {
     }
 
     // Hapus file di Google Drive jika ada
-    const fileId = extractFileId(recipientData.url);
+    const fileId = extractFileId(recipientData.fotoUrl);
     if (fileId) {
       try {
         await drive.files.delete({ fileId });
@@ -360,13 +360,46 @@ export const searchRecipi = async (req, res) => {
 
 export const exportRecipi = async (req, res) => {
   try {
-    const snapshot = await recipiCollection.get();
-    const recipiList = snapshot.docs.map((doc) => doc.data());
+    const { search, kota, year, jenisAlat } = req.query;
+
+    let query = recipiCollection;
+    if (search) {
+    }
+    if (kota && kota !== '__semua__') {
+      query = query.where('kota', '==', kota);
+    }
+    if (year && year !== '__semua__') {
+    }
+    if (jenisAlat) {
+      query = query.where('jenisAlat', '==', jenisAlat);
+    }
+
+    const snapshot = await query.get();
+
+    let recipiList = snapshot.docs.map((doc) => doc.data());
+
+    if (search) {
+      const searchTextLower = search.toLowerCase();
+      recipiList = recipiList.filter(recipi =>
+        (recipi.nama && recipi.nama.toLowerCase().includes(searchTextLower)) ||
+        (recipi.alamat && recipi.alamat.toLowerCase().includes(searchTextLower)) ||
+        (recipi.nik && recipi.nik.toLowerCase().includes(searchTextLower)) ||
+        (recipi.telepon && recipi.telepon.toLowerCase().includes(searchTextLower)) ||
+        (recipi.jenisAlat && recipi.jenisAlat.toLowerCase().includes(searchTextLower)) ||
+        (recipi.keterangan && recipi.keterangan.toLowerCase().includes(searchTextLower))
+      );
+    }
+
+    if (year && year !== '__semua__') {
+      recipiList = recipiList.filter(recipi =>
+        recipi.tanggalPenerimaan && recipi.tanggalPenerimaan.includes(year)
+      );
+    }
 
     if (recipiList.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Data penerima tidak ditemukan woii",
+        message: "Tidak ada data penerima yang ditemukan dengan filter yang diberikan.",
       });
     }
 
@@ -402,8 +435,9 @@ export const exportRecipi = async (req, res) => {
       csvStringifier.getHeaderString() +
       csvStringifier.stringifyRecords(records);
 
+    const timestamp = new Date().toISOString().split('T')[0]; 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", "attachment; filename=recipi.csv");
+    res.setHeader("Content-Disposition", `attachment; filename="data_penerima_bantuan_filtered_${timestamp}.csv"`);
 
     const stream = Readable.from([csvData]);
     stream.pipe(res);
