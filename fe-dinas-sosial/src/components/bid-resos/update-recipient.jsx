@@ -295,7 +295,7 @@ export default function UpdateRecipient({
               </Select>
             </div>
 
-            {/* Usia dan NIK dalam satu baris */}
+            {/* Usia dan NIK */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="edit-usia">Usia (tahun) *</Label>

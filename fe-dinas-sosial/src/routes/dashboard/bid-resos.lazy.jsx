@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  MdAccessible,
-  MdHearing,
-  MdDirectionsWalk,
-  MdOutlineElderlyWoman,
+  MdAccessible, // Re-adding MdAccessible for generic accessibility if needed, though KursiRoda.svg is now used
+  MdHearing, // Keeping for other purposes if needed
+  MdDirectionsWalk, // Keeping for other purposes if needed
+  MdOutlineElderlyWoman, // This is the one for Kaki Palsu
   MdChevronLeft,
   MdChevronRight,
 } from "react-icons/md";
@@ -19,6 +19,12 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Loading from "@/components/loading";
 import Recipient from "@/components/bid-resos/recipient";
+
+import KursiRodaIcon from "@/assets/icon/KursiRoda.svg";
+import KrukIcon from "@/assets/icon/Kruk.svg";
+import TripodIcon from "@/assets/icon/Tripod.svg";
+import KakiPalsu from "@/assets/icon/kakiPalsu.svg"
+import AlatBantuDengarIcon from "@/assets/icon/alatBantuDengar.svg";
 
 export const Route = createLazyFileRoute("/dashboard/bid-resos")({
   component: Dashboard,
@@ -52,21 +58,21 @@ function Dashboard() {
       } else {
         setCardsPerPage(3);
       }
-      setCurrentPage(0); 
+      setCurrentPage(0);
     };
 
-    updateCardsPerPage(); 
-    window.addEventListener('resize', updateCardsPerPage); 
-    return () => window.removeEventListener('resize', updateCardsPerPage); 
+    updateCardsPerPage();
+    window.addEventListener("resize", updateCardsPerPage);
+    return () => window.removeEventListener("resize", updateCardsPerPage);
   }, []);
 
   const fetchRecipients = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/`, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -77,14 +83,14 @@ function Dashboard() {
       const result = await response.json();
 
       if (result.success) {
-        setRecipients(result.data); 
+        setRecipients(result.data);
         return result.data;
       } else {
-        throw new Error(result.message || 'Gagal mengambil data penerima');
+        throw new Error(result.message || "Gagal mengambil data penerima");
       }
     } catch (error) {
       console.error("Error fetching recipients:", error);
-      setRecipients([]); 
+      setRecipients([]);
       return [];
     }
   };
@@ -100,20 +106,23 @@ function Dashboard() {
       alatDengar: 0,
     };
 
-    recipientsData.forEach(recipient => {
-      const jenisAlat = recipient.jenisAlat?.toLowerCase() || '';
+    recipientsData.forEach((recipient) => {
+      const jenisAlat = recipient.jenisAlat?.toLowerCase() || "";
 
-      if (jenisAlat.includes('kursi roda regular')) {
+      if (jenisAlat.includes("kursi roda regular")) {
         counters.regular++;
-      } else if (jenisAlat.includes('kursi roda cerebral palsy') || jenisAlat.includes('cp')) {
+      } else if (
+        jenisAlat.includes("kursi roda cerebral palsy") ||
+        jenisAlat.includes("cp")
+      ) {
         counters.cp++;
-      } else if (jenisAlat.includes('kruk')) {
+      } else if (jenisAlat.includes("kruk")) {
         counters.kruk++;
-      } else if (jenisAlat.includes('tripod')) {
+      } else if (jenisAlat.includes("tripod")) {
         counters.tripod++;
-      } else if (jenisAlat.includes('kaki palsu')) {
+      } else if (jenisAlat.includes("kaki palsu")) {
         counters.kakiPalsu++;
-      } else if (jenisAlat.includes('alat bantu dengar')) {
+      } else if (jenisAlat.includes("alat bantu dengar")) {
         counters.alatDengar++;
       }
     });
@@ -124,11 +133,11 @@ function Dashboard() {
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
-      const recipientsData = await fetchRecipients(); 
-      const calculatedCounters = calculateCounters(recipientsData); 
+      const recipientsData = await fetchRecipients();
+      const calculatedCounters = calculateCounters(recipientsData);
       setDataCounters(calculatedCounters);
       setLoading(false);
-      setSelectedView(null); 
+      setSelectedView(null);
     };
     fetchAll();
   }, []);
@@ -152,49 +161,49 @@ function Dashboard() {
     kruk: "Kruk",
     tripod: "Tripod",
     kakiPalsu: "Kaki Palsu",
-    alatDengar: "Alat Bantu Dengar"
+    alatDengar: "Alat Bantu Dengar",
   };
 
   const widgets = [
     {
       id: "regular",
       title: "Kursi Roda Regular",
-      icon: <MdAccessible size={32} />,
+      icon: <img src={KursiRodaIcon} alt="Kursi Roda Regular Icon" className="w-8 h-8" />,
       value: dataCounters.regular,
       bgColor: "#ff7f0e",
     },
     {
       id: "cp",
       title: "Kursi Roda Cerebral Palsy (CP)",
-      icon: <MdAccessible size={32} />,
+      icon: <img src={KursiRodaIcon} alt="Kursi Roda CP Icon" className="w-8 h-8" />,
       value: dataCounters.cp,
       bgColor: "#1F3A93",
     },
     {
       id: "kruk",
       title: "Kruk",
-      icon: <MdDirectionsWalk size={32} />,
+      icon: <img src={KrukIcon} alt="Kruk Icon" className="w-8 h-8" />,
       value: dataCounters.kruk,
       bgColor: "#ff7f0e",
     },
     {
       id: "tripod",
       title: "Tripod",
-      icon: <MdDirectionsWalk size={32} />,
+      icon: <img src={TripodIcon} alt="Tripod Icon" className="w-8 h-8" />,
       value: dataCounters.tripod,
       bgColor: "#1F3A93",
     },
     {
       id: "kakiPalsu",
-      title: "Kaki Palsu",
-      icon: <MdOutlineElderlyWoman size={32} />,
+      title: "Kaki Palsu", 
+      icon: <img src={KakiPalsu} alt="Kaki Palsu Icon" className="w-8 h-8" />,
       value: dataCounters.kakiPalsu,
       bgColor: "#ff7f0e",
     },
     {
       id: "alatDengar",
       title: "Alat Bantu Dengar",
-      icon: <MdHearing size={32} />,
+      icon: <img src={AlatBantuDengarIcon} alt="Alat Bantu Dengar Icon" className="w-8 h-8" />,
       value: dataCounters.alatDengar,
       bgColor: "#1F3A93",
     },
@@ -239,8 +248,8 @@ function Dashboard() {
               <Card
                 key={item.id}
                 onClick={() => handleCardClick(item.id)}
-                className={`cursor-pointer text-white shadow-lg rounded-3xl w-full transition-all duration-300 border-0 overflow-hidden group 
-                            ${selectedView === item.id ? 'scale-[1.05] shadow-2xl shadow-black/10' : 'hover:scale-[1.05] hover:shadow-2xl hover:shadow-black/10'}`}
+                className={`cursor-pointer text-white shadow-lg rounded-3xl w-full transition-all duration-300 border-0 overflow-hidden group
+                                ${selectedView === item.id ? "scale-[1.05] shadow-2xl shadow-black/10" : "hover:scale-[1.05] hover:shadow-2xl hover:shadow-black/10"}`}
                 style={{ backgroundColor: item.bgColor }}
               >
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-8 translate-x-8" />
@@ -306,7 +315,7 @@ function Dashboard() {
           <Recipient
             selectedJenisAlat={filterJenisAlat}
             onDataUpdate={handleDataUpdate}
-            recipients={recipients} // Pass recipients data to child component
+            recipients={recipients} 
           />
         </div>
       </div>
