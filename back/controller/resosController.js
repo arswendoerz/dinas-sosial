@@ -325,9 +325,7 @@ export const searchRecipi = async (req, res) => {
       });
     }
 
-    const snapshot = await recipiCollection
-      .where("role", "==", req.user.role)
-      .get();
+    const snapshot = await recipiCollection.get();
 
     const searchText = query.toLowerCase();
 
@@ -362,9 +360,7 @@ export const searchRecipi = async (req, res) => {
 
 export const exportRecipi = async (req, res) => {
   try {
-    const snapshot = await recipiCollection
-      .where("role", "==", req.user.role)
-      .get();
+    const snapshot = await recipiCollection.get();
     const recipiList = snapshot.docs.map((doc) => doc.data());
 
     if (recipiList.length === 0) {
@@ -382,8 +378,9 @@ export const exportRecipi = async (req, res) => {
         { id: "usia", title: "Usia" },
         { id: "nik", title: "NIK" },
         { id: "telepon", title: "No. Telepon" },
-        { id: "status_dtks", title: "DTKS / Non DTKS" },
-        { id: "role", title: "Role" },
+        { id: "keterangan", title: "Keterangan" },
+        { id: "jenisAlat", title: "Jenis Alat" },
+        { id: "tanggalPenerimaan", title: "Tanggal Penerimaan" },
         { id: "fotoUrl", title: "Link Foto" },
       ],
     });
@@ -395,8 +392,9 @@ export const exportRecipi = async (req, res) => {
       usia: recipi.usia?.toString().trim() || "",
       nik: (recipi.nik || "").toString().trim(),
       telepon: (recipi.telepon || "").toString().trim(),
-      status_dtks: recipi.status_dtks ? "DTKS" : "Non DTKS",
-      role: (recipi.role || "").toString().trim(),
+      jenisAlat: (recipi.jenisAlat || "").toString().trim(),
+      keterangan: (recipi.keterangan || "").toString().trim(),
+      tanggalPenerimaan: (recipi.tanggalPenerimaan || "").toString().trim(),
       fotoUrl: (recipi.fotoUrl || "").toString().trim(),
     }));
 
