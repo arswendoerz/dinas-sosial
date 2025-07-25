@@ -368,6 +368,9 @@ export default function Surat() {
     </Pagination>
   );
 
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, filteredLetters.length);
+
   return (
     <div data-aos="fade-up" className="w-full">
       <h2 className="text-lg sm:text-xl font-bold mb-4">
@@ -675,9 +678,14 @@ export default function Surat() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <PaginationComponent />
-      </div>
+      {totalPages > 0 && (
+        <div className="mt-4 flex flex-col sm:flex-row items-center sm:justify-center sm:relative">
+          <PaginationComponent />
+          <div className="w-full text-center text-sm text-muted-foreground mt-3 sm:absolute sm:left-0 sm:w-auto sm:text-left sm:mt-0">
+            Menampilkan {startIndex}-{endIndex} dari {filteredLetters.length} data
+          </div>
+        </div>
+      )}
 
       {/* Update Dialog */}
       <UpdateSurat 

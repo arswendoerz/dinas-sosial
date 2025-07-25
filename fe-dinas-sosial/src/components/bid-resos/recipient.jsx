@@ -716,15 +716,10 @@ export default function Recipient({ selectedJenisAlat }) {
         </div>
       </div>
 
-
       {totalPages > 0 && (
-        <div className="mt-4 flex justify-center items-center relative">
-          <div className="absolute left-0 text-sm text-muted-foreground hidden sm:block">
-            Menampilkan {startIndex}-{endIndex} dari {filteredRecipients.length} data
-          </div>
-
+        <div className="mt-4 flex flex-col sm:flex-row items-center sm:justify-center sm:relative">
           <PaginationComponent />
-          <div className="sm:hidden w-full text-center text-sm text-muted-foreground mt-3">
+          <div className="w-full text-center text-sm text-muted-foreground mt-3 sm:absolute sm:left-0 sm:w-auto sm:text-left sm:mt-0">
             Menampilkan {startIndex}-{endIndex} dari {filteredRecipients.length} data
           </div>
         </div>
