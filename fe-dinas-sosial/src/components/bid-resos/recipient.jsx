@@ -77,6 +77,7 @@ export default function Recipient({ selectedJenisAlat }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userRole, setUserRole] = useState(null); // State for user role
   const API_BASE_URL = "http://localhost:9000/api/recipi";
 
   const handleImageClick = (imageUrl, recipientName) => {
@@ -147,46 +148,55 @@ export default function Recipient({ selectedJenisAlat }) {
     }
   };
 
-  const TableSkeleton = () => (
-    <Table className="text-left text-sm border-collapse w-full">
-      <TableHeader className="bg-gray-50 border-b">
-        <TableRow>
-          {[
-            "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan", "Aksi"
-          ].map((col, i, arr) => (
-            <TableHead
-              key={i}
-              className={`px-4 py-3 font-semibold text-gray-700 ${i < arr.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === arr.length - 1 ? "text-center" : ""}`}
-            >
-              {col}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 5 }).map((_, rowIndex) => (
-          <TableRow key={rowIndex} className="hover:bg-gray-50 border-b">
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-32" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-10" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-28" /></TableCell>
-            <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-            <TableCell className="px-4 py-3 text-center">
-              <div className="flex gap-2 justify-center">
-                <Skeleton className="h-6 w-6 rounded" />
-                <Skeleton className="h-6 w-6 rounded" />
-              </div>
-            </TableCell>
+  const TableSkeleton = () => {
+    const skeletonHeaders = [
+      "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan"
+    ];
+    if (userRole === 'rehabilitasi sosial') {
+      skeletonHeaders.push("Aksi");
+    }
+
+    return (
+      <Table className="text-left text-sm border-collapse w-full">
+        <TableHeader className="bg-gray-50 border-b">
+          <TableRow>
+            {skeletonHeaders.map((col, i, arr) => (
+              <TableHead
+                key={i}
+                className={`px-4 py-3 font-semibold text-gray-700 ${i < arr.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === arr.length - 1 && userRole === 'rehabilitasi sosial' ? "text-center" : ""}`}
+              >
+                {col}
+              </TableHead>
+            ))}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 5 }).map((_, rowIndex) => (
+            <TableRow key={rowIndex} className="hover:bg-gray-50 border-b">
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-32" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-10" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-28" /></TableCell>
+              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
+              {userRole === 'rehabilitasi sosial' && (
+                <TableCell className="px-4 py-3 text-center">
+                  <div className="flex gap-2 justify-center">
+                    <Skeleton className="h-6 w-6 rounded" />
+                    <Skeleton className="h-6 w-6 rounded" />
+                  </div>
+                </TableCell>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
 
   const CardSkeleton = () => (
     <Card className="rounded-xl shadow border p-4">
@@ -206,12 +216,37 @@ export default function Recipient({ selectedJenisAlat }) {
         <Skeleton className="h-3 w-20" />
       </div>
 
-      <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-      </div>
+      {userRole === 'rehabilitasi sosial' && (
+        <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+      )}
     </Card>
   );
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:9000/api/user/profile", {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        console.error("Gagal mengambil profil pengguna, melanjutkan dengan akses terbatas.");
+        return;
+      }
+      const result = await response.json();
+      if (result.success && result.data.role) {
+        setUserRole(result.data.role);
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      toast.error('Gagal memverifikasi peran pengguna.');
+    }
+  };
 
   const fetchRecipients = async () => {
     setIsLoading(true);
@@ -248,6 +283,7 @@ export default function Recipient({ selectedJenisAlat }) {
   };
 
   useEffect(() => {
+    fetchUserProfile();
     fetchRecipients();
   }, []);
 
@@ -345,7 +381,6 @@ export default function Recipient({ selectedJenisAlat }) {
     return match ? match[0] : "";
   };
 
-
   const PaginationComponent = () => (
     <Pagination>
       <PaginationContent>
@@ -410,6 +445,13 @@ export default function Recipient({ selectedJenisAlat }) {
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredRecipients.length);
 
+  const desktopTableHeaders = [
+    "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan"
+  ];
+  if (userRole === 'rehabilitasi sosial') {
+    desktopTableHeaders.push("Aksi");
+  }
+
   return (
     <div data-aos="fade-up" className="w-full">
       <h2 className="text-lg sm:text-xl font-bold mb-4">
@@ -469,12 +511,14 @@ export default function Recipient({ selectedJenisAlat }) {
           >
             Ekspor Data
           </Button>
-          <Button
-            onClick={() => setIsAddDialogOpen(true)}
-            className="flex items-center gap-2 bg-[#1F3A93] hover:bg-[#1A2E7A] text-white transition-transform hover:scale-105 flex-1"
-          >
-            <MdAdd size={20} /> Tambah Penerima
-          </Button>
+          {userRole === 'rehabilitasi sosial' && (
+            <Button
+              onClick={() => setIsAddDialogOpen(true)}
+              className="flex items-center gap-2 bg-[#1F3A93] hover:bg-[#1A2E7A] text-white transition-transform hover:scale-105 flex-1"
+            >
+              <MdAdd size={20} /> Tambah Penerima
+            </Button>
+          )}
         </div>
       </div>
 
@@ -487,12 +531,10 @@ export default function Recipient({ selectedJenisAlat }) {
             <Table className="text-left text-sm border-collapse w-full">
               <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  {[
-                    "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan", "Aksi"
-                  ].map((col, i, arr) => (
+                  {desktopTableHeaders.map((col, i) => (
                     <TableHead
                       key={i}
-                      className={`px-4 py-3 font-semibold text-gray-700 ${i < arr.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === arr.length - 1 ? "text-center" : ""}`}
+                      className={`px-4 py-3 font-semibold text-gray-700 ${i < desktopTableHeaders.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === desktopTableHeaders.length - 1 && userRole === 'rehabilitasi sosial' ? "text-center" : ""}`}
                     >
                       {col}
                     </TableHead>
@@ -503,7 +545,7 @@ export default function Recipient({ selectedJenisAlat }) {
                 {paginatedRecipients.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={11}
+                      colSpan={desktopTableHeaders.length}
                       className="text-center py-6 text-gray-500"
                     >
                       {selectedJenisAlat
@@ -519,7 +561,6 @@ export default function Recipient({ selectedJenisAlat }) {
                         {recipient.nama}
                       </TableCell>
                       <TableCell className="px-4 py-1 border-r">
-                        {/* Conditional rendering for fotoUrl */}
                         {recipient.fotoUrl ? (
                           <ClickableImage
                             src={
@@ -559,53 +600,55 @@ export default function Recipient({ selectedJenisAlat }) {
                       <TableCell className="px-4 py-1 border-r">
                         {recipient.tanggalPenerimaan || "-"}
                       </TableCell>
-                      <TableCell className="px-4 py-1 text-center">
-                        <div className="flex gap-1 justify-center items-center">
-                          <button
-                            onClick={() => handleEdit(recipient)}
-                            className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
-                            title="Edit"
-                            disabled={isSubmitting}
-                          >
-                            <MdEdit size={18} />
-                          </button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button
-                                onClick={() => handleDelete(recipient)}
-                                className="text-red-600 hover:text-red-800 p-1 rounded"
-                                title="Hapus"
-                                disabled={isSubmitting}
-                              >
-                                <MdDelete size={18} />
-                              </button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Konfirmasi Hapus Penerima
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Apakah Anda yakin ingin menghapus penerima "{recipient.nama}"?
-                                  Tindakan ini tidak dapat dibatalkan.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel disabled={isSubmitting}>
-                                  Batal
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={confirmDelete}
-                                  className="bg-red-500 hover:bg-red-600 text-white"
+                      {userRole === 'rehabilitasi sosial' && (
+                        <TableCell className="px-4 py-1 text-center">
+                          <div className="flex gap-1 justify-center items-center">
+                            <button
+                              onClick={() => handleEdit(recipient)}
+                              className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
+                              title="Edit"
+                              disabled={isSubmitting}
+                            >
+                              <MdEdit size={18} />
+                            </button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button
+                                  onClick={() => handleDelete(recipient)}
+                                  className="text-red-600 hover:text-red-800 p-1 rounded"
+                                  title="Hapus"
                                   disabled={isSubmitting}
                                 >
-                                  {isSubmitting ? "Menghapus..." : "Hapus"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
+                                  <MdDelete size={18} />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Konfirmasi Hapus Penerima
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Apakah Anda yakin ingin menghapus penerima "{recipient.nama}"?
+                                    Tindakan ini tidak dapat dibatalkan.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel disabled={isSubmitting}>
+                                    Batal
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={confirmDelete}
+                                    className="bg-red-500 hover:bg-red-600 text-white"
+                                    disabled={isSubmitting}
+                                  >
+                                    {isSubmitting ? "Menghapus..." : "Hapus"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
@@ -634,7 +677,6 @@ export default function Recipient({ selectedJenisAlat }) {
                     className="rounded-xl shadow border p-4"
                   >
                     <div className="flex items-center gap-4 mb-3">
-                      {/* Conditional rendering for fotoUrl */}
                       {recipient.fotoUrl ? (
                         <ClickableImage
                           src={
@@ -664,50 +706,51 @@ export default function Recipient({ selectedJenisAlat }) {
                       <p><span className="font-medium">Keterangan:</span> {recipient.keterangan || "-"}</p>
                       <p><span className="font-medium">Tgl Penerimaan:</span> {recipient.tanggalPenerimaan || "-"}</p>
                     </div>
-
-                    <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
-                      <button
-                        onClick={() => handleEdit(recipient)}
-                        className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
-                        disabled={isSubmitting}
-                      >
-                        <MdEdit size={16} /> Edit
-                      </button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button
-                            onClick={() => handleDelete(recipient)}
-                            className="flex items-center gap-1 text-red-600 hover:text-red-800"
-                            disabled={isSubmitting}
-                          >
-                            <MdDelete size={16} /> Hapus
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Konfirmasi Hapus Penerima
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Apakah Anda yakin ingin menghapus penerima "{recipient.nama}"?
-                              Tindakan ini tidak dapat dibatalkan.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isSubmitting}>
-                              Batal
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={confirmDelete}
-                              className="bg-red-500 hover:bg-red-600 text-white"
+                    {userRole === 'rehabilitasi sosial' && (
+                      <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
+                        <button
+                          onClick={() => handleEdit(recipient)}
+                          className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
+                          disabled={isSubmitting}
+                        >
+                          <MdEdit size={16} /> Edit
+                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              onClick={() => handleDelete(recipient)}
+                              className="flex items-center gap-1 text-red-600 hover:text-red-800"
                               disabled={isSubmitting}
                             >
-                              {isSubmitting ? "Menghapus..." : "Hapus"}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                              <MdDelete size={16} /> Hapus
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Konfirmasi Hapus Penerima
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus penerima "{recipient.nama}"?
+                                Tindakan ini tidak dapat dibatalkan.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isSubmitting}>
+                                Batal
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={confirmDelete}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                                disabled={isSubmitting}
+                              >
+                                {isSubmitting ? "Menghapus..." : "Hapus"}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    )}
                   </Card>
                 ))
               )}
