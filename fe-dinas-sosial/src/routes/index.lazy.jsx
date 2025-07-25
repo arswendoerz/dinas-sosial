@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/lampung.png";
 import backgroundImage from "@/assets/dinsos.jpeg";
@@ -16,17 +16,19 @@ export const Route = createLazyFileRoute('/')({
 
 function Index() {
   const navigate = useNavigate();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    AOS.init({ duration: 1000, once: true, delay: 200 });
-    
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
+    AOS.refresh();
+    AOS.init({ 
+      duration: 1000, 
+      once: false, 
+      delay: 200,
+      disable: false 
+    });
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      AOS.refresh();
+    };
   }, []);
 
   return (
@@ -36,7 +38,6 @@ function Index() {
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundAttachment: "fixed",
-          transform: `translate(${mousePosition.x * 0.01}px, ${mousePosition.y * 0.01}px)`,
         }}
       ></div>
       
@@ -45,14 +46,11 @@ function Index() {
       {/* Kiri */}
       <div className="absolute left-0 top-0 h-full w-auto z-15">
         <div className="relative h-full w-auto">
-          <div className="absolute inset-0 bg-gradient-to-r from-white/50 via-white/10 to-transparent rounded-r-lg animate-pulse"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/50 via-white/10 to-transparent rounded-r-lg"></div>
           <img
             src={motifKiri}
             alt="Motif Kiri"
-            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg hover:opacity-90 transition-all duration-700 animate-pulse hover:scale-105"
-            style={{
-              animation: 'float 6s ease-in-out infinite, glow 3s ease-in-out infinite alternate'
-            }}
+            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg"
           />
         </div>
       </div>
@@ -60,32 +58,13 @@ function Index() {
       {/* Kanan */}
       <div className="absolute right-0 top-0 h-full w-auto z-15">
         <div className="relative h-full w-auto">
-          <div className="absolute inset-0 bg-gradient-to-l from-white/50 via-white/10 to-transparent rounded-l-lg animate-pulse"></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-white/50 via-white/10 to-transparent rounded-l-lg"></div>
           <img
             src={motifKanan}
             alt="Motif Kanan"
-            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg hover:opacity-90 transition-all duration-700 animate-pulse hover:scale-105"
-            style={{
-              animation: 'float 6s ease-in-out infinite reverse, glow 3s ease-in-out infinite alternate'
-            }}
+            className="relative h-full w-auto object-contain opacity-70 drop-shadow-lg"
           />
         </div>
-      </div>
-
-      {/* partikel Floating */}
-      <div className="absolute inset-0 z-15">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-orange-400 rounded-full opacity-20 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
       </div>
 
       <div className="relative z-20 flex flex-col items-center justify-center text-center min-h-screen px-6 md:px-10 lg:px-16 py-10">
@@ -137,18 +116,22 @@ function Index() {
         </div>
 
         <div 
-          className="relative group"
+          className="relative group opacity-100"
           data-aos="zoom-in"
           data-aos-delay="900"
+          style={{ opacity: 1 }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
           <Button
             variant="default"
             onClick={() => navigate({ to: '/Auth/login' })}
-            className="relative bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-110 transition-all duration-300 ease-in-out text-white font-bold text-lg px-6 py-4 rounded-full shadow-2xl uppercase tracking-wider cursor-pointer border-2 border-orange-400/50 hover:border-orange-300 overflow-hidden group"
+            className="relative bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 
+            hover:to-orange-700 hover:scale-110 transition-all duration-300 ease-in-out text-white font-bold 
+            text-xl px-12 py-6 rounded-lg shadow-2xl uppercase tracking-wider cursor-pointer border-2 
+            border-orange-400/50 hover:border-orange-300 overflow-hidden group"
           >
-            <span className="relative z-10 flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="relative z-10 flex items-center gap-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               Masuk
@@ -157,19 +140,6 @@ function Index() {
           </Button>
         </div>
       </div>
-
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        
-        @keyframes glow {
-          0% { filter: drop-shadow(0 0 5px rgba(251, 146, 60, 0.3)); }
-          100% { filter: drop-shadow(0 0 20px rgba(251, 146, 60, 0.6)); }
-        }
-      `}</style>
     </div>
   );
 }
