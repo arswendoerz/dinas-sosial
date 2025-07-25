@@ -256,6 +256,7 @@ export default function Surat() {
   
   useEffect(() => {
     fetchLetters();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredLetters = uploadedLetters.filter((letter) => {
@@ -580,7 +581,7 @@ export default function Surat() {
                   key={letter.id}
                   className="rounded-xl shadow border p-4"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-0">
                     <h3 className="font-semibold text-base text-gray-900">
                       {letter.nomor}
                     </h3>
@@ -590,7 +591,7 @@ export default function Surat() {
                     <p className="text-xs text-gray-600">{letter.perihal}</p>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2 text-xs mt-3">
+                  <div className="flex flex-wrap gap-2 text-xs ">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {letter.kategori}
                     </span>
@@ -599,12 +600,12 @@ export default function Surat() {
                     </span>
                   </div>
                   
-                  <div className="flex justify-between text-xs text-gray-500 mt-3">
+                  <div className="flex justify-between text-xs text-gray-500">
                     <span>Upload: {letter.tanggalUpload}</span>
                     <span>Update: {letter.tanggalUpdate || "-"}</span>
                   </div>
                   
-                  <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
+                  <div className="flex justify-center items-center gap-4 pt-3 border-t text-sm">
                     <a
                       href={letter.url}
                       target="_blank"

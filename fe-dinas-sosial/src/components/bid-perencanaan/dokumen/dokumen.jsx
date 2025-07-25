@@ -266,6 +266,7 @@ export default function Dokumen() {
   
   useEffect(() => {
     fetchDocuments();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter documents
@@ -587,7 +588,7 @@ export default function Dokumen() {
                   key={document.id}
                   className="rounded-xl shadow border p-4"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-0">
                     <h3 className="font-semibold text-base text-gray-900">
                       {document.nomor}
                     </h3>
@@ -597,7 +598,7 @@ export default function Dokumen() {
                     <p className="text-xs text-gray-600">{document.perihal}</p>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2 text-xs mt-3">
+                  <div className="flex flex-wrap gap-2 text-xs">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {document.kategori}
                     </span>
@@ -606,7 +607,7 @@ export default function Dokumen() {
                     </span>
                   </div>
                   
-                  <div className="flex justify-between text-xs text-gray-500 mt-3">
+                  <div className="flex justify-between text-xs text-gray-500">
                     <span>Upload: {document.tanggalUpload}</span>
                     <span>Update: {document.tanggalUpdate || "-"}</span>
                   </div>
