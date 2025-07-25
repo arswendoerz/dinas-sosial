@@ -4,7 +4,6 @@ import iconResosUrl from "../assets/icon/icon-resos.svg";
 import { GrPlan } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import AOS from "aos";
-import "aos/dist/aos.css";
 import Loading from "../components/loading";
 
 export const Route = createLazyFileRoute("/home")({
