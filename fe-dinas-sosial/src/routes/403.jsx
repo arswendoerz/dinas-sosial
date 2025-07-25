@@ -11,7 +11,6 @@ export const Route = createFileRoute('/403')({
 function RouteComponent() {
   const navigate = useNavigate()
   const [glitchActive, setGlitchActive] = useState(false)
-  const [ setMousePosition ] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     AOS.init({
@@ -28,15 +27,6 @@ function RouteComponent() {
 
     return () => clearInterval(glitchInterval)
   }, [])
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-    
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [setMousePosition])
 
   const handleBackToMenu = () => {
     navigate({ to: '/home' })

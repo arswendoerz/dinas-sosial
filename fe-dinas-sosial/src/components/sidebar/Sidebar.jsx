@@ -72,7 +72,7 @@ export default function Sidebar() {
   const SidebarContent = (
     <aside
       className={`h-screen bg-[#1F3A93] text-white transition-all duration-300 relative overflow-hidden
-        ${collapsed ? "w-20" : "w-64"} flex flex-col`}
+        ${collapsed ? "w-20" : "w-64"} flex flex-col scrollbar-hide`}
     >
       <div className="absolute inset-0 pointer-events-none">
         <img
@@ -99,7 +99,6 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Logo - Fixed */}
         <div className="flex-shrink-0 flex justify-center mb-6 px-4">
           <img
             src={logo}
@@ -109,7 +108,7 @@ export default function Sidebar() {
           />
         </div>
 
-        {/* Navigation - Scrollable if needed */}
+        {/* Navigation */}
         <nav className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto scrollbar-hide">
           {navItems.map(({ label, icon, to }) => {
             const isActive = location.pathname === to;
@@ -157,7 +156,7 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* User Profile - Fixed at bottom */}
+        {/* User Profile */}
         <div className="flex-shrink-0 p-4 pt-4 border-t border-white/20">
           <Link to="/account" onClick={() => setSidebarOpen(false)}>
             <Button
@@ -183,8 +182,7 @@ export default function Sidebar() {
               )}
             </Button>
           </Link>
-          
-          {/* Watermark */}
+
           {!collapsed && (
             <div className="mt-3 text-center">
               <p className="text-xs text-white/60 font-medium">
@@ -194,17 +192,6 @@ export default function Sidebar() {
           )}
         </div>
       </div>
-
-      {/* Custom scrollbar styles */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </aside>
   );
 
