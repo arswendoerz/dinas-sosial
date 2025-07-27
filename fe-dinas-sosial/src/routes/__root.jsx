@@ -3,6 +3,7 @@
   import { TanStackRouterDevtools } from '@tanstack/router-devtools';
   import { Toaster } from 'react-hot-toast';
   import motifKanan from "@/assets/motif-kanan.svg";
+  import AuthenticatedBarrier from '@/components/authenticated-barrier';
 
   export const Route = createRootRoute({
     component: RootComponent,
@@ -32,12 +33,15 @@
             <Outlet />
           </>
         ) : (
-          <div className="flex min-h-screen relative z-20">
-            <Sidebar />
-            <div className="flex-1 p-6">
-              <Outlet />
+          <AuthenticatedBarrier>
+            <div className="flex min-h-screen relative z-20">
+              <Sidebar />
+              <div className="flex-1 p-6">
+                <Outlet />
+              </div>
             </div>
-          </div>
+          </AuthenticatedBarrier>
+          
         )}
 
         <TanStackRouterDevtools />
