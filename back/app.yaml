@@ -1,0 +1,13 @@
+runtime: nodejs20
+
+instance_class: F1
+
+env_variables:
+  NODE_ENV: "production"
+
+entrypoint: node index.js
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
