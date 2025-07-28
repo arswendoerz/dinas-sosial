@@ -72,15 +72,13 @@ export default function Surat() {
   const [editingLetter, setEditingLetter] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deletingLetter, setDeletingLetter] = useState(null);
-  
-  // State untuk data dari API
+
   const [uploadedLetters, setUploadedLetters] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "http://localhost:9000/api/letter";
 
-  // Skeleton Components
   const TableSkeleton = () => (
     <Table className="text-left text-sm border-collapse w-full">
       <TableHeader className="bg-gray-50 border-b">
@@ -149,17 +147,17 @@ export default function Surat() {
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-3 w-full" />
       </div>
-      
+
       <div className="flex flex-wrap gap-2 mt-3">
         <Skeleton className="h-6 w-20 rounded" />
         <Skeleton className="h-6 w-16 rounded" />
       </div>
-      
+
       <div className="flex justify-between mt-3">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-3 w-20" />
       </div>
-      
+
       <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
         <Skeleton className="h-4 w-12" />
         <Skeleton className="h-4 w-12" />
@@ -169,13 +167,54 @@ export default function Surat() {
     </Card>
   );
 
-  // Fetch letters dari API
-  const fetchLetters = async () => {
+  const formatFirestoreTimestamp = (timestamp) => {
+    if (timestamp && typeof timestamp === 'object' && timestamp._seconds !== undefined) {
+      const date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000);
+      return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } else if (typeof timestamp === 'string') {
+      try {
+        const date = new Date(timestamp);
+        if (!isNaN(date)) {
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            });
+        }
+      } catch (e) {
+        console.error('Invalid date string:', timestamp, e);
+      }
+      return timestamp;
+    }
+    return null;
+  };
+
+  const fetchLetters = async (searchQuery = "", kategori = "__semua__", tanggal = "") => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`${API_BASE_URL}/`, {
+      let url = `${API_BASE_URL}/`;
+      if (searchQuery) {
+        url = `${API_BASE_URL}/search?query=${encodeURIComponent(searchQuery)}`;
+      } else {
+        const params = new URLSearchParams();
+        if (kategori !== "__semua__") {
+          params.append("kategori", kategori);
+        }
+        if (tanggal) {
+          params.append("tanggal", tanggal);
+        }
+        if (params.toString()) {
+          url = `${API_BASE_URL}/?${params.toString()}`;
+        }
+      }
+
+      const response = await fetch(url, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -188,22 +227,27 @@ export default function Surat() {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
-        const transformedData = result.data.map(letter => ({
-          id: letter.id,
-          nomor: letter.nomor,
-          nama: letter.nama,
-          perihal: letter.perihal,
-          kategori: letter.kategori,
-          jenis: getFileTypeFromMimeType(letter.jenis),
-          tanggalUpload: letter.tanggalUpload,
-          tanggalUpdate: letter.tanggalUpdate,
-          url: letter.url,
-          userId: letter.userId,
-          role: letter.role,
-        }));
-        
+        const transformedData = result.data.map(letter => {
+          const uploadedDate = letter.tanggalUpload;
+          const updatedDate = letter.tanggalUpdate;
+
+          return {
+            id: letter.id,
+            nomor: letter.nomor,
+            nama: letter.nama,
+            perihal: letter.perihal,
+            kategori: letter.kategori,
+            jenis: getFileTypeFromMimeType(letter.jenis),
+            tanggalUpload: formatFirestoreTimestamp(uploadedDate),
+            tanggalUpdate: updatedDate ? formatFirestoreTimestamp(updatedDate) : null,
+            url: letter.url,
+            userId: letter.userId,
+            role: letter.role,
+          };
+        });
+
         setUploadedLetters(transformedData);
       } else {
         throw new Error(result.message || 'Gagal mengambil data surat');
@@ -228,7 +272,7 @@ export default function Surat() {
       'application/vnd.ms-powerpoint': 'PPT',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
     };
-    
+
     return mimeToType[mimeType] || 'OTHER';
   };
 
@@ -236,31 +280,44 @@ export default function Surat() {
     try {
       toast.loading('Menyiapkan file untuk WhatsApp...', { id: 'whatsapp-send' });
       const message = `*Surat: ${letter.nama}*\n\n` +
-                     `*Nomor:* ${letter.nomor}\n` +
-                     `*Perihal:* ${letter.perihal}\n` +
-                     `*Kategori:* ${letter.kategori}\n` +
-                     `*Tanggal Upload:* ${letter.tanggalUpload}\n` +
-                     `*Link:* ${letter.url}`;
-      
+        `*Nomor:* ${letter.nomor}\n` +
+        `*Perihal:* ${letter.perihal}\n` +
+        `*Kategori:* ${letter.kategori}\n` +
+        `*Tanggal Upload:* ${letter.tanggalUpload}\n` +
+        `*Link:* ${letter.url}`;
+
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
 
       window.open(whatsappUrl, '_blank');
       toast.success('File berhasil disiapkan untuk WhatsApp!', { id: 'whatsapp-send' });
-      
+
     } catch (error) {
       console.error('Error sending to WhatsApp:', error);
       toast.error('Gagal mengirim ke WhatsApp!', { id: 'whatsapp-send' });
     }
   };
-  
+
   useEffect(() => {
-    fetchLetters();
+    fetchLetters(searchTerm, selectedKategori, selectedTanggal);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setCurrentPage(1);
+      fetchLetters(searchTerm, selectedKategori, selectedTanggal);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedKategori, selectedTanggal]);
+
   const filteredLetters = uploadedLetters.filter((letter) => {
     const searchMatch =
+      !searchTerm ||
       letter.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       letter.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       letter.perihal.toLowerCase().includes(searchTerm.toLowerCase());
@@ -270,7 +327,7 @@ export default function Surat() {
 
     const tanggalMatch =
       selectedTanggal === "" ||
-      letter.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/');
+      (letter.tanggalUpload && letter.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'));
 
     return searchMatch && kategoriMatch && tanggalMatch;
   });
@@ -294,11 +351,11 @@ export default function Surat() {
 
   const confirmDelete = async () => {
     if (!deletingLetter) return;
-    
+
     setIsSubmitting(true);
-    
+
     const loadingToast = toast.loading('Menghapus surat...');
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/${deletingLetter.id}`, {
         method: 'DELETE',
@@ -314,14 +371,14 @@ export default function Surat() {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         toast.success(`Surat "${deletingLetter.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
-        
-        await fetchLetters();
+
+        await fetchLetters(searchTerm, selectedKategori, selectedTanggal);
       } else {
         throw new Error(result.message || 'Gagal menghapus surat');
       }
@@ -383,7 +440,6 @@ export default function Surat() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
           placeholder="Cari nama, nomor, atau perihal surat"
@@ -414,18 +470,17 @@ export default function Surat() {
             className="flex-1 min-w-[100px]"
           />
 
-          <AddSurat 
+          <AddSurat
             kategoriList={kategoriList}
             isSubmitting={isSubmitting}
             setIsSubmitting={setIsSubmitting}
             setError={setError}
-            fetchLetters={fetchLetters}
+            fetchLetters={() => fetchLetters(searchTerm, selectedKategori, selectedTanggal)}
             API_BASE_URL={API_BASE_URL}
           />
         </div>
       </div>
 
-      {/* Desktop Table */}
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
@@ -569,7 +624,6 @@ export default function Surat() {
           )}
         </div>
 
-        {/* Mobile Card */}
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
             <>
@@ -593,7 +647,7 @@ export default function Surat() {
                     </p>
                     <p className="text-xs text-gray-600">{letter.perihal}</p>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2 text-xs ">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {letter.kategori}
@@ -602,12 +656,12 @@ export default function Surat() {
                       {letter.jenis}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Upload: {letter.tanggalUpload}</span>
                     <span>Update: {letter.tanggalUpdate || "-"}</span>
                   </div>
-                  
+
                   <div className="flex justify-center items-center gap-4 pt-3 border-t text-sm">
                     <a
                       href={letter.url}
@@ -687,14 +741,13 @@ export default function Surat() {
         </div>
       )}
 
-      {/* Update Dialog */}
-      <UpdateSurat 
+      <UpdateSurat
         editingLetter={editingLetter}
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
         setEditingLetter={setEditingLetter}
         kategoriList={kategoriList}
-        fetchLetters={fetchLetters}
+        fetchLetters={() => fetchLetters(searchTerm, selectedKategori, selectedTanggal)}
         setError={setError}
         API_BASE_URL={API_BASE_URL}
       />

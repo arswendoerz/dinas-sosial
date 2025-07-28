@@ -7,7 +7,6 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import {
-  MdAdd,
   MdVisibility,
   MdSend,
   MdEdit,
@@ -85,14 +84,13 @@ export default function Dokumen() {
   const [editingDoc, setEditingDoc] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deletingDocument, setDeletingDocument] = useState(null);
-  
+
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "http://localhost:9000/api/docs";
 
-  // Skeleton Components
   const TableSkeleton = () => (
     <Table className="text-left text-sm border-collapse w-full">
       <TableHeader className="bg-gray-50 border-b">
@@ -159,17 +157,17 @@ export default function Dokumen() {
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-3 w-full" />
       </div>
-      
+
       <div className="flex flex-wrap gap-2 mt-3">
         <Skeleton className="h-6 w-20 rounded" />
         <Skeleton className="h-6 w-16 rounded" />
       </div>
-      
+
       <div className="flex justify-between mt-3">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-3 w-20" />
       </div>
-      
+
       <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
         <Skeleton className="h-4 w-12" />
         <Skeleton className="h-4 w-12" />
@@ -179,13 +177,29 @@ export default function Dokumen() {
     </Card>
   );
 
-  // Fetch documents dari API
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (searchQuery = "", kategori = "__semua__", tanggal = "") => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`${API_BASE_URL}/`, {
+      let url = `${API_BASE_URL}/`;
+
+      if (searchQuery) {
+        url = `${API_BASE_URL}/search?query=${encodeURIComponent(searchQuery)}`;
+      } else {
+        const params = new URLSearchParams();
+        if (kategori !== "__semua__") {
+          params.append("kategori", kategori);
+        }
+        if (tanggal) {
+          params.append("tanggal", tanggal);
+        }
+        if (params.toString()) {
+          url = `${API_BASE_URL}/?${params.toString()}`;
+        }
+      }
+
+      const response = await fetch(url, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -198,7 +212,7 @@ export default function Dokumen() {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         const transformedData = result.data.map(document => ({
           id: document.id,
@@ -213,7 +227,7 @@ export default function Dokumen() {
           userId: document.userId,
           role: document.role,
         }));
-        
+
         setUploadedDocuments(transformedData);
       } else {
         throw new Error(result.message || 'Gagal mengambil data dokumen');
@@ -238,7 +252,7 @@ export default function Dokumen() {
       'application/vnd.ms-powerpoint': 'PPT',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
     };
-    
+
     return mimeToType[mimeType] || 'OTHER';
   };
 
@@ -246,30 +260,41 @@ export default function Dokumen() {
     try {
       toast.loading('Menyiapkan file untuk WhatsApp...', { id: 'whatsapp-send' });
       const message = `*Dokumen: ${document.nama}*\n\n` +
-                     `*Nomor:* ${document.nomor}\n` +
-                     `*Perihal:* ${document.perihal}\n` +
-                     `*Kategori:* ${document.kategori}\n` +
-                     `*Tanggal Upload:* ${document.tanggalUpload}\n` +
-                     `*Link:* ${document.url}`;
-      
+        `*Nomor:* ${document.nomor}\n` +
+        `*Perihal:* ${document.perihal}\n` +
+        `*Kategori:* ${document.kategori}\n` +
+        `*Tanggal Upload:* ${document.tanggalUpload}\n` +
+        `*Link:* ${document.url}`;
+
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
 
       window.open(whatsappUrl, '_blank');
       toast.success('File berhasil disiapkan untuk WhatsApp!', { id: 'whatsapp-send' });
-      
+
     } catch (error) {
       console.error('Error sending to WhatsApp:', error);
       toast.error('Gagal mengirim ke WhatsApp!', { id: 'whatsapp-send' });
     }
   };
-  
-  useEffect(() => {
-    fetchDocuments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  // Filter documents
+  useEffect(() => {
+    fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setCurrentPage(1); 
+      fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
+    }, 500); 
+
+    return () => {
+      clearTimeout(handler);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedKategori, selectedTanggal]);
+
   const filteredDocuments = uploadedDocuments.filter((document) => {
     const searchMatch =
       document.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -282,7 +307,6 @@ export default function Dokumen() {
     const tanggalMatch =
       selectedTanggal === "" ||
       document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/');
-
     return searchMatch && kategoriMatch && tanggalMatch;
   });
 
@@ -305,11 +329,11 @@ export default function Dokumen() {
 
   const confirmDelete = async () => {
     if (!deletingDocument) return;
-    
+
     setIsSubmitting(true);
-    
+
     const loadingToast = toast.loading('Menghapus dokumen...');
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/${deletingDocument.id}`, {
         method: 'DELETE',
@@ -325,14 +349,14 @@ export default function Dokumen() {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         toast.success(`Dokumen "${deletingDocument.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
-        
-        await fetchDocuments();
+
+        await fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
       } else {
         throw new Error(result.message || 'Gagal menghapus dokumen');
       }
@@ -425,7 +449,7 @@ export default function Dokumen() {
             className="flex-1 min-w-[100px]"
           />
 
-          <AddDokumen 
+          <AddDokumen
             kategoriList={kategoriList}
             isSubmitting={isSubmitting}
             setIsSubmitting={setIsSubmitting}
@@ -600,7 +624,7 @@ export default function Dokumen() {
                     </p>
                     <p className="text-xs text-gray-600">{document.perihal}</p>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2 text-xs">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {document.kategori}
@@ -609,12 +633,12 @@ export default function Dokumen() {
                       {document.jenis}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Upload: {document.tanggalUpload}</span>
                     <span>Update: {document.tanggalUpdate || "-"}</span>
                   </div>
-                  
+
                   <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
                     <a
                       href={document.url}
@@ -695,7 +719,7 @@ export default function Dokumen() {
       )}
 
       {/* Update Dialog */}
-      <UpdateDokumen 
+      <UpdateDokumen
         editingDoc={editingDoc}
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
