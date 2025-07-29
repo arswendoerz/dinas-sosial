@@ -1,10 +1,11 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"; // Keep Link if used elsewhere, otherwise can remove
 import iconResosUrl from "../assets/icon/icon-resos.svg";
 import { GrPlan } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import AOS from "aos";
 import Loading from "../components/loading";
+import { Button } from "@/components/ui/button"; // Import Shadcn Button
 
 export const Route = createLazyFileRoute("/home")({
   component: Home,
@@ -14,6 +15,7 @@ function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     AOS.init({ duration: 800 });
@@ -55,7 +57,7 @@ function Home() {
 
   const sections = [
     {
-      title: "Perencanaan",
+      title: "Dashboard Perencanaan",
       color: "#1F3A93",
       to: "/dashboard/bid-perencanaan",
       icon: <GrPlan size={48} />,
@@ -63,7 +65,7 @@ function Home() {
       description: "Kelola data perencanaan",
     },
     {
-      title: "Rehabilitasi Sosial",
+      title: "Dashboard Rehabilitasi Sosial",
       color: "#ff7f0e",
       to: "/dashboard/bid-resos",
       icon: <img src={iconResosUrl} alt="Icon Resos" width={48} height={48} className="text-white" />,
@@ -79,7 +81,7 @@ function Home() {
 
   if (loading) {
     return (
-      <Loading 
+      <Loading
         title="Loading ..."
         subtitle="Menyiapkan data untuk Anda..."
         showLogo={true}
@@ -118,49 +120,53 @@ function Home() {
         {sections.map((section, index) => (
           <div
             key={section.title}
-            className="flex flex-col justify-between items-center rounded-2xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-white px-4 py-5 sm:px-6 sm:py-6 relative overflow-hidden"
-            style={{
-              backgroundColor: section.color,
-            }}
+            className="rounded-2xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden"
             data-aos="fade-up"
             data-aos-delay={index * 100}
           >
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="p-2  backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                {section.icon}
+            {/* Header biru */}
+            <div className="bg-[#1F3A93] text-white py-7 px-8 text-center relative">
+              {/* Icon yang overlap - setengah di header, setengah di body */}
+              <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-8 z-10">
+                <div className="w-20 h-20 bg-[#1F3A93] rounded-full border-4 border-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
+                  <div className="text-white">
+                    {section.icon}
+                  </div>
+                </div>
               </div>
-              <h3 className="text-base sm:text-lg font-bold">{section.title}</h3>
-              <p className="text-xs sm:text-sm opacity-90">
-                {section.description}
-              </p>
-            </div>
-            <div className="mt-4">
-              <Link
-                to={section.to}
-                className="inline-flex items-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
-                style={{
-                  backgroundColor: section.buttonBg,
-                }}
-              >
-                Buka Dashboard
-                <svg
-                  className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
             </div>
 
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12"></div>
-            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-8 -translate-x-8"></div>
+            {/* Body card dengan padding top untuk memberikan ruang untuk icon */}
+            <div className="flex flex-col justify-between items-center bg-[#f6f6f6] text-gray-800 px-4 pt-10 pb-5 sm:px-6 sm:pt-12 sm:pb-6">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <h3 className="text-base sm:text-lg font-bold mt-2">{section.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {section.description}
+                </p>
+              </div>
+
+              <div className="mt-4">
+                <Button
+                  onClick={() => navigate({ to: section.to })}
+                  className="inline-flex items-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm bg-[#ff7f0e] hover:bg-[#e06b00]" // Changed background and hover colors
+                >
+                  Buka Dashboard
+                  <svg
+                    className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
