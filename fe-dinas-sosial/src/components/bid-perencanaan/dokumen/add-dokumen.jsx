@@ -32,7 +32,6 @@ export default function AddDokumen({
 }) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Handle submit untuk create document
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -87,7 +86,7 @@ export default function AddDokumen({
   };
 
   return (
-    <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
       <DialogTrigger asChild>
         <Button
           className="gap-2 text-white transition-transform hover:scale-105"

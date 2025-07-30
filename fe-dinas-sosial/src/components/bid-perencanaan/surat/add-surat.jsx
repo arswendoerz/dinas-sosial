@@ -176,7 +176,7 @@ export default function AddSurat({
             <DialogClose asChild>
               <Button
                 type="button"
-                variant="outline"
+                className={"bg-red-500 hover:bg-red-600 text-white transition-all hover:scale-105"}
                 disabled={isSubmitting}
               >
                 Batal
