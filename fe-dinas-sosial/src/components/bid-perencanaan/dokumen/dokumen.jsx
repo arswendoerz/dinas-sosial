@@ -80,6 +80,7 @@ export default function Dokumen() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedKategori, setSelectedKategori] = useState("__semua__");
+  const [selectedSort, setSelectedSort] = useState("__terbaru__");
   const [selectedTanggal, setSelectedTanggal] = useState("");
   const [editingDoc, setEditingDoc] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -280,35 +281,61 @@ export default function Dokumen() {
 
   useEffect(() => {
     fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setCurrentPage(1); 
+      setCurrentPage(1);
       fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
-    }, 500); 
+    }, 500);
 
     return () => {
       clearTimeout(handler);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
-  const filteredDocuments = uploadedDocuments.filter((document) => {
-    const searchMatch =
-      document.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      document.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      document.perihal.toLowerCase().includes(searchTerm.toLowerCase());
+  const parseCustomDate = (dateString) => {
+    const [datePart, timePart] = dateString.split(', ');
+    const [day, month, year] = datePart.split('/');
+    const [hour, minute, second] = timePart.split('.');
 
-    const kategoriMatch =
-      selectedKategori === "__semua__" || document.kategori === selectedKategori;
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  };
 
-    const tanggalMatch =
-      selectedTanggal === "" ||
-      document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/');
-    return searchMatch && kategoriMatch && tanggalMatch;
-  });
+  const filteredDocuments = uploadedDocuments
+    .filter((document) => {
+      const searchMatch =
+        document.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        document.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        document.perihal.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const kategoriMatch =
+        selectedKategori === "__semua__" || document.kategori === selectedKategori;
+
+      const tanggalMatch =
+        selectedTanggal === "" ||
+        document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'); 
+
+      return searchMatch && kategoriMatch && tanggalMatch;
+    })
+    .sort((a, b) => {
+      if (selectedSort === "__terbaru__") {
+        const dateA = parseCustomDate(a.tanggalUpload);
+        const dateB = parseCustomDate(b.tanggalUpload);
+        return dateB.getTime() - dateA.getTime();
+      } else if (selectedSort === "__terlama__") {
+        const dateA = parseCustomDate(a.tanggalUpload);
+        const dateB = parseCustomDate(b.tanggalUpload);
+        return dateA.getTime() - dateB.getTime();
+      } else if (selectedSort === "__a_z__") {
+        return a.nama.localeCompare(b.nama);
+      } else if (selectedSort === "__z_a__") {
+        return b.nama.localeCompare(a.nama);
+      }
+      return 0;
+    });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -440,6 +467,20 @@ export default function Dokumen() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* NEW SORTING SELECT */}
+        <Select value={selectedSort} onValueChange={setSelectedSort}>
+          <SelectTrigger className="w-full md:w-64">
+            <SelectValue placeholder="Urutkan Dokumen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__terbaru__">Terbaru</SelectItem>
+            <SelectItem value="__terlama__">Terlama</SelectItem>
+            <SelectItem value="__a_z__">Nama (A-Z)</SelectItem>
+            <SelectItem value="__z_a__">Nama (Z-A)</SelectItem>
+          </SelectContent>
+        </Select>
+        {/* END NEW SORTING SELECT */}
 
         <div className="flex w-full md:w-auto gap-2">
           <Input

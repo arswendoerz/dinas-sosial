@@ -7,7 +7,6 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import {
-  MdAdd,
   MdVisibility,
   MdSend,
   MdEdit,
@@ -68,6 +67,7 @@ export default function Surat() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedKategori, setSelectedKategori] = useState("__semua__");
+  const [selectedSort, setSelectedSort] = useState("__terbaru__");
   const [selectedTanggal, setSelectedTanggal] = useState("");
   const [editingLetter, setEditingLetter] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -179,11 +179,11 @@ export default function Surat() {
       try {
         const date = new Date(timestamp);
         if (!isNaN(date)) {
-            return date.toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            });
+          return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          });
         }
       } catch (e) {
         console.error('Invalid date string:', timestamp, e);
@@ -315,22 +315,46 @@ export default function Surat() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
-  const filteredLetters = uploadedLetters.filter((letter) => {
-    const searchMatch =
-      !searchTerm ||
-      letter.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      letter.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      letter.perihal.toLowerCase().includes(searchTerm.toLowerCase());
+  const parseCustomDate = (dateString) => {
+    const [datePart, timePart] = dateString.split(', ');
+    const [day, month, year] = datePart.split('/');
+    const [hour, minute, second] = timePart.split('.');
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  };
 
-    const kategoriMatch =
-      selectedKategori === "__semua__" || letter.kategori === selectedKategori;
+  const filteredLetters = uploadedLetters
+    .filter((letter) => {
+      const searchMatch =
+        !searchTerm ||
+        letter.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        letter.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        letter.perihal.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const tanggalMatch =
-      selectedTanggal === "" ||
-      (letter.tanggalUpload && letter.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'));
+      const kategoriMatch =
+        selectedKategori === "__semua__" || letter.kategori === selectedKategori;
 
-    return searchMatch && kategoriMatch && tanggalMatch;
-  });
+      const tanggalMatch =
+        selectedTanggal === "" ||
+        (letter.tanggalUpload && letter.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'));
+
+      return searchMatch && kategoriMatch && tanggalMatch;
+    })
+    .sort((a, b) => {
+      if (selectedSort === "__terbaru__") {
+        const dateA = parseCustomDate(a.tanggalUpload);
+        const dateB = parseCustomDate(b.tanggalUpload);
+        return dateB.getTime() - dateA.getTime();
+      } else if (selectedSort === "__terlama__") {
+        const dateA = parseCustomDate(a.tanggalUpload);
+        const dateB = parseCustomDate(b.tanggalUpload);
+        return dateA.getTime() - dateB.getTime();
+      } else if (selectedSort === "__a_z__") {
+        return a.nama.localeCompare(b.nama);
+      } else if (selectedSort === "__z_a__") {
+        return b.nama.localeCompare(a.nama);
+      }
+      return 0;
+    });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -459,6 +483,18 @@ export default function Surat() {
                 {kat}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedSort} onValueChange={setSelectedSort}>
+          <SelectTrigger className="w-full md:w-64">
+            <SelectValue placeholder="Urutkan Surat" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__terbaru__">Terbaru</SelectItem>
+            <SelectItem value="__terlama__">Terlama</SelectItem>
+            <SelectItem value="__a_z__">Nama (A-Z)</SelectItem>
+            <SelectItem value="__z_a__">Nama (Z-A)</SelectItem>
           </SelectContent>
         </Select>
 
