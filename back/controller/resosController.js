@@ -124,7 +124,9 @@ export const createRecipi = async (req, res) => {
 
 export const getAllRecipies = async (req, res) => {
   try {
-    const snapshot = await recipiCollection.get();
+    const snapshot = await recipiCollection
+      .orderBy("tanggalPenerimaan", "desc")
+      .get();
 
     const recipiList = snapshot.docs.map((doc) => {
       const data = doc.data();
@@ -365,13 +367,13 @@ export const exportRecipi = async (req, res) => {
     let query = recipiCollection;
     if (search) {
     }
-    if (kota && kota !== '__semua__') {
-      query = query.where('kota', '==', kota);
+    if (kota && kota !== "__semua__") {
+      query = query.where("kota", "==", kota);
     }
-    if (year && year !== '__semua__') {
+    if (year && year !== "__semua__") {
     }
     if (jenisAlat) {
-      query = query.where('jenisAlat', '==', jenisAlat);
+      query = query.where("jenisAlat", "==", jenisAlat);
     }
 
     const snapshot = await query.get();
@@ -380,26 +382,34 @@ export const exportRecipi = async (req, res) => {
 
     if (search) {
       const searchTextLower = search.toLowerCase();
-      recipiList = recipiList.filter(recipi =>
-        (recipi.nama && recipi.nama.toLowerCase().includes(searchTextLower)) ||
-        (recipi.alamat && recipi.alamat.toLowerCase().includes(searchTextLower)) ||
-        (recipi.nik && recipi.nik.toLowerCase().includes(searchTextLower)) ||
-        (recipi.telepon && recipi.telepon.toLowerCase().includes(searchTextLower)) ||
-        (recipi.jenisAlat && recipi.jenisAlat.toLowerCase().includes(searchTextLower)) ||
-        (recipi.keterangan && recipi.keterangan.toLowerCase().includes(searchTextLower))
+      recipiList = recipiList.filter(
+        (recipi) =>
+          (recipi.nama &&
+            recipi.nama.toLowerCase().includes(searchTextLower)) ||
+          (recipi.alamat &&
+            recipi.alamat.toLowerCase().includes(searchTextLower)) ||
+          (recipi.nik && recipi.nik.toLowerCase().includes(searchTextLower)) ||
+          (recipi.telepon &&
+            recipi.telepon.toLowerCase().includes(searchTextLower)) ||
+          (recipi.jenisAlat &&
+            recipi.jenisAlat.toLowerCase().includes(searchTextLower)) ||
+          (recipi.keterangan &&
+            recipi.keterangan.toLowerCase().includes(searchTextLower))
       );
     }
 
-    if (year && year !== '__semua__') {
-      recipiList = recipiList.filter(recipi =>
-        recipi.tanggalPenerimaan && recipi.tanggalPenerimaan.includes(year)
+    if (year && year !== "__semua__") {
+      recipiList = recipiList.filter(
+        (recipi) =>
+          recipi.tanggalPenerimaan && recipi.tanggalPenerimaan.includes(year)
       );
     }
 
     if (recipiList.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Tidak ada data penerima yang ditemukan dengan filter yang diberikan.",
+        message:
+          "Tidak ada data penerima yang ditemukan dengan filter yang diberikan.",
       });
     }
 
@@ -435,9 +445,12 @@ export const exportRecipi = async (req, res) => {
       csvStringifier.getHeaderString() +
       csvStringifier.stringifyRecords(records);
 
-    const timestamp = new Date().toISOString().split('T')[0]; 
+    const timestamp = new Date().toISOString().split("T")[0];
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename="data_penerima_bantuan_filtered_${timestamp}.csv"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="data_penerima_bantuan_filtered_${timestamp}.csv"`
+    );
 
     const stream = Readable.from([csvData]);
     stream.pipe(res);
