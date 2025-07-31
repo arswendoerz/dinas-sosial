@@ -18,7 +18,11 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://dinas-sosial-nu.vercel.app"
+      "https://dinas-sosial-nu.vercel.app",
+      "dinas-sosial-git-main-arswendo-erzas-projects.vercel.app",
+      "dinas-sosial-lxg3l1z7j-arswendo-erzas-projects.vercel.app",
+      "https://dinas-sosial-arswendo-erzas-projects.vercel.app/"
+
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
