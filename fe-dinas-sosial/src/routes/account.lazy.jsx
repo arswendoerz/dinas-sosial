@@ -34,13 +34,14 @@ function RouteComponent() {
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
     fetchUserProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchUserProfile = async () => {
     if (isLoggingOut) return;
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:9000/api/user/profile', {
+      const response = await fetch('https://archive-sos-drive.et.r.appspot.com/api/user/profile', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -76,7 +77,7 @@ function RouteComponent() {
     try {
       setIsLoggingOut(true);
       const loadingToast = toast.loading('Sedang keluar dari sistem...');
-      const response = await fetch('http://localhost:9000/api/auth/logout', {
+      const response = await fetch('https://archive-sos-drive.et.r.appspot.com/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -50,7 +50,7 @@ export default function Sidebar() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('http://localhost:9000/api/user/profile', {
+      const response = await fetch('https://archive-sos-drive.et.r.appspot.com/api/user/profile', {
         method: 'GET',
         credentials: 'include',
         headers: {

@@ -45,7 +45,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [recipients, setRecipients] = useState([]);
 
-  const API_BASE_URL = "http://localhost:9000/api/recipi";
+  const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/recipi";
 
   useEffect(() => {
     const updateCardsPerPage = () => {

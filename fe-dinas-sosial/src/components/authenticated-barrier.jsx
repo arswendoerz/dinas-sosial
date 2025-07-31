@@ -8,7 +8,7 @@ const AuthenticatedBarrier = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:9000/api/user/profile", {
+        const res = await fetch("https://archive-sos-drive.et.r.appspot.com/api/user/profile", {
           method: "GET",
           credentials: "include",
         });

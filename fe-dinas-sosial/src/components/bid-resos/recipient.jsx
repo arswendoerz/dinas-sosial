@@ -78,7 +78,7 @@ export default function Recipient({ selectedJenisAlat }) {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userRole, setUserRole] = useState(null); // State for user role
-  const API_BASE_URL = "http://localhost:9000/api/recipi";
+  const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/recipi";
 
   const handleImageClick = (imageUrl, recipientName) => {
     setSelectedImage({ url: imageUrl, name: recipientName });
@@ -227,7 +227,7 @@ export default function Recipient({ selectedJenisAlat }) {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch("http://localhost:9000/api/user/profile", {
+      const response = await fetch("https://archive-sos-drive.et.r.appspot.com/api/user/profile", {
         method: 'GET',
         credentials: 'include',
         headers: {

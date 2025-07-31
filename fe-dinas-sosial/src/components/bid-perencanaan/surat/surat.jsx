@@ -77,7 +77,7 @@ export default function Surat() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const API_BASE_URL = "http://localhost:9000/api/letter";
+  const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/letter";
 
   const TableSkeleton = () => (
     <Table className="text-left text-sm border-collapse w-full">

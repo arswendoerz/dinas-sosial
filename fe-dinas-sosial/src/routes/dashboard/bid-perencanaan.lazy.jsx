@@ -34,7 +34,7 @@ function Dashboard() {
 
   const fetchDocumentCount = async () => {
     try {
-      const response = await fetch("http://localhost:9000/api/docs/", {
+      const response = await fetch("https://archive-sos-drive.et.r.appspot.com/api/docs/", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ function Dashboard() {
 
   const fetchSuratCount = async () => {
     try {
-      const response = await fetch("http://localhost:9000/api/letter/", {
+      const response = await fetch("https://archive-sos-drive.et.r.appspot.com/api/letter/", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
