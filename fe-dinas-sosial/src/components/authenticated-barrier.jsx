@@ -8,10 +8,13 @@ const AuthenticatedBarrier = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("https://archive-sos-drive.et.r.appspot.com/api/user/profile", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "https://archive-sos-drive.et.r.appspot.com/api/user/profile",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         if (!res.ok) throw new Error("Unauthorized");
 
@@ -19,7 +22,7 @@ const AuthenticatedBarrier = ({ children }) => {
         if (!data.success) throw new Error("Unauthorized");
 
         setLoading(false);
-      // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
         navigate({ to: "/" });
       }

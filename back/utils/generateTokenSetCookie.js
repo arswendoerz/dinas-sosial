@@ -7,11 +7,13 @@ export const generateTokenSetCookie = async (res, user) => {
     { expiresIn: "1d" }
   );
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: isProduction, // harus true untuk sameSite: 'None' di production
+    sameSite: isProduction ? "None" : "Lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1 hari
   });
 
   return token;
