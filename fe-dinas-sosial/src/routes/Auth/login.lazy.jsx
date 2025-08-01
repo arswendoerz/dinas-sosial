@@ -168,11 +168,11 @@ function RouteComponent() {
                 data-aos="fade-up"
                 data-aos-delay="600"
               >
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
-                  Selamat Datang
-                </h2>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8 text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-100">
+                  SOSIALink
+                </h1>
                 <p className="text-base sm:text-lg opacity-90 leading-relaxed">
-                  Sistem Informasi Manajemen<br/>
+                  Sistem Informasi Sosial Terintegrasi<br/>
                   Dinas Sosial Provinsi Lampung
                 </p>
               </div>
@@ -288,7 +288,7 @@ function RouteComponent() {
                         Memproses...
                       </div>
                     ) : (
-                      'Masuk ke Dashboard'
+                      'Masuk ke Dashboard SOSIALink'
                     )}
                   </Button>
                 </div>
