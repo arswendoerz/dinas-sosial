@@ -14,14 +14,14 @@ import motifKiriPutih from "@/assets/motif-kiri-putih.svg";
 import iconResosUrl from "../../assets/icon/icon-resos.png";
 
 const IconResos = ({ size = 22, isBlue = false }) => (
-  <img 
-    src={iconResosUrl} 
-    alt="Icon Rehabilitasi Sosial" 
-    width={size} 
+  <img
+    src={iconResosUrl}
+    alt="Icon Rehabilitasi Sosial"
+    width={size}
     height={size}
     className="flex-shrink-0 transition-all duration-200"
     style={{
-      filter: isBlue 
+      filter: isBlue
         ? 'brightness(0) saturate(100%) invert(12%) sepia(85%) saturate(1729%) hue-rotate(218deg) brightness(96%) contrast(94%)'
         : 'brightness(0) invert(1)'
     }}
@@ -40,9 +40,9 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const location = useLocation();
-  
+
   const iconSize = collapsed ? 24 : 20;
-  const resosIconSize = collapsed ? 22 : 18; 
+  const resosIconSize = collapsed ? 22 : 18;
 
   useEffect(() => {
     fetchUserProfile();
@@ -114,7 +114,7 @@ export default function Sidebar() {
             const isActive = location.pathname === to;
             const isHovered = hoveredItem === label;
             const IconComponent = icon;
-            
+
             return (
               <Link
                 key={label}
@@ -130,13 +130,13 @@ export default function Sidebar() {
                   onMouseEnter={() => setHoveredItem(label)}
                   onMouseLeave={() => setHoveredItem(null)}
                 >
-                  <div 
-                    className="flex items-center justify-center flex-shrink-0" 
+                  <div
+                    className="flex items-center justify-center flex-shrink-0"
                     style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
                   >
                     {label === "Rehabilitasi Sosial" ? (
-                      <IconComponent 
-                        size={resosIconSize} 
+                      <IconComponent
+                        size={resosIconSize}
                         isBlue={isActive || isHovered}
                       />
                     ) : (
@@ -161,11 +161,12 @@ export default function Sidebar() {
           <Link to="/account" onClick={() => setSidebarOpen(false)}>
             <Button
               variant="ghost"
-              className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-white hover:text-[#1F3A93] transition-all duration-200 cursor-pointer group
-                ${collapsed ? "justify-center" : "justify-start"}`}
+              className={`w-full flex items-center gap-3 px-3 py-3 transition-all duration-200 cursor-pointer group
+                ${collapsed ? "justify-center" : "justify-start"}
+                ${location.pathname === "/account" ? "bg-white text-[#1F3A93]" : "hover:bg-white hover:text-[#1F3A93]"}`}
             >
-              <div 
-                className="flex items-center justify-center flex-shrink-0" 
+              <div
+                className="flex items-center justify-center flex-shrink-0"
                 style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
               >
                 <FaUserAlt size={iconSize} />
@@ -175,7 +176,9 @@ export default function Sidebar() {
                   <span className="font-semibold leading-tight truncate">
                     {user?.name || "Loading..."}
                   </span>
-                  <span className="text-sm text-[#f6f6f6] leading-normal truncate group-hover:text-[#1F3A93] transition-colors duration-200">
+                  <span className={`text-sm leading-normal truncate transition-colors duration-200 ${
+                    location.pathname === "/account" ? "text-[#1F3A93]" : "text-[#f6f6f6] group-hover:text-[#1F3A93]"
+                  }`}>
                     {user?.email || "Loading..."}
                   </span>
                 </div>
