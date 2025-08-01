@@ -1,6 +1,6 @@
   import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router';
   import Sidebar from '@/components/sidebar/sidebar';
-  import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+  // import { TanStackRouterDevtools } from '@tanstack/router-devtools';
   import { Toaster } from 'react-hot-toast';
   import motifKanan from "@/assets/motif-kanan.svg";
   import AuthenticatedBarrier from '@/components/authenticated-barrier';
@@ -44,7 +44,7 @@
           
         )}
 
-        <TanStackRouterDevtools />
+        {/* <TanStackRouterDevtools /> */}
         
         {/* React Hot Toast Container */}
         <Toaster 
