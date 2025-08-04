@@ -138,3 +138,59 @@ export const logout = async (req, res) => {
     message: "Anda berhasil keluar!",
   });
 };
+
+export const changePassword = async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Lengkapi data email, password lama, dan password baru!",
+      });
+    }
+
+    const snapshot = await usersCollection
+      .where("email", "==", email.toLowerCase())
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({
+        success: false,
+        message: "Pengguna tidak ditemukan!",
+      });
+    }
+
+    const userDoc = snapshot.docs[0];
+    const user = userDoc.data();
+
+    // Validasi password lama
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Password lama anda salah!",
+      });
+    }
+
+    // Hash password baru
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password di database
+    await usersCollection.doc(user.id).update({
+      password: hashedNewPassword,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password berhasil diubah!",
+    });
+  } catch (error) {
+    console.error("Error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan server!",
+    });
+  }
+};

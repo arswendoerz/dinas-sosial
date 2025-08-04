@@ -22,7 +22,7 @@ app.use(
       "dinas-sosial-git-main-arswendo-erzas-projects.vercel.app",
       "dinas-sosial-lxg3l1z7j-arswendo-erzas-projects.vercel.app",
       "https://dinas-sosial-arswendo-erzas-projects.vercel.app/",
-      "https://www.sosialink.web.id"
+      "https://www.sosialink.web.id",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
