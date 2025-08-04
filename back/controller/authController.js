@@ -165,7 +165,6 @@ export const changePassword = async (req, res) => {
     const userDoc = snapshot.docs[0];
     const user = userDoc.data();
 
-    // Validasi password lama
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({
@@ -174,10 +173,8 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    // Hash password baru
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update password di database
     await usersCollection.doc(user.id).update({
       password: hashedNewPassword,
     });
