@@ -1,4 +1,5 @@
-import bcryptjs from "bcryptjs";
+// import bcryptjs from "bcryptjs";
+import bcrypt from "bcrypt";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 import { Op } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
@@ -28,7 +29,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 16);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const verificationToken = Math.floor(
       100000 + Math.random() * 900000
@@ -37,7 +38,7 @@ export const register = async (req, res) => {
 
     const newUser = {
       id: userId,
-      email,
+      email: email.toLowerCase(),
       nama,
       role,
       password: hashedPassword,
@@ -84,7 +85,7 @@ export const login = async (req, res) => {
     }
 
     const snapshot = await usersCollection
-      .where("email", "==", email)
+      .where("email", "==", email.toLowerCase())
       .limit(1)
       .get();
 
@@ -99,7 +100,7 @@ export const login = async (req, res) => {
     const user = userDoc.data();
 
     // Validasi password after hashing
-    const isMatch = await bcryptjs.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
         success: false,
