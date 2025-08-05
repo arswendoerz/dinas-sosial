@@ -29,6 +29,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -316,10 +317,8 @@ export default function Surat() {
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
   const parseCustomDate = (dateString) => {
-    const [datePart, timePart] = dateString.split(', ');
-    const [day, month, year] = datePart.split('/');
-    const [hour, minute, second] = timePart.split('.');
-    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+    const [day, month, year] = dateString.split('/');
+    return new Date(`${year}-${month}-${day}T00:00:00`);
   };
 
   const filteredLetters = uploadedLetters
@@ -341,12 +340,12 @@ export default function Surat() {
     })
     .sort((a, b) => {
       if (selectedSort === "__terbaru__") {
-        const dateA = parseCustomDate(a.tanggalUpload);
-        const dateB = parseCustomDate(b.tanggalUpload);
+        const dateA = a.tanggalUpdate ? parseCustomDate(a.tanggalUpdate) : parseCustomDate(a.tanggalUpload);
+        const dateB = b.tanggalUpdate ? parseCustomDate(b.tanggalUpdate) : parseCustomDate(b.tanggalUpload);
         return dateB.getTime() - dateA.getTime();
       } else if (selectedSort === "__terlama__") {
-        const dateA = parseCustomDate(a.tanggalUpload);
-        const dateB = parseCustomDate(b.tanggalUpload);
+        const dateA = a.tanggalUpdate ? parseCustomDate(a.tanggalUpdate) : parseCustomDate(a.tanggalUpload);
+        const dateB = b.tanggalUpdate ? parseCustomDate(b.tanggalUpdate) : parseCustomDate(b.tanggalUpload);
         return dateA.getTime() - dateB.getTime();
       } else if (selectedSort === "__a_z__") {
         return a.nama.localeCompare(b.nama);
@@ -419,35 +418,79 @@ export default function Surat() {
     }
   };
 
-  const PaginationComponent = () => (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          />
-        </PaginationItem>
-        {[...Array(totalPages)].map((_, i) => (
-          <PaginationItem key={i}>
-            <PaginationLink
+  const getPageNumbers = (totalPages, currentPage) => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5; 
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 1);
+      const endPage = Math.min(totalPages, currentPage + 1);
+      
+      if (startPage > 1) {
+        pageNumbers.push(1);
+        if (startPage > 2) {
+          pageNumbers.push("...");
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbers.push("...");
+        }
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const PaginationComponent = () => {
+    const pageNumbers = getPageNumbers(totalPages, currentPage);
+
+    return (
+      <Pagination>
+        <PaginationContent className="flex flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
               href="#"
-              isActive={currentPage === i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </PaginationLink>
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            />
           </PaginationItem>
-        ))}
-        <PaginationItem>
-          <PaginationNext
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
+          {pageNumbers.map((page, i) => (
+            <PaginationItem key={i}>
+              {page === "..." ? (
+                <PaginationEllipsis />
+              ) : (
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === page}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </PaginationLink>
+              )}
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredLetters.length);

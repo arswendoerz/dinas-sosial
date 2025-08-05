@@ -30,6 +30,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis, 
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -77,7 +78,7 @@ export default function Recipient({ selectedJenisAlat }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userRole, setUserRole] = useState(null); // State for user role
+  const [userRole, setUserRole] = useState(null);
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/recipi";
 
   const handleImageClick = (imageUrl, recipientName) => {
@@ -289,7 +290,7 @@ export default function Recipient({ selectedJenisAlat }) {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedJenisAlat]);
+  }, [selectedJenisAlat, searchTerm, selectedKota, selectedYear]);
 
   const filteredRecipients = uploadedRecipients.filter((recipient) => {
     const searchMatch =
@@ -381,33 +382,80 @@ export default function Recipient({ selectedJenisAlat }) {
     return match ? match[0] : "";
   };
 
-  const PaginationComponent = () => (
-    <Pagination>
-      <PaginationContent>
-        <PaginationPrevious
-          href="#"
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-        />
-        {[...Array(totalPages)].map((_, i) => (
-          <PaginationItem key={i}>
-            <PaginationLink
+  const getPageNumbers = (totalPages, currentPage) => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5; 
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 1);
+      const endPage = Math.min(totalPages, currentPage + 1);
+      
+      if (startPage > 1) {
+        pageNumbers.push(1);
+        if (startPage > 2) {
+          pageNumbers.push("...");
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbers.push("...");
+        }
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const PaginationComponent = () => {
+    const pageNumbers = getPageNumbers(totalPages, currentPage);
+
+    return (
+      <Pagination>
+        <PaginationContent className="flex flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
               href="#"
-              isActive={currentPage === i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </PaginationLink>
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            />
           </PaginationItem>
-        ))}
-        <PaginationItem>
-          <PaginationNext
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
+          {pageNumbers.map((page, i) => (
+            <PaginationItem key={i}>
+              {page === "..." ? (
+                <PaginationEllipsis />
+              ) : (
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === page}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </PaginationLink>
+              )}
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
+
 
   const getUniqueYears = () => {
     const years = new Set();
@@ -464,7 +512,6 @@ export default function Recipient({ selectedJenisAlat }) {
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
           placeholder="Cari nama, alamat, NIK, atau jenis alat"
@@ -473,7 +520,6 @@ export default function Recipient({ selectedJenisAlat }) {
           className="flex-1 min-w-[200px]"
         />
 
-        {/* Filters and Buttons adjusted for mobile */}
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <Select value={selectedKota} onValueChange={setSelectedKota}>
             <SelectTrigger className="w-full sm:w-64">
@@ -522,7 +568,6 @@ export default function Recipient({ selectedJenisAlat }) {
         </div>
       </div>
 
-      {/* Desktop Table */}
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
@@ -657,7 +702,6 @@ export default function Recipient({ selectedJenisAlat }) {
           )}
         </div>
 
-        {/* Mobile Card */}
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
             <CardSkeleton />
@@ -768,7 +812,6 @@ export default function Recipient({ selectedJenisAlat }) {
         </div>
       )}
 
-      {/* Image Zoom Modal */}
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
         <DialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0">
           <DialogHeader className="px-6 py-4">

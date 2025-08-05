@@ -29,6 +29,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -297,11 +298,23 @@ export default function Dokumen() {
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
   const parseCustomDate = (dateString) => {
-    const [datePart, timePart] = dateString.split(', ');
+    if (!dateString || typeof dateString !== 'string') {
+        return new Date(0); 
+    }
+    const parts = dateString.split(', ');
+    if (parts.length < 2) {
+        const parsed = new Date(dateString);
+        return isNaN(parsed) ? new Date(0) : parsed;
+    }
+    const [datePart, timePart] = parts;
     const [day, month, year] = datePart.split('/');
+    if (!day || !month || !year) return new Date(0);
+    
     const [hour, minute, second] = timePart.split('.');
+    if (!hour || !minute || !second) return new Date(0);
 
-    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+    const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+    return isNaN(date) ? new Date(0) : date;
   };
 
   const filteredDocuments = uploadedDocuments
@@ -316,18 +329,18 @@ export default function Dokumen() {
 
       const tanggalMatch =
         selectedTanggal === "" ||
-        document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'); 
+        (document.tanggalUpload && document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/')); 
 
       return searchMatch && kategoriMatch && tanggalMatch;
     })
     .sort((a, b) => {
       if (selectedSort === "__terbaru__") {
-        const dateA = parseCustomDate(a.tanggalUpload);
-        const dateB = parseCustomDate(b.tanggalUpload);
+        const dateA = a.tanggalUpdate ? parseCustomDate(a.tanggalUpdate) : parseCustomDate(a.tanggalUpload);
+        const dateB = b.tanggalUpdate ? parseCustomDate(b.tanggalUpdate) : parseCustomDate(b.tanggalUpload);
         return dateB.getTime() - dateA.getTime();
       } else if (selectedSort === "__terlama__") {
-        const dateA = parseCustomDate(a.tanggalUpload);
-        const dateB = parseCustomDate(b.tanggalUpload);
+        const dateA = a.tanggalUpdate ? parseCustomDate(a.tanggalUpdate) : parseCustomDate(a.tanggalUpload);
+        const dateB = b.tanggalUpdate ? parseCustomDate(b.tanggalUpdate) : parseCustomDate(b.tanggalUpload);
         return dateA.getTime() - dateB.getTime();
       } else if (selectedSort === "__a_z__") {
         return a.nama.localeCompare(b.nama);
@@ -400,35 +413,79 @@ export default function Dokumen() {
     }
   };
 
-  const PaginationComponent = () => (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          />
-        </PaginationItem>
-        {[...Array(totalPages)].map((_, i) => (
-          <PaginationItem key={i}>
-            <PaginationLink
+  const getPageNumbers = (totalPages, currentPage) => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5; 
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 1);
+      const endPage = Math.min(totalPages, currentPage + 1);
+      
+      if (startPage > 1) {
+        pageNumbers.push(1);
+        if (startPage > 2) {
+          pageNumbers.push("...");
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbers.push("...");
+        }
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const PaginationComponent = () => {
+    const pageNumbers = getPageNumbers(totalPages, currentPage);
+
+    return (
+      <Pagination>
+        <PaginationContent className="flex flex-wrap justify-center gap-2">
+          <PaginationItem>
+            <PaginationPrevious
               href="#"
-              isActive={currentPage === i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </PaginationLink>
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            />
           </PaginationItem>
-        ))}
-        <PaginationItem>
-          <PaginationNext
-            href="#"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
+          {pageNumbers.map((page, i) => (
+            <PaginationItem key={i}>
+              {page === "..." ? (
+                <PaginationEllipsis />
+              ) : (
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === page}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </PaginationLink>
+              )}
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredDocuments.length);
@@ -445,7 +502,6 @@ export default function Dokumen() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
           placeholder="Cari nama, nomor, atau perihal dokumen"
@@ -468,7 +524,6 @@ export default function Dokumen() {
           </SelectContent>
         </Select>
 
-        {/* NEW SORTING SELECT */}
         <Select value={selectedSort} onValueChange={setSelectedSort}>
           <SelectTrigger className="w-full md:w-64">
             <SelectValue placeholder="Urutkan Dokumen" />
@@ -480,7 +535,6 @@ export default function Dokumen() {
             <SelectItem value="__z_a__">Nama (Z-A)</SelectItem>
           </SelectContent>
         </Select>
-        {/* END NEW SORTING SELECT */}
 
         <div className="flex w-full md:w-auto gap-2">
           <Input
@@ -495,13 +549,12 @@ export default function Dokumen() {
             isSubmitting={isSubmitting}
             setIsSubmitting={setIsSubmitting}
             setError={setError}
-            fetchDocuments={fetchDocuments}
+            fetchDocuments={() => fetchDocuments(searchTerm, selectedKategori, selectedTanggal)}
             API_BASE_URL={API_BASE_URL}
           />
         </div>
       </div>
 
-      {/* Desktop Table */}
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
@@ -645,10 +698,13 @@ export default function Dokumen() {
           )}
         </div>
 
-        {/* Mobile Card */}
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
-            <CardSkeleton />
+            <>
+              {[...Array(1)].map((_, index) => (
+                  <CardSkeleton key={index} />
+              ))}
+            </>
           ) : (
             <>
               {paginatedDocuments.map((document) => (
@@ -666,7 +722,7 @@ export default function Dokumen() {
                     <p className="text-xs text-gray-600">{document.perihal}</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 text-xs">
+                  <div className="flex flex-wrap gap-2 text-xs mt-3">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {document.kategori}
                     </span>
@@ -675,7 +731,7 @@ export default function Dokumen() {
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-gray-500 mt-3">
                     <span>Upload: {document.tanggalUpload}</span>
                     <span>Update: {document.tanggalUpdate || "-"}</span>
                   </div>
@@ -759,14 +815,13 @@ export default function Dokumen() {
         </div>
       )}
 
-      {/* Update Dialog */}
       <UpdateDokumen
         editingDoc={editingDoc}
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
         setEditingDoc={setEditingDoc}
         kategoriList={kategoriList}
-        fetchDocuments={fetchDocuments}
+        fetchDocuments={() => fetchDocuments(searchTerm, selectedKategori, selectedTanggal)}
         setError={setError}
         API_BASE_URL={API_BASE_URL}
       />
