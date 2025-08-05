@@ -566,10 +566,10 @@ export default function Dokumen() {
                       <TableCell className="px-4 py-1 border-r">
                         {document.jenis}
                       </TableCell>
-                      <TableCell className="px-4 py-1 border-r">
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">
                         {document.tanggalUpload}
                       </TableCell>
-                      <TableCell className="px-4 py-1 border-r">
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">
                         {document.tanggalUpdate || "-"}
                       </TableCell>
                       <TableCell className="px-4 py-1 text-center">

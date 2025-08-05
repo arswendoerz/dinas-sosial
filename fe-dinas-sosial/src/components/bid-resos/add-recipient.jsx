@@ -192,7 +192,7 @@ export default function AddRecipient({
                 accept="image/jpeg,image/jpg,image/png"
               />
               <p className="text-xs text-gray-500">
-                Format yang didukung: JPEG, JPG, PNG (Maksimal 5MB)
+                Format yang didukung: JPEG, JPG, PNG (Maksimal 2MB)
               </p>
             </div>
 

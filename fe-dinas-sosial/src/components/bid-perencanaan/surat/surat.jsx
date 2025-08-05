@@ -158,7 +158,7 @@ export default function Surat() {
         <Skeleton className="h-3 w-20" />
       </div>
 
-      <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
+      <div className="flex justify-center items-center gap-4 pt-3 border-t">
         <Skeleton className="h-4 w-12" />
         <Skeleton className="h-4 w-12" />
         <Skeleton className="h-4 w-12" />
@@ -581,10 +581,10 @@ export default function Surat() {
                       <TableCell className="px-4 py-1 border-r">
                         {letter.jenis}
                       </TableCell>
-                      <TableCell className="px-4 py-1 border-r">
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">
                         {letter.tanggalUpload}
                       </TableCell>
-                      <TableCell className="px-4 py-1 border-r">
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">
                         {letter.tanggalUpdate || "-"}
                       </TableCell>
                       <TableCell className="px-4 py-1 text-center">
@@ -684,7 +684,7 @@ export default function Surat() {
                     <p className="text-xs text-gray-600">{letter.perihal}</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 text-xs ">
+                  <div className="flex flex-wrap gap-2 text-xs mt-3">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {letter.kategori}
                     </span>
@@ -693,12 +693,12 @@ export default function Surat() {
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-gray-500 mt-3">
                     <span>Upload: {letter.tanggalUpload}</span>
                     <span>Update: {letter.tanggalUpdate || "-"}</span>
                   </div>
 
-                  <div className="flex justify-center items-center gap-4 pt-3 border-t text-sm">
+                  <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
                     <a
                       href={letter.url}
                       target="_blank"

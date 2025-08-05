@@ -240,7 +240,7 @@ export default function UpdateRecipient({
                 accept="image/jpeg,image/jpg,image/png"
               />
               <p className="text-xs text-gray-500">
-                Format yang didukung: JPEG, JPG, PNG (Maksimal 5MB)
+                Format yang didukung: JPEG, JPG, PNG (Maksimal 2MB)
               </p>
               <p className="text-xs text-gray-400">
                 Kosongkan jika tidak ingin mengubah foto
