@@ -74,8 +74,8 @@ export default function UpdateRecipient({
           throw new Error("Format file harus JPEG, JPG, atau PNG!");
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error("Ukuran file foto tidak boleh lebih dari 5MB!");
+        if (file.size > 2 * 1024 * 1024) {
+          throw new Error("Ukuran file foto tidak boleh lebih dari 2MB!");
         }
 
         requestBody = new FormData();

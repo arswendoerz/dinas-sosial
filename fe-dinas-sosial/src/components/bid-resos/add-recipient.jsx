@@ -59,8 +59,8 @@ export default function AddRecipient({
       const foto = formData.get("foto");
 
       if (foto && foto.size > 0) {
-        if (foto.size > 5 * 1024 * 1024) {
-          throw new Error("Ukuran file foto tidak boleh lebih dari 5MB!");
+        if (foto.size > 2 * 1024 * 1024) {
+          throw new Error("Ukuran file foto tidak boleh lebih dari 2MB!");
         }
 
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
