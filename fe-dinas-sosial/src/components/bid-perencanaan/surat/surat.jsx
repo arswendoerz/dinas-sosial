@@ -47,23 +47,14 @@ import {
 import toast from 'react-hot-toast';
 import AddSurat from "./add-surat";
 import UpdateSurat from "./update-surat";
+import { GenericTableSkeleton, GenericCardSkeleton } from "../../skeleton";
 
 export default function Surat() {
   const kategoriList = [
-    "Undangan",
-    "Surat Edaran",
-    "Surat Keputusan",
-    "Surat Tugas",
-    "Surat Permohonan",
-    "Surat Pemberitahuan",
-    "Surat Keterangan",
-    "Surat Perintah",
-    "Surat Rekomendasi",
-    "Surat Balasan",
-    "Nota Dinas",
-    "Instruksi",
-    "Surat Pengantar",
-    "Lain-lain",
+    "Undangan", "Surat Edaran", "Surat Keputusan", "Surat Tugas",
+    "Surat Permohonan", "Surat Pemberitahuan", "Surat Keterangan",
+    "Surat Perintah", "Surat Rekomendasi", "Surat Balasan", "Nota Dinas",
+    "Instruksi", "Surat Pengantar", "Lain-lain",
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,94 +70,6 @@ export default function Surat() {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/letter";
-
-  const TableSkeleton = () => (
-    <Table className="text-left text-sm border-collapse w-full">
-      <TableHeader className="bg-gray-50 border-b">
-        <TableRow>
-          {[
-            "Nomor",
-            "Nama",
-            "Perihal",
-            "Kategori",
-            "Jenis",
-            "Tgl Upload",
-            "Tgl Update",
-            "Aksi",
-          ].map((col, i) => (
-            <TableHead
-              key={i}
-              className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
-            >
-              {col}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {[...Array(1)].map((_, index) => (
-          <TableRow key={index} className="hover:bg-gray-50 border-b">
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-16" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-32" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-40" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-28" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-12" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-20" />
-            </TableCell>
-            <TableCell className="px-4 py-3 border-r">
-              <Skeleton className="h-4 w-20" />
-            </TableCell>
-            <TableCell className="px-4 py-3 text-center">
-              <div className="grid grid-cols-2 gap-1 justify-center items-center">
-                <Skeleton className="h-6 w-6 rounded" />
-                <Skeleton className="h-6 w-6 rounded" />
-                <Skeleton className="h-6 w-6 rounded" />
-                <Skeleton className="h-6 w-6 rounded" />
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-
-  const CardSkeleton = () => (
-    <Card className="rounded-xl shadow border p-4">
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-full" />
-      </div>
-
-      <div className="flex flex-wrap gap-2 mt-3">
-        <Skeleton className="h-6 w-20 rounded" />
-        <Skeleton className="h-6 w-16 rounded" />
-      </div>
-
-      <div className="flex justify-between mt-3">
-        <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-3 w-20" />
-      </div>
-
-      <div className="flex justify-center items-center gap-4 pt-3 border-t">
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-      </div>
-    </Card>
-  );
 
   const formatFirestoreTimestamp = (timestamp) => {
     if (timestamp && typeof timestamp === 'object' && timestamp._seconds !== undefined) {
@@ -492,6 +395,28 @@ export default function Surat() {
     );
   };
 
+  const suratTableHeaders = [
+    "Nomor", "Nama", "Perihal", "Kategori", "Jenis", "Tgl Upload", "Tgl Update"
+  ];
+
+  const suratTableActionSkeleton = (
+    <div className="grid grid-cols-2 gap-1 justify-center items-center">
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+    </div>
+  );
+
+  const suratCardActionSkeleton = (
+    <>
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+    </>
+  );
+
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredLetters.length);
 
@@ -507,6 +432,7 @@ export default function Surat() {
         </div>
       )}
 
+      {/* --- Bagian filter dan tombol tidak diubah --- */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
           placeholder="Cari nama, nomor, atau perihal surat"
@@ -514,7 +440,6 @@ export default function Surat() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 min-w-[200px]"
         />
-
         <Select value={selectedKategori} onValueChange={setSelectedKategori}>
           <SelectTrigger className="w-full md:w-64">
             <SelectValue placeholder="Pilih Kategori" />
@@ -528,7 +453,6 @@ export default function Surat() {
             ))}
           </SelectContent>
         </Select>
-
         <Select value={selectedSort} onValueChange={setSelectedSort}>
           <SelectTrigger className="w-full md:w-64">
             <SelectValue placeholder="Urutkan Surat" />
@@ -540,7 +464,6 @@ export default function Surat() {
             <SelectItem value="__z_a__">Nama (Z-A)</SelectItem>
           </SelectContent>
         </Select>
-
         <div className="flex w-full md:w-auto gap-2">
           <Input
             type="month"
@@ -548,7 +471,6 @@ export default function Surat() {
             onChange={(e) => setSelectedTanggal(e.target.value)}
             className="flex-1 min-w-[100px]"
           />
-
           <AddSurat
             kategoriList={kategoriList}
             isSubmitting={isSubmitting}
@@ -563,24 +485,19 @@ export default function Surat() {
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
-            <TableSkeleton />
+            <GenericTableSkeleton
+              headers={suratTableHeaders}
+              actionSkeleton={suratTableActionSkeleton}
+              rowCount={5}
+            />
           ) : (
             <Table className="text-left text-sm border-collapse w-full">
               <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  {[
-                    "Nomor",
-                    "Nama",
-                    "Perihal",
-                    "Kategori",
-                    "Jenis",
-                    "Tgl Upload",
-                    "Tgl Update",
-                    "Aksi",
-                  ].map((col, i) => (
+                  {[...suratTableHeaders, "Aksi"].map((col, i) => (
                     <TableHead
                       key={i}
-                      className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
+                      className={`px-4 py-3 font-semibold text-gray-700 ${i < suratTableHeaders.length ? "border-r" : ""} whitespace-nowrap ${i === suratTableHeaders.length ? "text-center" : ""}`}
                     >
                       {col}
                     </TableHead>
@@ -590,107 +507,30 @@ export default function Surat() {
               <TableBody>
                 {paginatedLetters.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={8}
-                      className="text-center py-6 text-gray-500"
-                    >
+                    <TableCell colSpan={8} className="text-center py-6 text-gray-500">
                       Tidak ada surat ditemukan.
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedLetters.map((letter) => (
                     <TableRow key={letter.id} className="hover:bg-gray-50 border-b">
-                      <TableCell className="px-4 py-1 border-r">
-                        {letter.nomor}
-                      </TableCell>
-                      <TableCell
-                        className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                        title={letter.nama}
-                      >
-                        {letter.nama}
-                      </TableCell>
-                      <TableCell
-                        className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal"
-                        title={letter.perihal}
-                      >
-                        {letter.perihal}
-                      </TableCell>
-                      <TableCell
-                        className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal"
-                        title={letter.kategori}
-                      >
-                        {letter.kategori}
-                      </TableCell>
-                      <TableCell className="px-4 py-1 border-r">
-                        {letter.jenis}
-                      </TableCell>
-                      <TableCell className="px-4 py-1 border-r whitespace-normal">
-                        {letter.tanggalUpload}
-                      </TableCell>
-                      <TableCell className="px-4 py-1 border-r whitespace-normal">
-                        {letter.tanggalUpdate || "-"}
-                      </TableCell>
+                      <TableCell className="px-4 py-1 border-r">{letter.nomor}</TableCell>
+                      <TableCell className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal" title={letter.nama}>{letter.nama}</TableCell>
+                      <TableCell className="px-4 py-1 border-r max-w-[200px] break-words whitespace-normal" title={letter.perihal}>{letter.perihal}</TableCell>
+                      <TableCell className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal" title={letter.kategori}>{letter.kategori}</TableCell>
+                      <TableCell className="px-4 py-1 border-r">{letter.jenis}</TableCell>
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">{letter.tanggalUpload}</TableCell>
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">{letter.tanggalUpdate || "-"}</TableCell>
                       <TableCell className="px-4 py-1 text-center">
                         <div className="grid grid-cols-2 gap-1 justify-center items-center">
-                          <a
-                            href={letter.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 p-1 rounded"
-                            title="Lihat"
-                          >
-                            <MdVisibility size={18} />
-                          </a>
-                          <button
-                            onClick={() => sendToWhatsApp(letter)}
-                            className="text-green-600 hover:text-green-800 p-1 rounded"
-                            title="Kirim ke WhatsApp"
-                            disabled={isSubmitting}
-                          >
-                            <MdSend size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleEdit(letter)}
-                            className="text-yellow-600 hover:text-yellow-800 p-1 rounded"
-                            title="Edit"
-                            disabled={isSubmitting}
-                          >
-                            <MdEdit size={18} />
-                          </button>
+                          <a href={letter.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 p-1 rounded" title="Lihat"><MdVisibility size={18} /></a>
+                          <button onClick={() => sendToWhatsApp(letter)} className="text-green-600 hover:text-green-800 p-1 rounded" title="Kirim ke WhatsApp" disabled={isSubmitting}><MdSend size={18} /></button>
+                          <button onClick={() => handleEdit(letter)} className="text-yellow-600 hover:text-yellow-800 p-1 rounded" title="Edit" disabled={isSubmitting}><MdEdit size={18} /></button>
                           <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button
-                                onClick={() => handleDelete(letter)}
-                                className="text-red-600 hover:text-red-800 p-1 rounded"
-                                title="Hapus"
-                                disabled={isSubmitting}
-                              >
-                                <MdDelete size={18} />
-                              </button>
-                            </AlertDialogTrigger>
+                            <AlertDialogTrigger asChild><button onClick={() => handleDelete(letter)} className="text-red-600 hover:text-red-800 p-1 rounded" title="Hapus" disabled={isSubmitting}><MdDelete size={18} /></button></AlertDialogTrigger>
                             <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Konfirmasi Hapus Surat
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Apakah Anda yakin ingin menghapus surat "
-                                  {letter.nama}"? Tindakan ini tidak dapat
-                                  dibatalkan.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel disabled={isSubmitting}>
-                                  Batal
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={confirmDelete}
-                                  className="bg-red-500 hover:bg-red-600 text-white"
-                                  disabled={isSubmitting}
-                                >
-                                  {isSubmitting ? "Menghapus..." : "Hapus"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
+                              <AlertDialogHeader><AlertDialogTitle>Konfirmasi Hapus Surat</AlertDialogTitle><AlertDialogDescription>Apakah Anda yakin ingin menghapus surat "{letter.nama}"? Tindakan ini tidak dapat dibatalkan.</AlertDialogDescription></AlertDialogHeader>
+                              <AlertDialogFooter><AlertDialogCancel disabled={isSubmitting}>Batal</AlertDialogCancel><AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600 text-white" disabled={isSubmitting}>{isSubmitting ? "Menghapus..." : "Hapus"}</AlertDialogAction></AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
@@ -706,96 +546,39 @@ export default function Surat() {
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
             <>
-              {[...Array(1)].map((_, index) => (
-                <CardSkeleton key={index} />
+              {Array.from({ length: 5 }).map((_, index) => (
+                <GenericCardSkeleton
+                  key={index}
+                  actionSkeleton={suratCardActionSkeleton}
+                />
               ))}
             </>
           ) : (
             <>
               {paginatedLetters.map((letter) => (
-                <Card
-                  key={letter.id}
-                  className="rounded-xl shadow border p-4"
-                >
+                <Card key={letter.id} className="rounded-xl shadow border p-4">
                   <div className="space-y-0">
-                    <h3 className="font-semibold text-base text-gray-900">
-                      {letter.nomor}
-                    </h3>
-                    <p className="text-sm font-medium text-gray-800">
-                      {letter.nama}
-                    </p>
+                    <h3 className="font-semibold text-base text-gray-900">{letter.nomor}</h3>
+                    <p className="text-sm font-medium text-gray-800">{letter.nama}</p>
                     <p className="text-xs text-gray-600">{letter.perihal}</p>
                   </div>
-
                   <div className="flex flex-wrap gap-2 text-xs mt-3">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      {letter.kategori}
-                    </span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                      {letter.jenis}
-                    </span>
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{letter.kategori}</span>
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">{letter.jenis}</span>
                   </div>
-
                   <div className="flex justify-between text-xs text-gray-500 mt-3">
                     <span>Upload: {letter.tanggalUpload}</span>
                     <span>Update: {letter.tanggalUpdate || "-"}</span>
                   </div>
-
                   <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
-                    <a
-                      href={letter.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                    >
-                      <MdVisibility size={16} /> Lihat
-                    </a>
-                    <button
-                      onClick={() => sendToWhatsApp(letter)}
-                      className="flex items-center gap-1 text-green-600 hover:text-green-800"
-                      disabled={isSubmitting}
-                    >
-                      <MdSend size={16} /> Kirim
-                    </button>
-                    <button
-                      onClick={() => handleEdit(letter)}
-                      className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800"
-                      disabled={isSubmitting}
-                    >
-                      <MdEdit size={16} /> Edit
-                    </button>
+                    <a href={letter.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:text-blue-800"><MdVisibility size={16} /> Lihat</a>
+                    <button onClick={() => sendToWhatsApp(letter)} className="flex items-center gap-1 text-green-600 hover:text-green-800" disabled={isSubmitting}><MdSend size={16} /> Kirim</button>
+                    <button onClick={() => handleEdit(letter)} className="flex items-center gap-1 text-yellow-600 hover:text-yellow-800" disabled={isSubmitting}><MdEdit size={16} /> Edit</button>
                     <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button
-                          onClick={() => handleDelete(letter)}
-                          className="flex items-center gap-1 text-red-600 hover:text-red-800"
-                          disabled={isSubmitting}
-                        >
-                          <MdDelete size={16} /> Hapus
-                        </button>
-                      </AlertDialogTrigger>
+                      <AlertDialogTrigger asChild><button onClick={() => handleDelete(letter)} className="flex items-center gap-1 text-red-600 hover:text-red-800" disabled={isSubmitting}><MdDelete size={16} /> Hapus</button></AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Konfirmasi Hapus Surat
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus surat "{letter.nama}"?
-                            Tindakan ini tidak dapat dibatalkan.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isSubmitting}>
-                            Batal
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={confirmDelete}
-                            className="bg-red-500 hover:bg-red-600 text-white"
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? "Menghapus..." : "Hapus"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
+                        <AlertDialogHeader><AlertDialogTitle>Konfirmasi Hapus Surat</AlertDialogTitle><AlertDialogDescription>Apakah Anda yakin ingin menghapus surat "{letter.nama}"? Tindakan ini tidak dapat dibatalkan.</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel disabled={isSubmitting}>Batal</AlertDialogCancel><AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600 text-white" disabled={isSubmitting}>{isSubmitting ? "Menghapus..." : "Hapus"}</AlertDialogAction></AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>

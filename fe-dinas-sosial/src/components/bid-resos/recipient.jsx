@@ -30,7 +30,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-  PaginationEllipsis, 
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,6 +54,7 @@ import {
 import toast from 'react-hot-toast';
 import AddRecipient from "./add-recipient";
 import UpdateRecipient from "./update-recipient";
+import { GenericTableSkeleton, GenericCardSkeleton } from "../skeleton";
 
 export default function Recipient({ selectedJenisAlat }) {
   const kotaListLampung = [
@@ -99,13 +100,10 @@ export default function Recipient({ selectedJenisAlat }) {
       if (selectedYear !== "__semua__") {
         queryParams.append('year', selectedYear);
       }
-
       if (selectedJenisAlat) {
         queryParams.append('jenisAlat', selectedJenisAlat);
       }
-
       const exportUrl = `${API_BASE_URL}/export?${queryParams.toString()}`;
-
       const response = await fetch(exportUrl, {
         method: 'GET',
         credentials: 'include',
@@ -141,90 +139,12 @@ export default function Recipient({ selectedJenisAlat }) {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-
       toast.success('Data penerima bantuan berhasil diekspor!', { id: 'exportToast' });
     } catch (err) {
       console.error('Error exporting data:', err);
       toast.error(`Gagal mengekspor data: ${err.message}`, { id: 'exportToast' });
     }
   };
-
-  const TableSkeleton = () => {
-    const skeletonHeaders = [
-      "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan"
-    ];
-    if (userRole === 'rehabilitasi sosial') {
-      skeletonHeaders.push("Aksi");
-    }
-
-    return (
-      <Table className="text-left text-sm border-collapse w-full">
-        <TableHeader className="bg-gray-50 border-b">
-          <TableRow>
-            {skeletonHeaders.map((col, i, arr) => (
-              <TableHead
-                key={i}
-                className={`px-4 py-3 font-semibold text-gray-700 ${i < arr.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === arr.length - 1 && userRole === 'rehabilitasi sosial' ? "text-center" : ""}`}
-              >
-                {col}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 5 }).map((_, rowIndex) => (
-            <TableRow key={rowIndex} className="hover:bg-gray-50 border-b">
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-32" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-10" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-28" /></TableCell>
-              <TableCell className="px-4 py-3 border-r"><Skeleton className="h-4 w-20" /></TableCell>
-              {userRole === 'rehabilitasi sosial' && (
-                <TableCell className="px-4 py-3 text-center">
-                  <div className="flex gap-2 justify-center">
-                    <Skeleton className="h-6 w-6 rounded" />
-                    <Skeleton className="h-6 w-6 rounded" />
-                  </div>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    );
-  };
-
-  const CardSkeleton = () => (
-    <Card className="rounded-xl shadow border p-4">
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-full" />
-      </div>
-
-      <div className="flex flex-wrap gap-2 mt-3">
-        <Skeleton className="h-6 w-20 rounded" />
-        <Skeleton className="h-6 w-16 rounded" />
-      </div>
-
-      <div className="flex justify-between mt-3">
-        <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-3 w-20" />
-      </div>
-
-      {userRole === 'rehabilitasi sosial' && (
-        <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
-          <Skeleton className="h-4 w-12" />
-          <Skeleton className="h-4 w-12" />
-        </div>
-      )}
-    </Card>
-  );
 
   const fetchUserProfile = async () => {
     try {
@@ -252,7 +172,6 @@ export default function Recipient({ selectedJenisAlat }) {
   const fetchRecipients = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await fetch(`${API_BASE_URL}/`, {
         method: 'GET',
@@ -261,13 +180,10 @@ export default function Recipient({ selectedJenisAlat }) {
           'Content-Type': 'application/json',
         },
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
-
       if (result.success) {
         setUploadedRecipients(result.data);
       } else {
@@ -333,11 +249,8 @@ export default function Recipient({ selectedJenisAlat }) {
 
   const confirmDelete = async () => {
     if (!deletingRecipient) return;
-
     setIsSubmitting(true);
-
     const loadingToast = toast.loading('Menghapus penerima...');
-
     try {
       const response = await fetch(`${API_BASE_URL}/${deletingRecipient.id}`, {
         method: 'DELETE',
@@ -353,13 +266,11 @@ export default function Recipient({ selectedJenisAlat }) {
       }
 
       const result = await response.json();
-
       if (result.success) {
         toast.success(`Data penerima "${deletingRecipient.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
-
         await fetchRecipients();
       } else {
         throw new Error(result.message || 'Gagal menghapus penerima');
@@ -384,8 +295,7 @@ export default function Recipient({ selectedJenisAlat }) {
 
   const getPageNumbers = (totalPages, currentPage) => {
     const pageNumbers = [];
-    const maxVisiblePages = 5; 
-
+    const maxVisiblePages = 5;
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -393,18 +303,15 @@ export default function Recipient({ selectedJenisAlat }) {
     } else {
       const startPage = Math.max(1, currentPage - 1);
       const endPage = Math.min(totalPages, currentPage + 1);
-      
       if (startPage > 1) {
         pageNumbers.push(1);
         if (startPage > 2) {
           pageNumbers.push("...");
         }
       }
-      
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
-
       if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
           pageNumbers.push("...");
@@ -412,13 +319,11 @@ export default function Recipient({ selectedJenisAlat }) {
         pageNumbers.push(totalPages);
       }
     }
-
     return pageNumbers;
   };
 
   const PaginationComponent = () => {
     const pageNumbers = getPageNumbers(totalPages, currentPage);
-
     return (
       <Pagination>
         <PaginationContent className="flex flex-wrap justify-center gap-2">
@@ -456,7 +361,6 @@ export default function Recipient({ selectedJenisAlat }) {
     );
   };
 
-
   const getUniqueYears = () => {
     const years = new Set();
     uploadedRecipients.forEach(recipient => {
@@ -493,12 +397,23 @@ export default function Recipient({ selectedJenisAlat }) {
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredRecipients.length);
 
-  const desktopTableHeaders = [
+  const tableHeaders = [
     "Nama", "Foto", "Alamat", "Kab/Kota", "Usia", "NIK", "No.Telp", "Jenis Alat", "Keterangan", "Tgl Penerimaan"
   ];
-  if (userRole === 'rehabilitasi sosial') {
-    desktopTableHeaders.push("Aksi");
-  }
+
+  const tableActionSkeleton = (
+    <div className="flex gap-2 justify-center">
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+    </div>
+  );
+
+  const cardActionSkeleton = (
+    <>
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+    </>
+  );
 
   return (
     <div data-aos="fade-up" className="w-full">
@@ -571,15 +486,19 @@ export default function Recipient({ selectedJenisAlat }) {
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
-            <TableSkeleton />
+            <GenericTableSkeleton
+              headers={tableHeaders}
+              actionSkeleton={userRole === 'rehabilitasi sosial' ? tableActionSkeleton : null}
+              rowCount={5}
+            />
           ) : (
             <Table className="text-left text-sm border-collapse w-full">
               <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  {desktopTableHeaders.map((col, i) => (
+                  {[...tableHeaders, ...(userRole === 'rehabilitasi sosial' ? ["Aksi"] : [])].map((col, i, arr) => (
                     <TableHead
                       key={i}
-                      className={`px-4 py-3 font-semibold text-gray-700 ${i < desktopTableHeaders.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === desktopTableHeaders.length - 1 && userRole === 'rehabilitasi sosial' ? "text-center" : ""}`}
+                      className={`px-4 py-3 font-semibold text-gray-700 ${i < arr.length - 1 ? "border-r" : ""} whitespace-nowrap ${i === arr.length - 1 && userRole === 'rehabilitasi sosial' ? "text-center" : ""}`}
                     >
                       {col}
                     </TableHead>
@@ -590,7 +509,7 @@ export default function Recipient({ selectedJenisAlat }) {
                 {paginatedRecipients.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={desktopTableHeaders.length}
+                      colSpan={tableHeaders.length + (userRole === 'rehabilitasi sosial' ? 1 : 0)}
                       className="text-center py-6 text-gray-500"
                     >
                       {selectedJenisAlat
@@ -704,7 +623,14 @@ export default function Recipient({ selectedJenisAlat }) {
 
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
-            <CardSkeleton />
+            <>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <GenericCardSkeleton
+                  key={index}
+                  actionSkeleton={userRole === 'rehabilitasi sosial' ? cardActionSkeleton : null}
+                />
+              ))}
+            </>
           ) : (
             <>
               {paginatedRecipients.length === 0 ? (

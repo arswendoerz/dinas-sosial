@@ -47,36 +47,20 @@ import {
 import toast from 'react-hot-toast';
 import AddDokumen from "./add-dokumen";
 import UpdateDokumen from "./update-dokumen";
+import { GenericTableSkeleton, GenericCardSkeleton } from "../../skeleton";
 
 export default function Dokumen() {
   const kategoriList = [
-    "Term of Refference (TOR)",
-    "Petunjuk Operasional Kegiatan (POK)",
-    "Laporan Tahunan",
-    "LPPD (Laporan Penyelenggaraan Pemerintahan Daerah)",
-    "LKPJ (Laporan Keterangan Pertanggungjawaban)",
-    "RENJA dan RENJA Perubahan",
-    "Perjanjian Kinerja (PK)",
-    "Indikator Kinerja Individu",
-    "Indikator Kinerja Utama",
-    "Manajemen Risiko",
-    "Data Statistik BPS dan Walidata",
-    "RENSTRA (Rencana Strategis)",
-    "Laporan SPM (Standar Pelayanan Minimal)",
-    "Rencana Aksi dan Evaluasi Rencana Aksi",
-    "KUA-PPAS (Kebijakan Umum Anggaran dan Prioritas Plafon Anggaran Sementara)",
-    "RKA (Rencana Kerja dan Anggaran)",
-    "DPA (Dokumen Pelaksanaan Anggaran)",
-    "CASCADING",
-    "Pohon Kinerja",
-    "SPIP (Sistem Pengendalian Intern Pemerintah)",
-    "LKJ (Laporan Kinerja)",
-    "Evaluasi Renja / SIMONEV",
-    "Inovasi Daerah",
-    "Bahan Hearing / Rapat Dengar Pendapat",
-    "Gender Aanalysis Pathway",
-    "Gender Budgeting Statement",
-    "Lain-lain",
+    "Term of Refference (TOR)", "Petunjuk Operasional Kegiatan (POK)", "Laporan Tahunan",
+    "LPPD (Laporan Penyelenggaraan Pemerintahan Daerah)", "LKPJ (Laporan Keterangan Pertanggungjawaban)",
+    "RENJA dan RENJA Perubahan", "Perjanjian Kinerja (PK)", "Indikator Kinerja Individu",
+    "Indikator Kinerja Utama", "Manajemen Risiko", "Data Statistik BPS dan Walidata",
+    "RENSTRA (Rencana Strategis)", "Laporan SPM (Standar Pelayanan Minimal)",
+    "Rencana Aksi dan Evaluasi Rencana Aksi", "KUA-PPAS (Kebijakan Umum Anggaran dan Prioritas Plafon Anggaran Sementara)",
+    "RKA (Rencana Kerja dan Anggaran)", "DPA (Dokumen Pelaksanaan Anggaran)", "CASCADING",
+    "Pohon Kinerja", "SPIP (Sistem Pengendalian Intern Pemerintah)", "LKJ (Laporan Kinerja)",
+    "Evaluasi Renja / SIMONEV", "Inovasi Daerah", "Bahan Hearing / Rapat Dengar Pendapat",
+    "Gender Aanalysis Pathway", "Gender Budgeting Statement", "Lain-lain",
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,99 +77,11 @@ export default function Dokumen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/docs";
 
-  const TableSkeleton = () => (
-    <Table className="text-left text-sm border-collapse w-full">
-      <TableHeader className="bg-gray-50 border-b">
-        <TableRow>
-          {[
-            "Nomor",
-            "Nama",
-            "Perihal",
-            "Kategori",
-            "Jenis",
-            "Tgl Upload",
-            "Tgl Update",
-            "Aksi",
-          ].map((col, i) => (
-            <TableHead
-              key={i}
-              className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
-            >
-              {col}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow className="hover:bg-gray-50 border-b">
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-16" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-32" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-40" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-28" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-12" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-20" />
-          </TableCell>
-          <TableCell className="px-4 py-3 border-r">
-            <Skeleton className="h-4 w-20" />
-          </TableCell>
-          <TableCell className="px-4 py-3 text-center">
-            <div className="grid grid-cols-2 gap-1 justify-center items-center">
-              <Skeleton className="h-6 w-6 rounded" />
-              <Skeleton className="h-6 w-6 rounded" />
-              <Skeleton className="h-6 w-6 rounded" />
-              <Skeleton className="h-6 w-6 rounded" />
-            </div>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  );
-
-  const CardSkeleton = () => (
-    <Card className="rounded-xl shadow border p-4">
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-full" />
-      </div>
-
-      <div className="flex flex-wrap gap-2 mt-3">
-        <Skeleton className="h-6 w-20 rounded" />
-        <Skeleton className="h-6 w-16 rounded" />
-      </div>
-
-      <div className="flex justify-between mt-3">
-        <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-3 w-20" />
-      </div>
-
-      <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t">
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
-      </div>
-    </Card>
-  );
-
   const fetchDocuments = async (searchQuery = "", kategori = "__semua__", tanggal = "") => {
     setIsLoading(true);
     setError(null);
-
     try {
       let url = `${API_BASE_URL}/`;
-
       if (searchQuery) {
         url = `${API_BASE_URL}/search?query=${encodeURIComponent(searchQuery)}`;
       } else {
@@ -200,7 +96,6 @@ export default function Dokumen() {
           url = `${API_BASE_URL}/?${params.toString()}`;
         }
       }
-
       const response = await fetch(url, {
         method: 'GET',
         credentials: 'include',
@@ -208,13 +103,10 @@ export default function Dokumen() {
           'Content-Type': 'application/json',
         },
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
-
       if (result.success) {
         const transformedData = result.data.map(document => ({
           id: document.id,
@@ -229,7 +121,6 @@ export default function Dokumen() {
           userId: document.userId,
           role: document.role,
         }));
-
         setUploadedDocuments(transformedData);
       } else {
         throw new Error(result.message || 'Gagal mengambil data dokumen');
@@ -254,7 +145,6 @@ export default function Dokumen() {
       'application/vnd.ms-powerpoint': 'PPT',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
     };
-
     return mimeToType[mimeType] || 'OTHER';
   };
 
@@ -267,13 +157,10 @@ export default function Dokumen() {
         `*Kategori:* ${document.kategori}\n` +
         `*Tanggal Upload:* ${document.tanggalUpload}\n` +
         `*Link:* ${document.url}`;
-
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-
       window.open(whatsappUrl, '_blank');
       toast.success('File berhasil disiapkan untuk WhatsApp!', { id: 'whatsapp-send' });
-
     } catch (error) {
       console.error('Error sending to WhatsApp:', error);
       toast.error('Gagal mengirim ke WhatsApp!', { id: 'whatsapp-send' });
@@ -290,7 +177,6 @@ export default function Dokumen() {
       setCurrentPage(1);
       fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
     }, 500);
-
     return () => {
       clearTimeout(handler);
     };
@@ -299,7 +185,7 @@ export default function Dokumen() {
 
   const parseCustomDate = (dateString) => {
     if (!dateString || typeof dateString !== 'string') {
-        return new Date(0); 
+        return new Date(0);
     }
     const parts = dateString.split(', ');
     if (parts.length < 2) {
@@ -309,10 +195,8 @@ export default function Dokumen() {
     const [datePart, timePart] = parts;
     const [day, month, year] = datePart.split('/');
     if (!day || !month || !year) return new Date(0);
-    
     const [hour, minute, second] = timePart.split('.');
     if (!hour || !minute || !second) return new Date(0);
-
     const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
     return isNaN(date) ? new Date(0) : date;
   };
@@ -323,14 +207,11 @@ export default function Dokumen() {
         document.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
         document.nomor.toLowerCase().includes(searchTerm.toLowerCase()) ||
         document.perihal.toLowerCase().includes(searchTerm.toLowerCase());
-
       const kategoriMatch =
         selectedKategori === "__semua__" || document.kategori === selectedKategori;
-
       const tanggalMatch =
         selectedTanggal === "" ||
-        (document.tanggalUpload && document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/')); 
-
+        (document.tanggalUpload && document.tanggalUpload.slice(3, 10) === selectedTanggal.split('-').reverse().join('/'));
       return searchMatch && kategoriMatch && tanggalMatch;
     })
     .sort((a, b) => {
@@ -369,11 +250,8 @@ export default function Dokumen() {
 
   const confirmDelete = async () => {
     if (!deletingDocument) return;
-
     setIsSubmitting(true);
-
     const loadingToast = toast.loading('Menghapus dokumen...');
-
     try {
       const response = await fetch(`${API_BASE_URL}/${deletingDocument.id}`, {
         method: 'DELETE',
@@ -382,20 +260,16 @@ export default function Dokumen() {
           'Content-Type': 'application/json',
         },
       });
-
       if (!response.ok) {
         const errorResult = await response.json();
         throw new Error(errorResult.message || `HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
-
       if (result.success) {
         toast.success(`Dokumen "${deletingDocument.nama}" berhasil dihapus!`, {
           id: loadingToast,
           duration: 4000,
         });
-
         await fetchDocuments(searchTerm, selectedKategori, selectedTanggal);
       } else {
         throw new Error(result.message || 'Gagal menghapus dokumen');
@@ -415,8 +289,7 @@ export default function Dokumen() {
 
   const getPageNumbers = (totalPages, currentPage) => {
     const pageNumbers = [];
-    const maxVisiblePages = 5; 
-
+    const maxVisiblePages = 5;
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -424,18 +297,15 @@ export default function Dokumen() {
     } else {
       const startPage = Math.max(1, currentPage - 1);
       const endPage = Math.min(totalPages, currentPage + 1);
-      
       if (startPage > 1) {
         pageNumbers.push(1);
         if (startPage > 2) {
           pageNumbers.push("...");
         }
       }
-      
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
-
       if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
           pageNumbers.push("...");
@@ -443,13 +313,11 @@ export default function Dokumen() {
         pageNumbers.push(totalPages);
       }
     }
-
     return pageNumbers;
   };
 
   const PaginationComponent = () => {
     const pageNumbers = getPageNumbers(totalPages, currentPage);
-
     return (
       <Pagination>
         <PaginationContent className="flex flex-wrap justify-center gap-2">
@@ -490,6 +358,28 @@ export default function Dokumen() {
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredDocuments.length);
 
+  const tableHeaders = [
+    "Nomor", "Nama", "Perihal", "Kategori", "Jenis", "Tgl Upload", "Tgl Update"
+  ];
+
+  const tableActionSkeleton = (
+    <div className="grid grid-cols-2 gap-1 justify-center items-center">
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+      <Skeleton className="h-6 w-6 rounded" />
+    </div>
+  );
+
+  const cardActionSkeleton = (
+    <>
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-12" />
+    </>
+  );
+
   return (
     <div data-aos="fade-up" className="w-full">
       <h2 className="text-lg sm:text-xl font-bold mb-4">
@@ -509,7 +399,6 @@ export default function Dokumen() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 min-w-[200px]"
         />
-
         <Select value={selectedKategori} onValueChange={setSelectedKategori}>
           <SelectTrigger className="w-full md:w-64">
             <SelectValue placeholder="Pilih Kategori" />
@@ -523,7 +412,6 @@ export default function Dokumen() {
             ))}
           </SelectContent>
         </Select>
-
         <Select value={selectedSort} onValueChange={setSelectedSort}>
           <SelectTrigger className="w-full md:w-64">
             <SelectValue placeholder="Urutkan Dokumen" />
@@ -535,7 +423,6 @@ export default function Dokumen() {
             <SelectItem value="__z_a__">Nama (Z-A)</SelectItem>
           </SelectContent>
         </Select>
-
         <div className="flex w-full md:w-auto gap-2">
           <Input
             type="month"
@@ -543,7 +430,6 @@ export default function Dokumen() {
             onChange={(e) => setSelectedTanggal(e.target.value)}
             className="flex-1 min-w-[100px]"
           />
-
           <AddDokumen
             kategoriList={kategoriList}
             isSubmitting={isSubmitting}
@@ -558,24 +444,19 @@ export default function Dokumen() {
       <div className="bg-white rounded-lg shadow-lg border">
         <div className="hidden md:block overflow-x-auto w-full">
           {isLoading ? (
-            <TableSkeleton />
+            <GenericTableSkeleton
+              headers={tableHeaders}
+              actionSkeleton={tableActionSkeleton}
+              rowCount={5}
+            />
           ) : (
             <Table className="text-left text-sm border-collapse w-full">
               <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  {[
-                    "Nomor",
-                    "Nama",
-                    "Perihal",
-                    "Kategori",
-                    "Jenis",
-                    "Tgl Upload",
-                    "Tgl Update",
-                    "Aksi",
-                  ].map((col, i) => (
+                  {[...tableHeaders, "Aksi"].map((col, i) => (
                     <TableHead
                       key={i}
-                      className={`px-4 py-3 font-semibold text-gray-700 ${i < 7 ? "border-r" : ""} whitespace-nowrap ${i === 7 ? "text-center" : ""}`}
+                      className={`px-4 py-3 font-semibold text-gray-700 ${i < tableHeaders.length ? "border-r" : ""} whitespace-nowrap ${i === tableHeaders.length ? "text-center" : ""}`}
                     >
                       {col}
                     </TableHead>
@@ -586,7 +467,7 @@ export default function Dokumen() {
                 {paginatedDocuments.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={tableHeaders.length + 1}
                       className="text-center py-6 text-gray-500"
                     >
                       Tidak ada dokumen ditemukan.
@@ -701,8 +582,11 @@ export default function Dokumen() {
         <div className="md:hidden space-y-4 p-4">
           {isLoading ? (
             <>
-              {[...Array(1)].map((_, index) => (
-                  <CardSkeleton key={index} />
+              {Array.from({ length: 5 }).map((_, index) => (
+                <GenericCardSkeleton
+                  key={index}
+                  actionSkeleton={cardActionSkeleton}
+                />
               ))}
             </>
           ) : (
@@ -721,7 +605,6 @@ export default function Dokumen() {
                     </p>
                     <p className="text-xs text-gray-600">{document.perihal}</p>
                   </div>
-
                   <div className="flex flex-wrap gap-2 text-xs mt-3">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                       {document.kategori}
@@ -730,12 +613,10 @@ export default function Dokumen() {
                       {document.jenis}
                     </span>
                   </div>
-
                   <div className="flex justify-between text-xs text-gray-500 mt-3">
                     <span>Upload: {document.tanggalUpload}</span>
                     <span>Update: {document.tanggalUpdate || "-"}</span>
                   </div>
-
                   <div className="flex justify-center items-center gap-4 pt-3 mt-3 border-t text-sm">
                     <a
                       href={document.url}
