@@ -6,6 +6,7 @@ import userRoutes from "./route/user.js";
 import docsRoutes from "./route/docs.js";
 import letterRoutes from "./route/letter.js";
 import recipiRoutes from "./route/resos.js";
+import documentationRoutes from "./route/documentation.js";
 import cookieParser from "cookie-parser";
 import proxyRoute from "./route/proxy.js";
 
@@ -39,6 +40,7 @@ app.use("/api/user", userRoutes); // Account
 app.use("/api/docs", docsRoutes); // Document
 app.use("/api/letter", letterRoutes); // Letter
 app.use("/api/recipi", recipiRoutes); // Recipient Resos
+app.use("/api/documentation", documentationRoutes); // Documentation
 app.use("/proxy", proxyRoute);
 
 app.get("/", (req, res) => {

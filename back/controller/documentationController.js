@@ -39,13 +39,12 @@ const formatTimestamp = (timestamp) => {
 
 export const createCitra = async (req, res) => {
   try {
-    if (!req.user || req.user.role) {
-      return res.status(401).json({
-        success: false,
-        message: "Akses ditolak. Token tidak valid atau tidak ditemukan.",
-      });
-    }
     const { nama, kategori, tanggalKegiatan } = req.body;
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "File dokumentasi wajib diunggah!" });
+    }
 
     let citraUrl = null;
     if (req.file) {
@@ -58,7 +57,7 @@ export const createCitra = async (req, res) => {
           mimeType: req.file.mimetype,
           body: Readable.from(req.file.buffer),
         },
-        fileds: "id",
+        fields: "id",
       });
 
       citraUrl = `https://drive.google.com/uc?id=${uploaded.data.id}`;
@@ -72,7 +71,7 @@ export const createCitra = async (req, res) => {
       nama,
       kategori,
       tanggalKegiatan,
-      citraUrl: citraUrl || null,
+      citraUrl,
       tanggalUpload: now,
       tanggalUpdate: now,
       role: req.user.role,
@@ -101,12 +100,13 @@ export const createCitra = async (req, res) => {
 export const getAllCitra = async (req, res) => {
   try {
     const snapshot = await citraCollection
-      .orderBy("tanggalKegiatan", "desc")
+      .where("role", "==", req.user.role)
       .get();
     if (snapshot.empty) {
-      return res.status(404).json({
+      return res.status(403).json({
         success: false,
-        message: "Tidak ada dokumentasi kegiatan ditemukan",
+        message:
+          "Akses ditolak!! Tidak ada dokumentasi kegiatan yang ditemukan.",
       });
     }
 
@@ -249,5 +249,96 @@ export const updateCitra = async (req, res) => {
     });
   }
 };
-// export const deleteCitra = async (req, res) => {};
-// export const searchCitra = async (req, res) => {};
+
+export const deleteCitra = async (req, res) => {
+  try {
+    const citraRef = citraCollection.doc(req.params.id);
+    const citraDoc = await citraRef.get();
+
+    if (!citraDoc.exists) {
+      return res.status(404).json({
+        success: false,
+        message: "Dokumentasi kegiatan tidak ditemukan",
+      });
+    }
+
+    const citraData = citraDoc.data();
+
+    if (
+      citraData.userId !== req.user.userId &&
+      citraData.role !== req.user.role
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Akses ditolak.",
+      });
+    }
+
+    const fileId = extractFileId(citraData.citraUrl);
+    if (fileId) {
+      try {
+        await drive.files.delete({ fileId });
+      } catch (err) {
+        console.warn(
+          "File tidak berhasil dihapus dari Google Drive: ",
+          err.message
+        );
+      }
+    }
+
+    await citraRef.delete();
+    res.status(200).json({
+      success: true,
+      message: "Dokumentasi kegiatan berhasil dihapus",
+    });
+  } catch (error) {
+    console.error("Gagal menghapus dokumentasi kegiatan: ", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan saat menghapus dokumentasi kegiatan",
+    });
+  }
+};
+export const searchCitra = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Query pencarian tidak boleh kosong",
+      });
+    }
+
+    const snapshot = await citraCollection.get();
+
+    const citra = query.toLowerCase();
+    const results = snapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          tanggalUpload: formatTimestamp(data.tanggalUpload),
+          tanggalUpdate: formatTimestamp(data.tanggalUpdate),
+        };
+      })
+      .filter((doc) => {
+        return (
+          doc.nama?.toLowerCase().includes(citra) ||
+          doc.kategori?.toLowerCase().includes(citra) ||
+          doc.tanggalKegiatan?.toLowerCase().includes(citra)
+        );
+      });
+
+    res.status(200).json({
+      success: true,
+      message: "Hasil pencarian dokumentasi kegiatan",
+      data: results,
+    });
+  } catch (error) {
+    console.error("Gagal melakukan pencarian dokumentasi kegiatan:", error);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan saat melakukan pencarian",
+    });
+  }
+};
