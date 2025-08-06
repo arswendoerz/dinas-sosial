@@ -213,6 +213,7 @@ export const updateLetter = async (req, res) => {
       url: fileUrl,
       jenis,
       tanggalUpdate: new Date(),
+      updatedBy: req.user.nama || req.user.userId,
     };
 
     await letRef.update(updateData);
@@ -225,6 +226,7 @@ export const updateLetter = async (req, res) => {
         ...updatedDoc.data(),
         tanggalUpload: formatTimestamp(updatedDoc.data().tanggalUpload),
         tanggalUpdate: formatTimestamp(updatedDoc.data().tanggalUpdate),
+        updatedBy: updatedDoc.data().updatedBy,
       },
     });
   } catch (error) {

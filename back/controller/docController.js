@@ -189,6 +189,7 @@ export const updateDocument = async (req, res) => {
       url: fileUrl,
       jenis,
       tanggalUpdate: now,
+      updatedBy: req.user.nama || req.user.userId,
     };
 
     await docRef.update(updateData);
@@ -202,6 +203,7 @@ export const updateDocument = async (req, res) => {
         ...updatedData,
         tanggalUpdate: formatTimestamp(updatedData.tanggalUpdate),
         tanggalUpload: formatTimestamp(updatedData.tanggalUpload),
+        updatedBy: updatedData.data().updatedBy,
       },
     });
   } catch (error) {

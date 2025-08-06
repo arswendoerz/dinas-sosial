@@ -13,14 +13,15 @@ const oauth2Client = new google.auth.OAuth2(
 oauth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 const drive = google.drive({ version: "v3", auth: oauth2Client });
 
-function extractFileId(url) {
+const extractFileId = (url) => {
+  if (!url) return null;
   const regexList = [/id=([^&/]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
   for (const regex of regexList) {
     const match = url.match(regex);
     if (match) return match[1];
   }
   return null;
-}
+};
 
 const formatTimestamp = (timestamp) => {
   if (!timestamp || !timestamp._seconds) return null;
