@@ -31,6 +31,7 @@ export const protect = async (req, res, next) => {
     req.user = {
       userId: userId,
       role: userData.role,
+      nama: userData.nama,
     };
 
     next();

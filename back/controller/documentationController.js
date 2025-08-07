@@ -102,13 +102,6 @@ export const getAllCitra = async (req, res) => {
     const snapshot = await citraCollection
       .where("role", "==", req.user.role)
       .get();
-    if (snapshot.empty) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "Akses ditolak!! Tidak ada dokumentasi kegiatan yang ditemukan.",
-      });
-    }
 
     const citraList = snapshot.docs.map((doc) => {
       const data = doc.data();
@@ -225,7 +218,7 @@ export const updateCitra = async (req, res) => {
       ...req.body,
       citraUrl,
       tanggalUpdate: now,
-      updatedBy: updatedreq.user.nama,
+      updatedBy: req.user.nama,
     };
 
     await citraRef.update(updateData);
@@ -240,7 +233,7 @@ export const updateCitra = async (req, res) => {
         ...updated,
         tanggalUpload: formatTimestamp(updated.tanggalUpload),
         tanggalUpdate: formatTimestamp(updated.tanggalUpdate),
-        updatedBy: updated.data().updatedBy,
+        updatedBy: updated.updatedBy,
       },
     });
   } catch (error) {
