@@ -179,28 +179,28 @@ function Dashboard() {
       title: "Kruk",
       icon: <img src={KrukIcon} alt="Kruk Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.kruk,
-      bgColor: "#ff7f0e",
+      bgColor: "#2ca02c",
     },
     {
       id: "tripod",
       title: "Tripod",
       icon: <img src={TripodIcon} alt="Tripod Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.tripod,
-      bgColor: "#1F3A93",
+      bgColor: "#ff7f0e",
     },
     {
       id: "kakiPalsu",
       title: "Kaki Palsu",
       icon: <img src={KakiPalsu} alt="Kaki Palsu Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.kakiPalsu,
-      bgColor: "#ff7f0e",
+      bgColor: "#1F3A93",
     },
     {
       id: "alatDengar",
       title: "Alat Bantu Dengar",
       icon: <img src={AlatBantuDengarIcon} alt="Alat Bantu Dengar Icon" style={{ width: '32px', height: '32px' }} />,
       value: dataCounters.alatDengar,
-      bgColor: "#1F3A93",
+      bgColor: "#2ca02c",
     },
   ];
 
