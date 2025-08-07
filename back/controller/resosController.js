@@ -2,7 +2,8 @@ import dotenv from "dotenv";
 import { google } from "googleapis";
 import { Readable } from "stream";
 import db from "../firestore.js"; // Pastikan ini mengarah ke inisialisasi Firestore Anda
-import { createObjectCsvStringifier } from "csv-writer";
+// import { createObjectCsvStringifier } from "csv-writer";
+import ExcelJS from "exceljs";
 
 dotenv.config();
 
@@ -366,19 +367,14 @@ export const exportRecipi = async (req, res) => {
     const { search, kota, year, jenisAlat } = req.query;
 
     let query = recipiCollection;
-    if (search) {
-    }
     if (kota && kota !== "__semua__") {
       query = query.where("kota", "==", kota);
-    }
-    if (year && year !== "__semua__") {
     }
     if (jenisAlat) {
       query = query.where("jenisAlat", "==", jenisAlat);
     }
 
     const snapshot = await query.get();
-
     let recipiList = snapshot.docs.map((doc) => doc.data());
 
     if (search) {
@@ -414,52 +410,57 @@ export const exportRecipi = async (req, res) => {
       });
     }
 
-    const csvStringifier = createObjectCsvStringifier({
-      header: [
-        { id: "nama", title: "Nama" },
-        { id: "alamat", title: "Alamat" },
-        { id: "kota", title: "Kabupaten/Kota" },
-        { id: "usia", title: "Usia" },
-        { id: "nik", title: "NIK" },
-        { id: "telepon", title: "No. Telepon" },
-        { id: "keterangan", title: "Keterangan" },
-        { id: "jenisAlat", title: "Jenis Alat" },
-        { id: "tanggalPenerimaan", title: "Tanggal Penerimaan" },
-        { id: "fotoUrl", title: "Link Foto" },
-      ],
+    // --- EXCEL JS ---
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Data Penerima");
+
+    // set header
+    worksheet.columns = [
+      { header: "Nama", key: "nama", width: 20 },
+      { header: "Alamat", key: "alamat", width: 30 },
+      { header: "Kabupaten/Kota", key: "kota", width: 20 },
+      { header: "Usia", key: "usia", width: 10 },
+      { header: "NIK", key: "nik", width: 18 },
+      { header: "No. Telepon", key: "telepon", width: 15 },
+      { header: "Keterangan", key: "keterangan", width: 25 },
+      { header: "Jenis Alat", key: "jenisAlat", width: 15 },
+      { header: "Tanggal Penerimaan", key: "tanggalPenerimaan", width: 20 },
+      { header: "Link Foto", key: "fotoUrl", width: 30 },
+    ];
+
+    recipiList.forEach((recipi) => {
+      worksheet.addRow({
+        nama: recipi.nama || "",
+        alamat: recipi.alamat || "",
+        kota: recipi.kota || "",
+        usia: recipi.usia || "",
+        nik: recipi.nik || "",
+        telepon: recipi.telepon || "",
+        keterangan: recipi.keterangan || "",
+        jenisAlat: recipi.jenisAlat || "",
+        tanggalPenerimaan: recipi.tanggalPenerimaan || "",
+        fotoUrl: recipi.fotoUrl || "",
+      });
     });
 
-    const records = recipiList.map((recipi) => ({
-      nama: (recipi.nama || "").toString().trim(),
-      alamat: (recipi.alamat || "").toString().trim(),
-      kota: (recipi.kota || "").toString().trim(),
-      usia: recipi.usia?.toString().trim() || "",
-      nik: (recipi.nik || "").toString().trim(),
-      telepon: (recipi.telepon || "").toString().trim(),
-      jenisAlat: (recipi.jenisAlat || "").toString().trim(),
-      keterangan: (recipi.keterangan || "").toString().trim(),
-      tanggalPenerimaan: (recipi.tanggalPenerimaan || "").toString().trim(),
-      fotoUrl: (recipi.fotoUrl || "").toString().trim(),
-    }));
-
-    const csvData =
-      csvStringifier.getHeaderString() +
-      csvStringifier.stringifyRecords(records);
-
+    const buffer = await workbook.xlsx.writeBuffer();
     const timestamp = new Date().toISOString().split("T")[0];
-    res.setHeader("Content-Type", "text/csv");
+
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="data_penerima_bantuan_filtered_${timestamp}.csv"`
+      `attachment; filename="data_penerima_bantuan_filtered_${timestamp}.xlsx"`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
-    const stream = Readable.from([csvData]);
-    stream.pipe(res);
+    res.send(buffer);
   } catch (error) {
-    console.error("Gagal export CSV:", error);
+    console.error("Gagal export XLSX:", error);
     res.status(500).json({
       success: false,
-      message: "Terjadi kesalahan saat mengekspor CSV",
+      message: "Terjadi kesalahan saat mengekspor XLSX",
     });
   }
 };
