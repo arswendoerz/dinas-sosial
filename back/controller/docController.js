@@ -14,6 +14,7 @@ oauth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 const drive = google.drive({ version: "v3", auth: oauth2Client });
 
 function extractFileId(url) {
+  if (!url) return null;
   const regexList = [/id=([^&/]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
   for (const regex of regexList) {
     const match = url.match(regex);
@@ -202,7 +203,7 @@ export const updateDocument = async (req, res) => {
         ...updatedData,
         tanggalUpdate: formatTimestamp(updatedData.tanggalUpdate),
         tanggalUpload: formatTimestamp(updatedData.tanggalUpload),
-        updatedBy: updatedData.data().updatedBy,
+        updatedBy: updatedData.updatedBy,
       },
     });
   } catch (error) {

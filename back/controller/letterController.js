@@ -218,14 +218,16 @@ export const updateLetter = async (req, res) => {
     await letRef.update(updateData);
 
     const updatedDoc = await letRef.get();
+    const updatedData = updatedDoc.data();
+
     res.status(200).json({
       success: true,
       message: "Surat berhasil diperbarui",
       data: {
-        ...updatedDoc.data(),
-        tanggalUpload: formatTimestamp(updatedDoc.data().tanggalUpload),
-        tanggalUpdate: formatTimestamp(updatedDoc.data().tanggalUpdate),
-        updatedBy: updatedDoc.data().updatedBy,
+        ...updatedData,
+        tanggalUpload: formatTimestamp(updatedData.tanggalUpload),
+        tanggalUpdate: formatTimestamp(updatedData.tanggalUpdate),
+        updatedBy: updatedData.updatedBy,
       },
     });
   } catch (error) {

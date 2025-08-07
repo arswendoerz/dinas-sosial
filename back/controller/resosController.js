@@ -256,7 +256,7 @@ export const updateRecipi = async (req, res) => {
         ...updated,
         tanggalUpload: formatTimestamp(updated.tanggalUpload),
         tanggalUpdate: formatTimestamp(updated.tanggalUpdate),
-        updatedBy: updated.data().updatedBy,
+        updatedBy: updated.updatedBy,
       },
     });
   } catch (error) {

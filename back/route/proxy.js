@@ -15,7 +15,12 @@ router.get("/image/:fileId", async (req, res) => {
     const response = await fetch(gdriveUrl);
 
     if (!response.ok) {
-      return res.status(500).send("Gagal mengambil gambar dari GDrive");
+      console.error(
+        `Gagal mengambil gambar dari GDrive. Status: ${response.status}`
+      );
+      return res
+        .status(response.status)
+        .send("Gagal mengambil gambar dari GDrive");
     }
 
     const contentType = response.headers.get("content-type") || "image/jpeg";
@@ -23,8 +28,8 @@ router.get("/image/:fileId", async (req, res) => {
 
     response.body.pipe(res);
   } catch (err) {
-    console.error("Gagal proxy gambar:", err.message);
-    res.status(500).send("Gagal menampilkan gambar");
+    console.error("Gagal saat proxy gambar:", err.message);
+    res.status(500).send("Terjadi kesalahan internal saat menampilkan gambar");
   }
 });
 
@@ -39,29 +44,52 @@ router.get("/video/:fileId", async (req, res) => {
     const gdriveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
     const range = req.headers.range;
 
-    const headers = {};
+    const fetchHeaders = {};
     if (range) {
-      headers.Range = range;
+      fetchHeaders.Range = range;
     }
 
-    const response = await fetch(gdriveUrl, { headers });
+    const gdriveResponse = await fetch(gdriveUrl, { headers: fetchHeaders });
 
-    if (!response.ok) {
-      return res.status(500).send("Gagal mengambil video dari GDrive");
+    if (!gdriveResponse.ok) {
+      const errorText = await gdriveResponse.text();
+      console.error(
+        "Google Drive response error:",
+        gdriveResponse.status,
+        errorText
+      );
+      return res
+        .status(gdriveResponse.status)
+        .send("Gagal mengambil video dari GDrive");
     }
 
-    const contentType = response.headers.get("content-type") || "video/mp4";
-    const contentLength = response.headers.get("content-length");
+    const contentType =
+      gdriveResponse.headers.get("content-type") || "video/mp4";
+    const contentLength = gdriveResponse.headers.get("content-length");
 
-    res.status(range ? 206 : 200);
     res.setHeader("Content-Type", contentType);
-    if (contentLength) res.setHeader("Content-Length", contentLength);
-    if (range) res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Accept-Ranges", "bytes");
 
-    response.body.pipe(res);
+    if (range) {
+      const contentRange = gdriveResponse.headers.get("content-range");
+      res.status(206);
+
+      if (contentRange) {
+        res.setHeader("Content-Range", contentRange);
+      }
+      if (contentLength) {
+        res.setHeader("Content-Length", contentLength);
+      }
+    } else {
+      res.status(200);
+      if (contentLength) {
+        res.setHeader("Content-Length", contentLength);
+      }
+    }
+    gdriveResponse.body.pipe(res);
   } catch (err) {
-    console.error("Gagal proxy video:", err.message);
-    res.status(500).send("Gagal menampilkan video");
+    console.error("Gagal saat proxy video:", err.message);
+    res.status(500).send("Terjadi kesalahan internal saat menampilkan video");
   }
 });
 
