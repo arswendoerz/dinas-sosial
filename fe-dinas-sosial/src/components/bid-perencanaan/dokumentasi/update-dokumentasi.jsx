@@ -25,15 +25,11 @@ export default function UpdateDokumentasi({
   const [tanggalKegiatan, setTanggalKegiatan] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Efek ini akan berjalan setiap kali `editingDokumentasi` berubah.
-  // Ini digunakan untuk mengisi form dengan data yang sudah ada saat dialog dibuka.
   useEffect(() => {
     if (editingDokumentasi) {
       setNama(editingDokumentasi.nama || "");
-      // Format tanggal ke YYYY-MM-DD yang diterima oleh input type="date"
       if (editingDokumentasi.tanggalKegiatan) {
         const date = new Date(editingDokumentasi.tanggalKegiatan);
-        // Menangani timezone agar tanggal tidak bergeser
         const formattedDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000 ))
                               .toISOString()
                               .split("T")[0];
@@ -76,8 +72,8 @@ export default function UpdateDokumentasi({
         toast.success("Dokumentasi berhasil diperbarui!", {
           id: loadingToast,
         });
-        await fetchDokumentasi(); // Muat ulang data di halaman utama
-        setIsUpdateDialogOpen(false); // Tutup dialog
+        await fetchDokumentasi();
+        setIsUpdateDialogOpen(false); 
       } else {
         throw new Error(result.message || "Gagal memperbarui dokumentasi");
       }
@@ -90,8 +86,7 @@ export default function UpdateDokumentasi({
       setIsSubmitting(false);
     }
   };
-  
-  // Fungsi untuk membersihkan state ketika dialog ditutup
+
   const handleCloseDialog = (isOpen) => {
     setIsUpdateDialogOpen(isOpen);
     if (!isOpen) {
@@ -123,7 +118,7 @@ export default function UpdateDokumentasi({
               />
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-3 w-fit">
               <Label htmlFor="tanggalKegiatan-update">Tanggal Kegiatan *</Label>
               <Input
                 id="tanggalKegiatan-update"
