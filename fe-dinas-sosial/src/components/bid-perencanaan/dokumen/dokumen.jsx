@@ -77,6 +77,41 @@ export default function Dokumen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/docs";
 
+  const formatFirestoreTimestamp = (timestamp) => {
+    if (!timestamp) return null;
+
+    const formatRegex = /^\d{2}\/\d{2}\/\d{4}, \d{2}\.\d{2}\.\d{2}$/;
+    if (typeof timestamp === 'string' && formatRegex.test(timestamp)) {
+      return timestamp;
+    }
+
+    let date;
+    if (typeof timestamp === 'object' && timestamp._seconds !== undefined) {
+      date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000);
+    } else {
+      date = new Date(timestamp);
+    }
+
+    if (isNaN(date.getTime())) {
+      console.error('Could not parse date timestamp:', timestamp);
+      return timestamp;
+    }
+
+    const dateString = date.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const timeString = date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(/:/g, '.');
+
+    return `${dateString}, ${timeString}`;
+  };
+
   const fetchDocuments = async (searchQuery = "", kategori = "__semua__", tanggal = "") => {
     setIsLoading(true);
     setError(null);
@@ -115,11 +150,12 @@ export default function Dokumen() {
           perihal: document.perihal,
           kategori: document.kategori,
           jenis: getFileTypeFromMimeType(document.jenis),
-          tanggalUpload: document.tanggalUpload,
-          tanggalUpdate: document.tanggalUpdate,
+          tanggalUpload: formatFirestoreTimestamp(document.tanggalUpload),
+          tanggalUpdate: document.tanggalUpdate ? formatFirestoreTimestamp(document.tanggalUpdate) : null,
           url: document.url,
           userId: document.userId,
           role: document.role,
+          updatedBy: document.updatedBy,
         }));
         setUploadedDocuments(transformedData);
       } else {
@@ -184,21 +220,12 @@ export default function Dokumen() {
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
   const parseCustomDate = (dateString) => {
-    if (!dateString || typeof dateString !== 'string') {
-        return new Date(0);
-    }
-    const parts = dateString.split(', ');
-    if (parts.length < 2) {
-        const parsed = new Date(dateString);
-        return isNaN(parsed) ? new Date(0) : parsed;
-    }
-    const [datePart, timePart] = parts;
+    if (!dateString) return new Date(0);
+    const [datePart, timePart] = dateString.split(', ');
+    if (!datePart || !timePart) return new Date(0);
     const [day, month, year] = datePart.split('/');
-    if (!day || !month || !year) return new Date(0);
     const [hour, minute, second] = timePart.split('.');
-    if (!hour || !minute || !second) return new Date(0);
-    const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
-    return isNaN(date) ? new Date(0) : date;
+    return new Date(year, month - 1, day, hour, minute, second);
   };
 
   const filteredDocuments = uploadedDocuments
@@ -505,6 +532,14 @@ export default function Dokumen() {
                       </TableCell>
                       <TableCell className="px-4 py-1 border-r whitespace-normal">
                         {document.tanggalUpdate || "-"}
+                        {document.updatedBy && (
+                          <div
+                            className="text-xs text-gray-500"
+                            title={document.updatedBy}
+                          >
+                            Oleh: {document.updatedBy.split(' ').slice(0, 2).join(' ')}{document.updatedBy.split(' ').length > 2 ? '...' : ''}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="px-4 py-1 text-center">
                         <div className="grid grid-cols-2 gap-1 justify-center items-center">

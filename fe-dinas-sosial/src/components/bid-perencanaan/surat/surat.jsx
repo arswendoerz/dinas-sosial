@@ -72,29 +72,38 @@ export default function Surat() {
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/letter";
 
   const formatFirestoreTimestamp = (timestamp) => {
-    if (timestamp && typeof timestamp === 'object' && timestamp._seconds !== undefined) {
-      const date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000);
-      return date.toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-    } else if (typeof timestamp === 'string') {
-      try {
-        const date = new Date(timestamp);
-        if (!isNaN(date)) {
-          return date.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-          });
-        }
-      } catch (e) {
-        console.error('Invalid date string:', timestamp, e);
-      }
+    if (!timestamp) return null;
+
+    const formatRegex = /^\d{2}\/\d{2}\/\d{4}, \d{2}\.\d{2}\.\d{2}$/;
+    if (typeof timestamp === 'string' && formatRegex.test(timestamp)) {
       return timestamp;
     }
-    return null;
+
+    let date;
+    if (typeof timestamp === 'object' && timestamp._seconds !== undefined) {
+      date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000);
+    } else {
+      date = new Date(timestamp);
+    }
+
+    if (isNaN(date.getTime())) {
+      console.error('Could not parse date timestamp:', timestamp);
+      return timestamp;
+    }
+
+    const dateString = date.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const timeString = date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(/:/g, '.');
+
+    return `${dateString}, ${timeString}`;
   };
 
   const fetchLetters = async (searchQuery = "", kategori = "__semua__", tanggal = "") => {
@@ -134,9 +143,6 @@ export default function Surat() {
 
       if (result.success) {
         const transformedData = result.data.map(letter => {
-          const uploadedDate = letter.tanggalUpload;
-          const updatedDate = letter.tanggalUpdate;
-
           return {
             id: letter.id,
             nomor: letter.nomor,
@@ -144,11 +150,12 @@ export default function Surat() {
             perihal: letter.perihal,
             kategori: letter.kategori,
             jenis: getFileTypeFromMimeType(letter.jenis),
-            tanggalUpload: formatFirestoreTimestamp(uploadedDate),
-            tanggalUpdate: updatedDate ? formatFirestoreTimestamp(updatedDate) : null,
+            tanggalUpload: formatFirestoreTimestamp(letter.tanggalUpload),
+            tanggalUpdate: letter.tanggalUpdate ? formatFirestoreTimestamp(letter.tanggalUpdate) : null,
             url: letter.url,
             userId: letter.userId,
             role: letter.role,
+            updatedBy: letter.updatedBy,
           };
         });
 
@@ -220,8 +227,12 @@ export default function Surat() {
   }, [searchTerm, selectedKategori, selectedTanggal]);
 
   const parseCustomDate = (dateString) => {
-    const [day, month, year] = dateString.split('/');
-    return new Date(`${year}-${month}-${day}T00:00:00`);
+    if (!dateString) return new Date(0);
+    const [datePart, timePart] = dateString.split(', ');
+    if (!datePart || !timePart) return new Date(0);
+    const [day, month, year] = datePart.split('/');
+    const [hour, minute, second] = timePart.split('.');
+    return new Date(year, month - 1, day, hour, minute, second);
   };
 
   const filteredLetters = uploadedLetters
@@ -432,7 +443,6 @@ export default function Surat() {
         </div>
       )}
 
-      {/* --- Bagian filter dan tombol tidak diubah --- */}
       <div className="flex flex-col md:flex-row gap-4 flex-wrap items-stretch mb-1">
         <Input
           placeholder="Cari nama, nomor, atau perihal surat"
@@ -520,7 +530,17 @@ export default function Surat() {
                       <TableCell className="px-4 py-1 border-r max-w-[180px] break-words whitespace-normal" title={letter.kategori}>{letter.kategori}</TableCell>
                       <TableCell className="px-4 py-1 border-r">{letter.jenis}</TableCell>
                       <TableCell className="px-4 py-1 border-r whitespace-normal">{letter.tanggalUpload}</TableCell>
-                      <TableCell className="px-4 py-1 border-r whitespace-normal">{letter.tanggalUpdate || "-"}</TableCell>
+                      <TableCell className="px-4 py-1 border-r whitespace-normal">
+                        {letter.tanggalUpdate || "-"}
+                        {letter.updatedBy && (
+                          <div
+                            className="text-xs text-gray-500"
+                            title={letter.updatedBy}
+                          >
+                            Oleh: {letter.updatedBy.split(' ').slice(0, 2).join(' ')}{letter.updatedBy.split(' ').length > 2 ? '...' : ''}
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell className="px-4 py-1 text-center">
                         <div className="grid grid-cols-2 gap-1 justify-center items-center">
                           <a href={letter.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 p-1 rounded" title="Lihat"><MdVisibility size={18} /></a>

@@ -122,7 +122,7 @@ export default function Recipient({ selectedJenisAlat }) {
       }
 
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `data_penerima_bantuan_filtered_${new Date().toISOString().split('T')[0]}.csv`;
+      let filename = `data_penerima_bantuan_filtered_${new Date().toISOString().split('T')[0]}.xlsx`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
         if (filenameMatch && filenameMatch[1]) {

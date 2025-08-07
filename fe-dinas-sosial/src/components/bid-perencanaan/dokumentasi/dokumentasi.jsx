@@ -58,8 +58,8 @@ export default function Dokumentasi() {
   const [editingDokumentasi, setEditingDokumentasi] = useState(null);
   const [deletingDokumentasi, setDeletingDokumentasi] = useState(null);
 
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
   const [uploadedDokumentasi, setUploadedDokumentasi] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,9 +67,9 @@ export default function Dokumentasi() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = "https://archive-sos-drive.et.r.appspot.com/api/documentation";
  
-  const handleImageClick = (imageUrl, nama) => {
-    setSelectedImage({ url: imageUrl, name: nama });
-    setIsImageModalOpen(true);
+  const handleMediaClick = (mediaUrl, nama, type) => {
+    setSelectedMedia({ url: mediaUrl, name: nama, type: type });
+    setIsMediaModalOpen(true);
   };
   
   const fetchDokumentasi = async () => {
@@ -211,8 +211,8 @@ export default function Dokumentasi() {
     }
   };
   
-  const handleDownload = async (url, filename) => {
-    const toastId = toast.loading('Mengunduh gambar...');
+  const handleDownload = async (url, filename, category) => {
+    const toastId = toast.loading('Mengunduh file...');
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Gagal mengunduh file.');
@@ -221,22 +221,31 @@ export default function Dokumentasi() {
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = downloadUrl;
+      
       const fileExtension = filename.split('.').pop().toLowerCase();
-      const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      a.download = validExtensions.includes(fileExtension) ? filename : `${filename}.jpg`;
+      // let downloadFilename = filename;
+
+      if (category === 'video') {
+        const validExtensions = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
+        a.download = validExtensions.includes(fileExtension) ? filename : `${filename}.mp4`;
+      } else {
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        a.download = validExtensions.includes(fileExtension) ? filename : `${filename}.jpg`;
+      }
       
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
-      toast.success('Gambar berhasil diunduh!', { id: toastId });
+      toast.success('File berhasil diunduh!', { id: toastId });
     } catch (error) {
-      console.error('Error downloading image:', error);
+      console.error('Error downloading file:', error);
       toast.error(error.message || 'Terjadi kesalahan saat mengunduh.', { id: toastId });
     }
   };
 
   const getFileId = (url) => {
+    if (!url) return "";
     const match = url.match(/[-\w]{25,}/);
     return match ? match[0] : "";
   };
@@ -379,42 +388,52 @@ export default function Dokumentasi() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {paginatedDokumentasi.map((doc) => {
-                        const imageUrl = doc.citraUrl?.includes("drive.google.com")
-                                    ? `https://archive-sos-drive.et.r.appspot.com/proxy/image/${getFileId(doc.citraUrl)}`
+                        const isVideo = doc.kategori?.toLowerCase() === 'video';
+                        const fileId = getFileId(doc.citraUrl);
+                        const mediaUrl = doc.citraUrl?.includes("drive.google.com") && fileId
+                                    ? `https://archive-sos-drive.et.r.appspot.com/proxy/${isVideo ? 'video' : 'image'}/${fileId}`
                                     : doc.citraUrl;
                         return (
                         <Card
                             key={doc.id}
                             className="rounded-xl shadow-lg border p-0 flex flex-col overflow-hidden transition-all hover:shadow-2xl"
                         >
-                            <img
-                                src={imageUrl}
-                                alt={`Dokumentasi ${doc.nama}`}
-                                className="w-full h-50 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => handleImageClick(imageUrl, doc.nama)}
-                                onError={(e) => { e.target.src = '/default-profile.png'; }}
-                                title="Klik untuk memperbesar gambar"
-                            />
-                            
-                            {/* This wrapper pushes the text and buttons to the bottom */}
                             <div className="mt-auto">
-                                <div className="pl-4 pr-4">
+                              {isVideo ? (
+                                <video
+                                    src={mediaUrl}
+                                    controls
+                                    className="w-full h-45 object-cover cursor-pointer bg-black"
+                                    onClick={() => handleMediaClick(mediaUrl, doc.nama, 'video')}
+                                    title="Klik untuk memutar video"
+                                >
+                                  Browser Anda tidak mendukung tag video.
+                                </video>
+                            ) : (
+                                <img
+                                    src={mediaUrl}
+                                    alt={`Dokumentasi ${doc.nama}`}
+                                    className="w-full h-50 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => handleMediaClick(mediaUrl, doc.nama, 'foto')}
+                                    onError={(e) => { e.target.src = '/default-profile.png'; }}
+                                    title="Klik untuk memperbesar gambar"
+                                />
+                            )}
+                          
+                                <div className="pl-4 pr-4 pb-2 pt-2">
                                     <p className="font-semibold text-gray-800 leading-tight line-clamp-2" title={doc.nama}>
                                       {doc.nama}
                                     </p>
                                     <p className="text-sm text-gray-600">
                                       {doc.tanggalKegiatan}
                                     </p>
-                                    {/* <p className="text-sm text-gray-600 capitalize">
-                                      {doc.kategori}
-                                    </p> */}
                                 </div>
 
                                 <div className="flex justify-around items-center p-2 border-t text-sm font-medium">
                                     <button
-                                        onClick={() => handleDownload(imageUrl, doc.nama)}
+                                        onClick={() => handleDownload(mediaUrl, doc.nama, doc.kategori?.toLowerCase())}
                                         className="flex items-center gap-1 text-green-600 hover:text-green-800 transition-colors"
-                                        title="Unduh Gambar"
+                                        title="Unduh File"
                                     >
                                         <MdDownload size={16} /> Unduh
                                     </button>
@@ -476,23 +495,34 @@ export default function Dokumentasi() {
         </div>
       )}
 
-      <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[95vh] p-0">
+      <Dialog open={isMediaModalOpen} onOpenChange={setIsMediaModalOpen}>
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[95vh] p-0 flex flex-col">
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>
-              {selectedImage?.name || 'Dokumentasi'}
+              {selectedMedia?.name || 'Dokumentasi'}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex justify-center items-center p-6 pt-0">
-            {selectedImage && (
-              <img
-                src={selectedImage.url}
-                alt={`Foto ${selectedImage.name}`}
-                className="max-w-full max-h-[80vh] object-contain rounded-lg"
-                onError={(e) => {
-                  e.target.src = '/default-profile.png';
-                }}
-              />
+          <div className="flex justify-center items-center p-4 flex-1 bg-black">
+            {selectedMedia && (
+                selectedMedia.type === 'video' ? (
+                  <video
+                    src={selectedMedia.url}
+                    controls
+                    autoPlay
+                    className="max-w-full max-h-[80vh] object-contain"
+                  >
+                    Browser Anda tidak mendukung tag video.
+                  </video>
+                ) : (
+                  <img
+                    src={selectedMedia.url}
+                    alt={`Pratinjau ${selectedMedia.name}`}
+                    className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                    onError={(e) => {
+                      e.target.style.display = 'none'; // Sembunyikan jika gambar gagal dimuat
+                    }}
+                  />
+                )
             )}
           </div>
         </DialogContent>
