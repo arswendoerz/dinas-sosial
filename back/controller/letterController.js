@@ -79,7 +79,6 @@ export const createLetter = async (req, res) => {
       userId: req.user.userId,
       role: req.user.role,
       tanggalUpload: now,
-      tanggalUpdate: now,
     };
 
     await letRef.set(letData);
@@ -213,7 +212,7 @@ export const updateLetter = async (req, res) => {
       url: fileUrl,
       jenis,
       tanggalUpdate: new Date(),
-      updatedBy: req.user.nama || req.user.userId,
+      updatedBy: req.user.nama,
     };
 
     await letRef.update(updateData);

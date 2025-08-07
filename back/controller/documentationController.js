@@ -74,7 +74,6 @@ export const createCitra = async (req, res) => {
       tanggalKegiatan,
       citraUrl,
       tanggalUpload: now,
-      tanggalUpdate: now,
       role: req.user.role,
     };
 
@@ -226,6 +225,7 @@ export const updateCitra = async (req, res) => {
       ...req.body,
       citraUrl,
       tanggalUpdate: now,
+      updatedBy: updatedreq.user.nama,
     };
 
     await citraRef.update(updateData);
@@ -240,6 +240,7 @@ export const updateCitra = async (req, res) => {
         ...updated,
         tanggalUpload: formatTimestamp(updated.tanggalUpload),
         tanggalUpdate: formatTimestamp(updated.tanggalUpdate),
+        updatedBy: updated.data().updatedBy,
       },
     });
   } catch (error) {

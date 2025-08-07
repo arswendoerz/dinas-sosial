@@ -74,7 +74,6 @@ export const createDocument = async (req, res) => {
       userId: req.user.userId,
       role: req.user.role,
       tanggalUpload: now,
-      tanggalUpdate: now,
     };
 
     await docRef.set(docData);
@@ -189,7 +188,7 @@ export const updateDocument = async (req, res) => {
       url: fileUrl,
       jenis,
       tanggalUpdate: now,
-      updatedBy: req.user.nama || req.user.userId,
+      updatedBy: req.user.nama,
     };
 
     await docRef.update(updateData);

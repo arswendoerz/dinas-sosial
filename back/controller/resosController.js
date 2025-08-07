@@ -97,7 +97,6 @@ export const createRecipi = async (req, res) => {
       keterangan: keterangan || null,
       tanggalPenerimaan,
       tanggalUpload: now,
-      tanggalUpdate: now,
       role: req.user.role,
       fotoUrl: fotoUrl || null,
     };
@@ -241,6 +240,7 @@ export const updateRecipi = async (req, res) => {
       ...req.body,
       fotoUrl,
       tanggalUpdate: now,
+      updatedBy: req.user.nama,
     };
 
     await recRef.update(updateData);
@@ -255,6 +255,7 @@ export const updateRecipi = async (req, res) => {
         ...updated,
         tanggalUpload: formatTimestamp(updated.tanggalUpload),
         tanggalUpdate: formatTimestamp(updated.tanggalUpdate),
+        updatedBy: updated.data().updatedBy,
       },
     });
   } catch (error) {
