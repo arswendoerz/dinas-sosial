@@ -223,7 +223,6 @@ export default function Dokumentasi() {
       a.href = downloadUrl;
       
       const fileExtension = filename.split('.').pop().toLowerCase();
-      // let downloadFilename = filename;
 
       if (category === 'video') {
         const validExtensions = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -403,7 +402,7 @@ export default function Dokumentasi() {
                                 <video
                                     src={mediaUrl}
                                     controls
-                                    className="w-full h-45 object-cover cursor-pointer bg-black"
+                                    className="w-full h-50 object-cover cursor-pointer bg-black"
                                     onClick={() => handleMediaClick(mediaUrl, doc.nama, 'video')}
                                     title="Klik untuk memutar video"
                                 >
@@ -502,7 +501,7 @@ export default function Dokumentasi() {
               {selectedMedia?.name || 'Dokumentasi'}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex justify-center items-center p-4 flex-1 bg-black">
+          <div className="flex justify-center items-center p-4 flex-1">
             {selectedMedia && (
                 selectedMedia.type === 'video' ? (
                   <video
@@ -519,7 +518,7 @@ export default function Dokumentasi() {
                     alt={`Pratinjau ${selectedMedia.name}`}
                     className="max-w-full max-h-[80vh] object-contain rounded-lg"
                     onError={(e) => {
-                      e.target.style.display = 'none'; // Sembunyikan jika gambar gagal dimuat
+                      e.target.style.display = 'none';
                     }}
                   />
                 )
